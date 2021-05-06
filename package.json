@@ -1,7 +1,7 @@
 {
-  "name": "typeic10",
+  "name": "icX",
   "version": "1.0.0",
-  "description": "",
+  "description": "Compiler icX to ic10 ",
   "main": "index.js",
   "scripts": {
     "start": "tsc -w",
@@ -15,5 +15,8 @@
   "license": "ISC",
   "devDependencies": {
     "typescript": "^4.2.4"
+  },
+  "dependencies": {
+    "@types/node": "^15.0.2"
   }
 }
