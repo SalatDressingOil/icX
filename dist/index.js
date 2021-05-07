@@ -38,7 +38,7 @@ class icX {
             { class: 'icXFunction', re: /\bfunction\b/i },
             { class: 'icXFunction', re: /\bdef\b/i },
             { class: 'icXIf', re: /\bif\b/i },
-            { class: 'icXFor', re: /\bfor\b/i },
+            { class: 'icXWhile', re: /\bfor\b/i },
             { class: 'icXWhile', re: /\bwhile\b/i },
             { class: 'icXVar', re: /\bvar\b/i },
             { class: 'icXConst', re: /\bconst\b/i },
@@ -111,26 +111,26 @@ class icX {
                 }
                 if (r) {
                     console.log(r);
-                    if (!this.currentBlock.endKeys.test(line)) {
-                        var cls = new classes[r](this.currentBlock, position, line);
-                        cls.setCommand(c);
-                        cls.originalPosition = position;
-                        this.currentBlock.addElem(cls);
-                        if (cls instanceof classes.icXBlock) {
-                            this.currentBlock = cls.setStart(position);
-                        }
+                    var cls = new classes[r](this.currentBlock, position, line);
+                    cls.setCommand(c);
+                    cls.originalPosition = position;
+                    this.currentBlock.addElem(cls);
+                    if (cls instanceof classes.icXBlock) {
+                        this.currentBlock = cls.setStart(cls.originalPosition + 1);
                     }
-                    else {
-                        let a = this.currentBlock.setEnd(position);
+                }
+                else {
+                    if (this.currentBlock.endKeys.test(line)) {
+                        let a = this.currentBlock.setEnd(position - 1);
                         if (a instanceof classes.icXBlock) {
                             this.currentBlock = a;
                         }
                     }
-                }
-                else {
-                    var cls = new classes.icXElem(this.currentBlock, position, line);
-                    cls.setCommand(c);
-                    this.currentBlock.addElem(cls);
+                    else {
+                        var cls = new classes.icXElem(this.currentBlock, position, line);
+                        cls.setCommand(c);
+                        this.currentBlock.addElem(cls);
+                    }
                 }
             }
         }

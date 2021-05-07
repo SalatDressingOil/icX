@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.icXIncrement = exports.icXConst = exports.icXVar = exports.icXWhile = exports.icXFor = exports.icXIf = exports.icXFunction = exports.icXBlock = exports.icXElem = exports.vars = void 0;
+exports.icXIncrement = exports.icXConst = exports.icXVar = exports.icXWhile = exports.icXIf = exports.icXFunction = exports.icXBlock = exports.icXElem = exports.whiles = exports.vars = void 0;
 exports.vars = {
     count: 0,
     aliases: {},
@@ -22,6 +22,15 @@ exports.vars = {
         this.aliases = {};
     }
 };
+exports.whiles = {
+    count: 0,
+    get: function () {
+        return 'while' + this.count++;
+    },
+    reset: function () {
+        this.count = 0;
+    }
+};
 class icXElem {
     constructor(scope, pos = 0, text = '') {
         this.command = { command: '', args: [], empty: true };
@@ -34,9 +43,12 @@ class icXElem {
         if (!this.originalText) {
             this.originalText = this.command.command + this.command.args.join(' ');
         }
+        this.args = this.command.args.join(' ');
     }
     compile() {
         return this.originalText;
+    }
+    parseRules() {
     }
 }
 exports.icXElem = icXElem;
@@ -74,6 +86,12 @@ class icXFunction extends icXBlock {
         super.setCommand(e);
         this.name = e.args[0];
     }
+    compile() {
+        var txt = `${this.name}:\n`;
+        txt += super.compile();
+        txt += 'j ra\n';
+        return txt;
+    }
 }
 exports.icXFunction = icXFunction;
 class icXIf extends icXBlock {
@@ -82,15 +100,17 @@ class icXIf extends icXBlock {
     }
 }
 exports.icXIf = icXIf;
-class icXFor extends icXBlock {
-    constructor(scope, pos, text) {
-        super(scope, pos = 0, text = '');
-    }
-}
-exports.icXFor = icXFor;
 class icXWhile extends icXBlock {
     constructor(scope, pos, text) {
         super(scope, pos = 0, text = '');
+    }
+    compile() {
+        var l = exports.whiles.get();
+        var txt = `${l}:\n`;
+        txt += super.compile();
+        txt += `j ${l}\n`;
+        txt += `${l}exit:\n`;
+        return txt;
     }
 }
 exports.icXWhile = icXWhile;

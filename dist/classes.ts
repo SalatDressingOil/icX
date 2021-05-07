@@ -22,12 +22,22 @@ export var vars = {
 		this.aliases = {}
 	}
 }
+export var whiles = {
+	count: 0,
+	get: function () {
+		return 'while' + this.count++
+	},
+	reset: function () {
+		this.count = 0
+	}
+}
 
 export class icXElem { //инструкция
 	public originalPosition: number;
 	public originalText: string;
 	public scope: icXElem | icX;
 	public command: { command: string, args: string[], empty: boolean } = {command: '', args: [], empty: true};
+	private args: string;
 	
 	constructor(scope: icXElem | icX, pos = 0, text = '') {
 		this.scope = scope;
@@ -38,13 +48,18 @@ export class icXElem { //инструкция
 	
 	setCommand(e: { command: string, args: string[], empty: boolean }) {
 		this.command = e
-		if(!this.originalText){
+		if (!this.originalText) {
 			this.originalText = this.command.command + this.command.args.join(' ');
 		}
+		this.args = this.command.args.join(' ');
 	}
 	
 	compile() {
 		return this.originalText
+	}
+	
+	parseRules() {
+	
 	}
 }
 
@@ -75,7 +90,7 @@ export class icXBlock extends icXElem { //блок инструкций
 	}
 	
 	compile() {
-		var txt = '';
+		var txt = ''
 		for (const contentKey in this.content) {
 			txt += this.content[contentKey].compile() + "\n";
 		}
@@ -95,16 +110,16 @@ export class icXFunction extends icXBlock {
 		super.setCommand(e)
 		this.name = e.args[0]
 	}
-}
-
-export class icXIf extends icXBlock {
-	constructor(scope: icXElem, pos: number, text: string) {
-		super(scope, pos = 0, text = '');
-		
+	
+	compile() {
+		var txt = `${this.name}:\n`;
+		txt += super.compile()
+		txt += 'j ra\n'
+		return txt
 	}
 }
 
-export class icXFor extends icXBlock {
+export class icXIf extends icXBlock {
 	constructor(scope: icXElem, pos: number, text: string) {
 		super(scope, pos = 0, text = '');
 		
@@ -115,6 +130,16 @@ export class icXWhile extends icXBlock {
 	constructor(scope: icXElem, pos: number, text: string) {
 		super(scope, pos = 0, text = '');
 		
+	}
+	
+	compile() {
+		
+		var l = whiles.get();
+		var txt = `${l}:\n`;
+		txt += super.compile()
+		txt += `j ${l}\n`
+		txt += `${l}exit:\n`
+		return txt
 	}
 }
 
@@ -162,6 +187,7 @@ export class icXIncrement extends icXElem {
 	constructor(scope: icXElem, pos: number, text: string) {
 		super(scope, pos = 0, text = '');
 	}
+	
 	compile() {
 		var a = /\b(\S+\b)\+\+/i.exec(this.originalText)
 		console.log(this.originalText)

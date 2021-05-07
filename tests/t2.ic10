@@ -8,32 +8,30 @@ alias hash r2
 
 alias ms r3 
 
-add r11 r11 1  
+add a a 1  
 
 define testDef 5 
 
     fn1
 else
     fn2
-end
+
 b = a
 b = 0
     fn1
 else
     fn2
-end
+
 	d0.Setting = i
-end
+
 	d0.Setting = i
-end
+
+fn1:
 	d0.Setting = 1 # запись в d0 setting
 	hash = d0.slot(0).hash # чтение из слота 0 из устройства d0  параметра hash
 	ms = d(hash).Setting(max) #пакетное чтение из портов d0-d5 максимального значение Setting
-end
-end
+j ra
 
-
-
-
-
+fn2:
+j ra
 

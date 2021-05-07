@@ -22,12 +22,9 @@ else
     fn2
 end
 
-for 0 6 2
-	d0.Setting = i
-end
-
 while a > 0
 	d0.Setting = i
+	a++
 end
 
 function fn1

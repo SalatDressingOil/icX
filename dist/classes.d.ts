@@ -6,6 +6,11 @@ export declare var vars: {
     get: () => string;
     reset: () => void;
 };
+export declare var whiles: {
+    count: number;
+    get: () => string;
+    reset: () => void;
+};
 export declare class icXElem {
     originalPosition: number;
     originalText: string;
@@ -15,6 +20,7 @@ export declare class icXElem {
         args: string[];
         empty: boolean;
     };
+    private args;
     constructor(scope: icXElem | icX, pos?: number, text?: string);
     setCommand(e: {
         command: string;
@@ -22,6 +28,7 @@ export declare class icXElem {
         empty: boolean;
     }): void;
     compile(): string;
+    parseRules(): void;
 }
 export declare class icXBlock extends icXElem {
     end: number | undefined;
@@ -38,15 +45,14 @@ export declare class icXFunction extends icXBlock {
     name: any;
     constructor(scope: icXElem, pos: number, text: string);
     setCommand(e: any): void;
+    compile(): string;
 }
 export declare class icXIf extends icXBlock {
     constructor(scope: icXElem, pos: number, text: string);
 }
-export declare class icXFor extends icXBlock {
-    constructor(scope: icXElem, pos: number, text: string);
-}
 export declare class icXWhile extends icXBlock {
     constructor(scope: icXElem, pos: number, text: string);
+    compile(): string;
 }
 export declare class icXVar extends icXElem {
     constructor(scope: icXElem, pos: number, text: string);
