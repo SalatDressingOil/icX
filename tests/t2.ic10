@@ -1,37 +1,14 @@
-alias a r0 
-move r0 2  
+alias icxTempVar r0 
+move r0 0  
 
-alias b r1 
-move r1 null  
+alias a r1 
+move r1 0  
 
-alias hash r2 
+jal test8 
 
-alias ms r3 
 
-add a a 1  
-
-define testDef 5 
-
-    fn1
-else
-    fn2
-
-b = a
-b = 0
-    fn1
-else
-    fn2
-
-	d0.Setting = i
-
-	d0.Setting = i
-
-fn1:
-	d0.Setting = 1 # запись в d0 setting
-	hash = d0.slot(0).hash # чтение из слота 0 из устройства d0  параметра hash
-	ms = d(hash).Setting(max) #пакетное чтение из портов d0-d5 максимального значение Setting
+j 0 
+# ---function---
+test8:
+#log "ffdfs"
 j ra
-
-fn2:
-j ra
-

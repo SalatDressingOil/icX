@@ -1,5 +1,5 @@
 import * as classes from "./classes";
-import {vars} from "./classes";
+import {functions, ifs, vars, whiles} from "./classes";
 
 
 export const regexes = {
@@ -31,9 +31,11 @@ export class icX {
 			{class: 'icXVar', re: /\bvar\b/i},
 			{class: 'icXConst', re: /\bconst\b/i},
 			{class: 'icXIncrement', re: /\b(\S+\b)\+\+/i},
+			{class: 'icXAlias', re: /\balias\b/i},
+			{class: 'icXLog', re: /\blog\b/i},
 		]
 		this.position = 0;
-		this.text = text
+		this.text = 'var icxTempVar = 0\n' + text
 		this.init(this.text)
 	}
 	
@@ -84,13 +86,15 @@ export class icX {
 		// console.log(this.commands)
 		var blockLvl = 0;
 		var startBlock = {}
-		this.structure = new classes.icXBlock(this, 0, this.text)
+		this.structure = new classes.icXBlock(null, 0, this.text)
 		this.currentBlock = this.structure;
 		for (let position: number = 0; position < this.lines.length; position++) {
 			if (this.commands.hasOwnProperty(position) && this.commands[position].empty == false) {
 				var line = this.lines[position]
 				var c = this.commands[position]
 				var r = ''
+				console.log(line)
+				
 				for (const keyFirstWordKey in this.keyFirstWord) {
 					var key = this.keyFirstWord[keyFirstWordKey]
 					if (key.re.test(line)) {
@@ -98,7 +102,6 @@ export class icX {
 					}
 				}
 				if (r) {
-					console.log(r)
 					var cls = new classes[r](this.currentBlock, position, line)
 					cls.setCommand(c)
 					cls.originalPosition = position
@@ -106,7 +109,7 @@ export class icX {
 					if (cls instanceof classes.icXBlock) {
 						this.currentBlock = cls.setStart(cls.originalPosition + 1)
 					}
-				}else {
+				} else {
 					if (this.currentBlock.endKeys.test(line)) {
 						let a = this.currentBlock.setEnd(position - 1)
 						if (a instanceof classes.icXBlock) {
@@ -122,15 +125,16 @@ export class icX {
 			
 		}
 		
-		
-		console.log('structure', this.structure.content)
-		console.log('----------------')
-		console.log(this.getCompiled())
-		console.log('----------------')
 	}
 	
 	getCompiled() {
 		vars.reset()
-		return this.structure.compile()
+		ifs.reset()
+		whiles.reset()
+		var txt = this.structure.compile()
+		txt+= "j 0 \n"
+		txt+= "# ---function---\n"
+		txt+= functions.get();
+		return txt
 	}
 }

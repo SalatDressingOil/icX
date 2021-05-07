@@ -43,9 +43,11 @@ class icX {
             { class: 'icXVar', re: /\bvar\b/i },
             { class: 'icXConst', re: /\bconst\b/i },
             { class: 'icXIncrement', re: /\b(\S+\b)\+\+/i },
+            { class: 'icXAlias', re: /\balias\b/i },
+            { class: 'icXLog', re: /\blog\b/i },
         ];
         this.position = 0;
-        this.text = text;
+        this.text = 'var icxTempVar = 0\n' + text;
         this.init(this.text);
     }
     init(text) {
@@ -96,13 +98,14 @@ class icX {
         this.position = 0;
         var blockLvl = 0;
         var startBlock = {};
-        this.structure = new classes.icXBlock(this, 0, this.text);
+        this.structure = new classes.icXBlock(null, 0, this.text);
         this.currentBlock = this.structure;
         for (let position = 0; position < this.lines.length; position++) {
             if (this.commands.hasOwnProperty(position) && this.commands[position].empty == false) {
                 var line = this.lines[position];
                 var c = this.commands[position];
                 var r = '';
+                console.log(line);
                 for (const keyFirstWordKey in this.keyFirstWord) {
                     var key = this.keyFirstWord[keyFirstWordKey];
                     if (key.re.test(line)) {
@@ -110,7 +113,6 @@ class icX {
                     }
                 }
                 if (r) {
-                    console.log(r);
                     var cls = new classes[r](this.currentBlock, position, line);
                     cls.setCommand(c);
                     cls.originalPosition = position;
@@ -134,14 +136,16 @@ class icX {
                 }
             }
         }
-        console.log('structure', this.structure.content);
-        console.log('----------------');
-        console.log(this.getCompiled());
-        console.log('----------------');
     }
     getCompiled() {
         classes_1.vars.reset();
-        return this.structure.compile();
+        classes_1.ifs.reset();
+        classes_1.whiles.reset();
+        var txt = this.structure.compile();
+        txt += "j 0 \n";
+        txt += "# ---function---\n";
+        txt += classes_1.functions.get();
+        return txt;
     }
 }
 exports.icX = icX;
