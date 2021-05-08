@@ -1,87 +1,100 @@
-export declare var vars: {
+export declare const vars: {
     count: number;
-    aliases: {};
-    setAlias: (v: any, a: any) => void;
-    get: () => string;
+    aliases: {
+        [id: string]: string;
+    };
+    setAlias: (v: string, a: string) => void;
     reset: () => void;
+    get: () => string;
 };
-export declare var whiles: {
+export declare const whiles: {
     count: number;
-    get: () => string;
     reset: () => void;
+    get: () => string;
 };
-export declare var ifs: {
+export declare const ifs: {
     count: number;
-    get: () => string;
     reset: () => void;
+    get: () => string;
 };
-export declare var functions: {
-    fn: any[];
-    add: (txt: any) => void;
-    get: () => any;
+export declare const functions: {
+    fn: string[];
+    add: (str: string) => void;
+    get: () => string;
 };
 export declare class icXElem {
     originalPosition: number;
     originalText: string;
-    scope: icXElem;
+    scope: icXElem | null;
     command: {
         command: string;
         args: string[];
         empty: boolean;
     };
     args: string;
-    rule: RegExpExecArray;
-    constructor(scope: icXElem, pos?: number, text?: string);
+    rule: RegExpExecArray | null;
+    re: RegExp[];
+    constructor(scope: icXElem | null, pos?: number, text?: string);
+    setCommand(e: {
+        command: string;
+        args: string[];
+        empty: boolean;
+    }): void;
+    compile(): string | null;
+    parseRules(): string | null | undefined;
+}
+export declare class icXBlock extends icXElem {
+    end: number | undefined;
+    start: number | undefined;
+    content: {
+        [id: number]: icXElem;
+    };
+    endKeys: RegExp;
+    addElem(e: icXElem): void;
+    setStart(line: number): this;
+    setEnd(line: number): icXElem | null;
+    constructor(scope: icXElem | null, pos?: number, text?: string);
+    compile(): string;
+}
+export declare class icXFunction extends icXBlock {
+    name: string | null;
+    constructor(scope: icXElem | null, pos?: number, text?: string);
     setCommand(e: {
         command: string;
         args: string[];
         empty: boolean;
     }): void;
     compile(): string;
-    parseRules(): string;
-}
-export declare class icXBlock extends icXElem {
-    end: number | undefined;
-    start: number | undefined;
-    content: Object;
-    endKeys: RegExp;
-    addElem(e: icXElem): void;
-    setStart(line: number): this;
-    setEnd(line: number): icXElem;
-    constructor(scope: icXElem, pos: number, text: string);
-    compile(): string;
-}
-export declare class icXFunction extends icXBlock {
-    name: any;
-    constructor(scope: icXElem, pos: number, text: string);
-    setCommand(e: any): void;
-    compile(): string;
 }
 export declare class icXIf extends icXBlock {
-    constructor(scope: icXElem, pos: number, text: string);
+    constructor(scope: icXElem | null, pos?: number, text?: string);
     compile(): string;
 }
 export declare class icXWhile extends icXBlock {
-    constructor(scope: icXElem, pos: number, text: string);
+    constructor(scope: icXElem | null, pos?: number, text?: string);
     compile(): string;
 }
 export declare class icXVar extends icXElem {
-    constructor(scope: icXElem, pos: number, text: string);
+    constructor(scope: icXElem | null, pos?: number, text?: string);
     compile(): string;
 }
 export declare class icXConst extends icXElem {
-    constructor(scope: icXElem, pos: number, text: string);
+    constructor(scope: icXElem | null, pos?: number, text?: string);
     compile(): string;
 }
 export declare class icXIncrement extends icXElem {
-    constructor(scope: icXElem, pos: number, text: string);
-    compile(): string;
+    constructor(scope: icXElem | null, pos?: number, text?: string);
+    compile(): string | null;
 }
 export declare class icXAlias extends icXElem {
-    constructor(scope: icXElem, pos: number, text: string);
-    compile(): string;
+    constructor(scope: icXElem | null, pos?: number, text?: string);
+    compile(): string | null;
 }
 export declare class icXLog extends icXElem {
-    constructor(scope: icXElem, pos: number, text: string);
+    constructor(scope: icXElem | null, pos?: number, text?: string);
+    compile(): string;
+}
+export declare class icXLog2 extends icXElem {
+    constructor(scope: icXElem | null, pos?: number, text?: string);
     compile(): string;
 }

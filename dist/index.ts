@@ -1,5 +1,5 @@
-import * as classes from "./classes";
-import {functions, ifs, vars, whiles} from "./classes";
+import * as classes from "./classes"
+import { functions, ifs, vars, whiles } from "./classes"
 
 
 export const regexes = {
@@ -13,88 +13,85 @@ export const regexes = {
 
 export class icX {
 	public text: string
-	private keyFirstWord: { class: string, re: RegExp }[]
-	private lines: string[] | undefined;
+	private keyFirstWord: { class: string, re: RegExp }[] = []
+	private lines: string[] | undefined
 	public position: number = 0;
-	private commands: Array<any> = [];
-	// @ts-ignore
-	structure: classes.icXBlock;
-	private currentBlock: classes.icXBlock;
-	
+	private commands: { command:string, args:string[], empty:boolean }[] = [];
+	private structure: classes.icXBlock | null = null
+	private currentBlock: classes.icXBlock | null = null
+
 	constructor(text: string) {
-		this.keyFirstWord = [
-			{class: 'icXFunction', re: /\bfunction\b/i},
-			{class: 'icXFunction', re: /\bdef\b/i},
-			{class: 'icXIf', re: /\bif\b/i},
-			{class: 'icXWhile', re: /\bfor\b/i},
-			{class: 'icXWhile', re: /\bwhile\b/i},
-			{class: 'icXVar', re: /\bvar\b/i},
-			{class: 'icXConst', re: /\bconst\b/i},
-			{class: 'icXIncrement', re: /\b(\S+\b)\+\+/i},
-			{class: 'icXAlias', re: /\balias\b/i},
-			{class: 'icXLog', re: /\blog\b/i},
-		]
-		this.position = 0;
+		for (const key in classes) {
+			try {
+				if (Object.prototype.hasOwnProperty.call(classes, key)) {
+					// @ts-ignore
+					const element: classes.icXElem = classes[key]
+					try {
+						// @ts-ignore
+						var x = new element
+						if (x instanceof classes.icXElem) {
+							x.re.forEach(re => {
+								this.keyFirstWord.push({ class: key, re })
+							})
+						}
+					} catch {}
+				}
+			} catch {}
+		}
+		this.position = 0
 		this.text = 'var icxTempVar = 0\n' + text
 		this.init(this.text)
 	}
-	
+
 	init(text: string) {
-		this.lines = text.split(/\r?\n/);
-		var commands = this.lines
-			.map((line: string) => {
+		this.lines = text.split(/\r?\n/)
+		var commands: { command:string, args:string[], empty:boolean }[] = this.lines
+			.map((line) => {
 				const args: Array<string> = line.trim().split(/\s+/)
-				const command = args.shift()
+				const command = args.shift() ?? ""
 				const empty = (!command || command.startsWith("#")) ? true : false
-				return {command, args, empty: empty}
+				return { command, args, empty }
 			})
-		for (const commandsKey in this.lines) {
-			if (commands.hasOwnProperty(commandsKey)) {
-				let command = commands[commandsKey]
-				var newArgs: any = {}
-				var mode = 0;
-				var argNumber: number = 0;
-				for (let argsKey in command.args) {
-					if (command.args.hasOwnProperty(argsKey)) {
-						let arg = command.args[argsKey]
-						if (arg.startsWith("#")) {
-							break;
-						}
-						if (mode === 0) {
-							argNumber++
-						}
-						if (regexes.strStart.test(arg)) {
-							mode = 1
-						}
-						if (argNumber in newArgs) {
-							newArgs[argNumber] += ' ' + arg
-						} else {
-							newArgs[argNumber] = arg
-						}
-						if (regexes.strEnd.test(arg)) {
-							mode = 0
-						}
-					}
+		commands.forEach(command => {
+			console.log(command)
+			var newArgs: any = {}
+			var mode = 0
+			var argNumber: number = 0
+			command.args.forEach(arg => {
+				if (arg.startsWith("#")) {
+					return
 				}
-				commands[commandsKey].args = Object.values(newArgs)
-			} else {
-				commands.push({command: '', args: [], empty: true})
-			}
-		}
+				if (mode === 0) {
+					argNumber++
+				}
+				if (regexes.strStart.test(arg)) {
+					mode = 1
+				}
+				if (argNumber in newArgs) {
+					newArgs[argNumber] += ' ' + arg
+				} else {
+					newArgs[argNumber] = arg
+				}
+				if (regexes.strEnd.test(arg)) {
+					mode = 0
+				}
+				command.args = Object.values(newArgs)
+			})
+		})
 		this.commands = commands
 		this.position = 0
 		// console.log(this.commands)
-		var blockLvl = 0;
+		var blockLvl = 0
 		var startBlock = {}
 		this.structure = new classes.icXBlock(null, 0, this.text)
-		this.currentBlock = this.structure;
+		this.currentBlock = this.structure
 		for (let position: number = 0; position < this.lines.length; position++) {
 			if (this.commands.hasOwnProperty(position) && this.commands[position].empty == false) {
 				var line = this.lines[position]
 				var c = this.commands[position]
 				var r = ''
 				console.log(line)
-				
+
 				for (const keyFirstWordKey in this.keyFirstWord) {
 					var key = this.keyFirstWord[keyFirstWordKey]
 					if (key.re.test(line)) {
@@ -102,39 +99,41 @@ export class icX {
 					}
 				}
 				if (r) {
-					var cls = new classes[r](this.currentBlock, position, line)
-					cls.setCommand(c)
-					cls.originalPosition = position
-					this.currentBlock.addElem(cls)
-					if (cls instanceof classes.icXBlock) {
-						this.currentBlock = cls.setStart(cls.originalPosition + 1)
-					}
+					try {
+						//@ts-ignore
+						var a = new classes[r](this.currentBlock, position, line)
+						a.setCommand(c)
+						a.originalPosition = position
+						this.currentBlock.addElem(a)
+						if (a instanceof classes.icXBlock) {
+							this.currentBlock = a.setStart(a.originalPosition + 1)
+						}
+					} catch {}
 				} else {
 					if (this.currentBlock.endKeys.test(line)) {
-						let a = this.currentBlock.setEnd(position - 1)
-						if (a instanceof classes.icXBlock) {
-							this.currentBlock = a
+						var block = this.currentBlock.setEnd(position - 1)
+						if (block instanceof classes.icXBlock) {
+							this.currentBlock = block
 						}
 					} else {
-						var cls = new classes.icXElem(this.currentBlock, position, line)
-						cls.setCommand(c)
-						this.currentBlock.addElem(cls)
+						var elem = new classes.icXElem(this.currentBlock, position, line)
+						elem.setCommand(c)
+						this.currentBlock.addElem(elem)
 					}
 				}
 			}
-			
-		}
-		
+		} 
 	}
-	
-	getCompiled() {
+
+	getCompiled(): string {
 		vars.reset()
 		ifs.reset()
 		whiles.reset()
-		var txt = this.structure.compile()
-		txt+= "j 0 \n"
-		txt+= "# ---function---\n"
-		txt+= functions.get();
+		console.log(this.structure)
+		var txt = this.structure?.compile() ?? ""
+		txt += "j 0\n"
+		txt += "# ---functions---\n"
+		txt += functions.get()
 		return txt
 	}
 }

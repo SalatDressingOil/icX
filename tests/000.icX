@@ -2,7 +2,6 @@ var a = 0
 
 test8()
 
-
 function test8
     log "ffdfs"
 end

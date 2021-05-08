@@ -1,4 +1,3 @@
-import * as classes from "./classes";
 export declare const regexes: {
     rr1: RegExp;
     r1: RegExp;
@@ -13,7 +12,7 @@ export declare class icX {
     private lines;
     position: number;
     private commands;
-    structure: classes.icXBlock;
+    private structure;
     private currentBlock;
     constructor(text: string);
     init(text: string): void;

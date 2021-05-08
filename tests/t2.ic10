@@ -1,14 +1,14 @@
-alias icxTempVar r0 
-move r0 0  
+alias icxTempVar r0
+move r0 0
 
-alias a r1 
-move r1 0  
+alias a r1
+move r1 0
 
-jal test8 
+jal test8
 
 
-j 0 
-# ---function---
+j 0
+# ---functions---
 test8:
 #log "ffdfs"
 j ra
