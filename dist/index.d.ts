@@ -14,6 +14,7 @@ export declare class icX {
     private commands;
     private structure;
     private currentBlock;
+    private operators;
     constructor(text: string);
     init(text: string): void;
     getCompiled(): string;

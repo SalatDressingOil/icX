@@ -1,14 +1,31 @@
-alias icxTempVar r0
 move r0 0
 
-alias a r1
+# ---icX User code start---
+
+alias x r1
+
 move r1 0
 
-jal test8
+#log x
 
+add x x 1
 
-j 0
-# ---functions---
-test8:
-#log "ffdfs"
+#log x
+
+jal print
+
+sub x x 1
+
+#log x
+
+# ---icX User code end---
+
+j _icXstart
+
+print:
+
+#log x
+
 j ra
+
+_icXstart:

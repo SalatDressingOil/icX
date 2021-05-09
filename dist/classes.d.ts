@@ -1,27 +1,3 @@
-export declare const vars: {
-    count: number;
-    aliases: {
-        [id: string]: string;
-    };
-    setAlias: (v: string, a: string) => void;
-    reset: () => void;
-    get: () => string;
-};
-export declare const whiles: {
-    count: number;
-    reset: () => void;
-    get: () => string;
-};
-export declare const ifs: {
-    count: number;
-    reset: () => void;
-    get: () => string;
-};
-export declare const functions: {
-    fn: string[];
-    add: (str: string) => void;
-    get: () => string;
-};
 export declare class icXElem {
     originalPosition: number;
     originalText: string;
@@ -82,10 +58,6 @@ export declare class icXConst extends icXElem {
     constructor(scope: icXElem | null, pos?: number, text?: string);
     compile(): string;
 }
-export declare class icXIncrement extends icXElem {
-    constructor(scope: icXElem | null, pos?: number, text?: string);
-    compile(): string | null;
-}
 export declare class icXAlias extends icXElem {
     constructor(scope: icXElem | null, pos?: number, text?: string);
     compile(): string | null;
@@ -94,7 +66,11 @@ export declare class icXLog extends icXElem {
     constructor(scope: icXElem | null, pos?: number, text?: string);
     compile(): string;
 }
-export declare class icXLog2 extends icXElem {
+export declare class icXUse extends icXElem {
     constructor(scope: icXElem | null, pos?: number, text?: string);
-    compile(): string;
+    compile(): "";
+}
+export declare class icXYield extends icXElem {
+    constructor(scope: icXElem | null, pos?: number, text?: string);
+    compile(): string | null;
 }

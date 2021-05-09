@@ -1,6 +1,7 @@
 import * as classes from "./classes"
-import { functions, ifs, vars, whiles } from "./classes"
-
+import { icXElem } from "./classes"
+import { functions, ifs, vars, whiles, use } from "./lists"
+import modules from "./modules"
 
 export const regexes = {
 	'rr1': new RegExp("[rd]{1,}(r(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|a))$"),
@@ -10,15 +11,15 @@ export const regexes = {
 	'strStart': new RegExp("^\".+$"),
 	'strEnd': new RegExp(".+\"$"),
 }
-
 export class icX {
 	public text: string
 	private keyFirstWord: { class: string, re: RegExp }[] = []
 	private lines: string[] | undefined
 	public position: number = 0;
-	private commands: { command:string, args:string[], empty:boolean }[] = [];
+	private commands: { command: string, args: string[], empty: boolean }[] = [];
 	private structure: classes.icXBlock | null = null
 	private currentBlock: classes.icXBlock | null = null
+	private operators:{[id: string]: icXElem } = {}
 
 	constructor(text: string) {
 		for (const key in classes) {
@@ -32,20 +33,43 @@ export class icX {
 						if (x instanceof classes.icXElem) {
 							x.re.forEach(re => {
 								this.keyFirstWord.push({ class: key, re })
+								// @ts-ignore
+								this.operators[key] = classes[key]
 							})
 						}
 					} catch {}
 				}
 			} catch {}
 		}
+		for (const key in modules) {
+			try {
+				if (Object.prototype.hasOwnProperty.call(modules, key)) {
+					// @ts-ignore
+					const element: classes.icXElem = modules[key]
+					try {
+						// @ts-ignore
+						var x = new element
+						if (x instanceof classes.icXElem) {
+							x.re.forEach(re => {
+								this.keyFirstWord.push({ class: key, re })
+								// @ts-ignore
+								this.operators[key] = modules[key]
+							})
+						}
+					} catch {}
+				}
+			} catch {}
+		}
+		console.log(this.keyFirstWord)
 		this.position = 0
-		this.text = 'var icxTempVar = 0\n' + text
+		this.text = text
+		// this.text = 'var _r0 = 0\n' + text
 		this.init(this.text)
 	}
 
 	init(text: string) {
 		this.lines = text.split(/\r?\n/)
-		var commands: { command:string, args:string[], empty:boolean }[] = this.lines
+		var commands: { command: string, args: string[], empty: boolean }[] = this.lines
 			.map((line) => {
 				const args: Array<string> = line.trim().split(/\s+/)
 				const command = args.shift() ?? ""
@@ -53,7 +77,6 @@ export class icX {
 				return { command, args, empty }
 			})
 		commands.forEach(command => {
-			console.log(command)
 			var newArgs: any = {}
 			var mode = 0
 			var argNumber: number = 0
@@ -101,7 +124,7 @@ export class icX {
 				if (r) {
 					try {
 						//@ts-ignore
-						var a = new classes[r](this.currentBlock, position, line)
+						var a = new this.operators[r](this.currentBlock, position, line)
 						a.setCommand(c)
 						a.originalPosition = position
 						this.currentBlock.addElem(a)
@@ -122,18 +145,35 @@ export class icX {
 					}
 				}
 			}
-		} 
+		}
 	}
 
 	getCompiled(): string {
 		vars.reset()
 		ifs.reset()
 		whiles.reset()
-		console.log(this.structure)
-		var txt = this.structure?.compile() ?? ""
-		txt += "j 0\n"
-		txt += "# ---functions---\n"
-		txt += functions.get()
+		const code = (this.structure?.compile() ?? "") + "\n"
+		var txt = "move r0 0\n"
+		if (use.has("loop"))
+			txt += "_icXstart:\n"
+		txt += "# ---icX User code start---\n"
+		txt += code
+		txt += "# ---icX User code end---\n"
+		if (functions.fn.length != 0) {
+			txt += "j _icXstart\n"
+			txt += functions.get()
+			if (!use.has("loop"))
+				txt += "_icXstart:\n"
+		}
+		txt = txt
+			.split("\n")
+			.map((str) => {
+				return str.trim()
+			}).filter((str) => {
+				if (!use.has("comments") && str.startsWith("#")) return false
+				else return str !== ""
+			}).join('\n\n')
+		console.log(txt)
 		return txt
 	}
 }

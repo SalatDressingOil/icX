@@ -1,7 +1,15 @@
-var a = 0
+use comments
+var x = 0
 
-test8()
+log x
 
-function test8
-    log "ffdfs"
+x++
+log x
+print()
+
+x--
+log x
+
+function print
+	log x
 end

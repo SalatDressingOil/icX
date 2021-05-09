@@ -18,10 +18,14 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.icX = exports.regexes = void 0;
 const classes = __importStar(require("./classes"));
-const classes_1 = require("./classes");
+const lists_1 = require("./lists");
+const modules_1 = __importDefault(require("./modules"));
 exports.regexes = {
     'rr1': new RegExp("[rd]{1,}(r(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|a))$"),
     'r1': new RegExp("^r(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|a)$"),
@@ -37,6 +41,7 @@ class icX {
         this.commands = [];
         this.structure = null;
         this.currentBlock = null;
+        this.operators = {};
         for (const key in classes) {
             try {
                 if (Object.prototype.hasOwnProperty.call(classes, key)) {
@@ -46,6 +51,7 @@ class icX {
                         if (x instanceof classes.icXElem) {
                             x.re.forEach(re => {
                                 this.keyFirstWord.push({ class: key, re });
+                                this.operators[key] = classes[key];
                             });
                         }
                     }
@@ -54,8 +60,27 @@ class icX {
             }
             catch { }
         }
+        for (const key in modules_1.default) {
+            try {
+                if (Object.prototype.hasOwnProperty.call(modules_1.default, key)) {
+                    const element = modules_1.default[key];
+                    try {
+                        var x = new element;
+                        if (x instanceof classes.icXElem) {
+                            x.re.forEach(re => {
+                                this.keyFirstWord.push({ class: key, re });
+                                this.operators[key] = modules_1.default[key];
+                            });
+                        }
+                    }
+                    catch { }
+                }
+            }
+            catch { }
+        }
+        console.log(this.keyFirstWord);
         this.position = 0;
-        this.text = 'var icxTempVar = 0\n' + text;
+        this.text = text;
         this.init(this.text);
     }
     init(text) {
@@ -68,7 +93,6 @@ class icX {
             return { command, args, empty };
         });
         commands.forEach(command => {
-            console.log(command);
             var newArgs = {};
             var mode = 0;
             var argNumber = 0;
@@ -114,7 +138,7 @@ class icX {
                 }
                 if (r) {
                     try {
-                        var a = new classes[r](this.currentBlock, position, line);
+                        var a = new this.operators[r](this.currentBlock, position, line);
                         a.setCommand(c);
                         a.originalPosition = position;
                         this.currentBlock.addElem(a);
@@ -141,14 +165,33 @@ class icX {
         }
     }
     getCompiled() {
-        classes_1.vars.reset();
-        classes_1.ifs.reset();
-        classes_1.whiles.reset();
-        console.log(this.structure);
-        var txt = this.structure?.compile() ?? "";
-        txt += "j 0\n";
-        txt += "# ---functions---\n";
-        txt += classes_1.functions.get();
+        lists_1.vars.reset();
+        lists_1.ifs.reset();
+        lists_1.whiles.reset();
+        const code = (this.structure?.compile() ?? "") + "\n";
+        var txt = "move r0 0\n";
+        if (lists_1.use.has("loop"))
+            txt += "_icXstart:\n";
+        txt += "# ---icX User code start---\n";
+        txt += code;
+        txt += "# ---icX User code end---\n";
+        if (lists_1.functions.fn.length != 0) {
+            txt += "j _icXstart\n";
+            txt += lists_1.functions.get();
+            if (!lists_1.use.has("loop"))
+                txt += "_icXstart:\n";
+        }
+        txt = txt
+            .split("\n")
+            .map((str) => {
+            return str.trim();
+        }).filter((str) => {
+            if (!lists_1.use.has("comments") && str.startsWith("#"))
+                return false;
+            else
+                return str !== "";
+        }).join('\n\n');
+        console.log(txt);
         return txt;
     }
 }
