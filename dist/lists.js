@@ -4,9 +4,22 @@ exports.use = exports.functions = exports.ifs = exports.whiles = exports.vars = 
 exports.vars = {
     count: 1,
     aliases: {},
-    setAlias: function (v, a) {
-        this.aliases[a] = v;
-        this.aliases[v] = a;
+    RDs: {},
+    setAlias: function (r, a) {
+        this.aliases[a] = r;
+        this.aliases[r] = a;
+        this.setRDs(r, a);
+    },
+    setRDs: function (r, a) {
+        this.RDs[a] = r;
+    },
+    getRD: function (a) {
+        return this.RDs[a];
+    },
+    getAlias: function (a) {
+        if (exports.use.has("ignore_aliases"))
+            return this.getRD(a) ?? a;
+        return a;
     },
     get: function () {
         if (this.count == 16) {

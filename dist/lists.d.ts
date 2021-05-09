@@ -3,7 +3,13 @@ export declare const vars: {
     aliases: {
         [id: string]: string;
     };
-    setAlias: (v: string, a: string) => void;
+    RDs: {
+        [id: string]: string;
+    };
+    getRD: (a: string) => string | undefined;
+    getAlias: (a: string) => string;
+    setAlias: (r: string, a: string) => void;
+    setRDs: (r: string, a: string) => void;
     reset: () => void;
     get: () => string;
 };

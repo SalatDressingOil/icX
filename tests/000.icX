@@ -1,15 +1,9 @@
-use comments
-var x = 0
-
-log x
+use comments ignore_aliases
+var x = 1
+var y = 2
+var z
 
 x++
-log x
-print()
-
 x--
-log x
-
-function print
-	log x
-end
+z = x + y
+log z

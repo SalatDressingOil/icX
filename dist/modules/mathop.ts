@@ -10,10 +10,8 @@ class icXIncrement extends icXElem {
 
 	compile() {
 		var a = /\b(\S+\b)\+\+/i.exec(this.originalText)
-		if (a !== null)
-			var txt = `add ${a[1]} ${a[1]} 1\n`
-		else return null
-		return txt
+		if (a === null) return null
+		return `add ${vars.getAlias(a[1])} ${vars.getAlias(a[1])} 1\n`
 	}
 }
 class icXDecrement extends icXElem {
@@ -24,11 +22,42 @@ class icXDecrement extends icXElem {
 
 	compile() {
 		var a = /\b(\S+\b)\-\-/i.exec(this.originalText)
-		if (a !== null)
-			var txt = `sub ${a[1]} ${a[1]} 1\n`
-		else return null
-		return txt
+		if (a === null) return null
+		return `sub ${vars.getAlias(a[1])} ${vars.getAlias(a[1])} 1\n`
+	}
+}
+class icXElementaryMath extends icXElem {
+	constructor(scope: icXElem | null, pos: number = 0, text: string = "") {
+		super(scope, pos, text)
+		this.re.push(/(\S+)[\t\f\v ]*=[\t\f\v ]*(\S+)[\t\f\v ]*([+\-*\/%])[\t\f\v ]*(\S+)[\t\f\v ]*$/)
+	}
+
+	compile() {
+		var a = this.re[0].exec(this.originalText)
+		if (a === null) return null
+		var txt = ""
+		switch (a[3]) {
+			case "+":
+				txt += "add"
+				break;
+			case "-":
+				txt += "sub"
+				break;
+			case "*":
+				txt += "mul"
+				break;
+			case "/":
+				txt += "div"
+				break;
+			case "%":
+				txt += "mod"
+				break;
+			default:
+				txt += "#log"
+				break;
+		}
+		return txt + ` ${vars.getAlias(a[1])} ${vars.getAlias(a[2])} ${vars.getAlias(a[4])}\n`
 	}
 }
 
-export default {icXIncrement, icXDecrement}
+export default {icXIncrement, icXDecrement, icXElementaryMath}

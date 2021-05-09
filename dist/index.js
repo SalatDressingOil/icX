@@ -165,21 +165,25 @@ class icX {
         }
     }
     getCompiled() {
+        console.log(lists_1.vars);
         lists_1.vars.reset();
         lists_1.ifs.reset();
         lists_1.whiles.reset();
         const code = (this.structure?.compile() ?? "") + "\n";
         var txt = "move r0 0\n";
-        if (lists_1.use.has("loop"))
-            txt += "_icXstart:\n";
         txt += "# ---icX User code start---\n";
         txt += code;
         txt += "# ---icX User code end---\n";
         if (lists_1.functions.fn.length != 0) {
-            txt += "j _icXstart\n";
-            txt += lists_1.functions.get();
-            if (!lists_1.use.has("loop"))
+            if (!lists_1.use.has("loop")) {
+                txt += "j _icXstart\n";
+                txt += lists_1.functions.get();
                 txt += "_icXstart:\n";
+            }
+            else {
+                txt += "j 1\n";
+                txt += lists_1.functions.get();
+            }
         }
         txt = txt
             .split("\n")
@@ -190,7 +194,7 @@ class icX {
                 return false;
             else
                 return str !== "";
-        }).join('\n\n');
+        }).join('\n');
         console.log(txt);
         return txt;
     }

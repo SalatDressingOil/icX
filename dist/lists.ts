@@ -1,12 +1,23 @@
 
 
-export const vars: { count: number; aliases: { [id: string]: string} ; setAlias: (v: string, a: string) => void; reset: () => void; get: () => string}  = {
+export const vars: { count: number; aliases: { [id: string]: string }; RDs: { [id: string]: string }; getRD: (a: string) => string | undefined; getAlias: (a: string) => string; setAlias: (r: string, a: string) => void; setRDs: (r: string, a: string) => void; reset: () => void; get: () => string } = {
 	count: 1,
 	aliases: {},
-	setAlias: function (v, a) {
-		this.aliases[a] = v
-		this.aliases[v] = a
-
+	RDs: {},
+	setAlias: function (r, a) {
+		this.aliases[a] = r
+		this.aliases[r] = a
+		this.setRDs(r, a)
+	},
+	setRDs: function (r, a) {
+		this.RDs[a] = r
+	},
+	getRD: function (a) {
+		return this.RDs[a]
+	},
+	getAlias: function (a) {
+		if (use.has("ignore_aliases")) return this.getRD(a) ?? a
+		return a
 	},
 	get: function () {
 		if (this.count == 16) {
@@ -22,7 +33,7 @@ export const vars: { count: number; aliases: { [id: string]: string} ; setAlias:
 		this.aliases = {}
 	}
 }
-export const whiles: { count: number; reset: () => void; get: () => string}  = {
+export const whiles: { count: number; reset: () => void; get: () => string } = {
 	count: 0,
 	reset: function () {
 		this.count = 0
@@ -32,7 +43,7 @@ export const whiles: { count: number; reset: () => void; get: () => string}  = {
 	}
 }
 
-export const ifs: { count: number; reset: () => void; get: () => string}  = {
+export const ifs: { count: number; reset: () => void; get: () => string } = {
 	count: 0,
 	reset: function () {
 		this.count = 0
@@ -42,7 +53,7 @@ export const ifs: { count: number; reset: () => void; get: () => string}  = {
 	}
 }
 
-export const functions: { fn: string[]; add: (str: string) => void; get: () => string}  = {
+export const functions: { fn: string[]; add: (str: string) => void; get: () => string } = {
 	fn: [],
 	add: function (str) {
 		this.fn.push(str)
@@ -51,7 +62,7 @@ export const functions: { fn: string[]; add: (str: string) => void; get: () => s
 		return this.fn.join('\n')
 	}
 }
-export const use: { arg: string[]; add: (...str: string[]) => void; has: (str: string) => boolean}  = {
+export const use: { arg: string[]; add: (...str: string[]) => void; has: (str: string) => boolean } = {
 	arg: [],
 	add: function (...str) {
 		// console.log(ar)

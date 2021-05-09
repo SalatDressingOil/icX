@@ -258,15 +258,18 @@ export class icXVar extends icXElem {
 
 	compile() {
 		var txt = ''
-		var v = vars.get()
+		var r = vars.get()
 		if (0 in this.command.args) {
 			var a = this.command.args[0]
-			vars.setAlias(v, a)
-			txt += `alias ${a} ${v}\n`
+			vars.setAlias(r, a)
+			if (!use.has("ignore_aliases")){
+				txt += `alias ${a} ${r}\n`
+			}
+			console.log(vars)
 		}
 		var b = this.originalText.split('=')
 		if (1 in b) {
-			txt += `move ${v} ${b[1].trim()}\n`
+			txt += `move ${r} ${b[1].trim()}\n`
 		}
 		return txt
 	}
@@ -311,6 +314,7 @@ export class icXLog extends icXElem {
 	}
 
 	compile() {
+		if (use.has("ignore_aliases") && vars.getRD(this.args) !== undefined) return `#log ${vars.getRD(this.args)}`
 		return `#log ${this.args}`
 	}
 }
@@ -334,10 +338,6 @@ export class icXYield extends icXElem {
 	}
 
 	compile() {
-		var a = /\b(\S+\b)\-\-/i.exec(this.originalText)
-		if (a !== null)
-			var txt = `sub ${a[1]} ${a[1]} 1\n`
-		else return null
-		return txt
+		return "yield"
 	}
 }

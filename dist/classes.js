@@ -247,15 +247,18 @@ class icXVar extends icXElem {
     }
     compile() {
         var txt = '';
-        var v = lists_1.vars.get();
+        var r = lists_1.vars.get();
         if (0 in this.command.args) {
             var a = this.command.args[0];
-            lists_1.vars.setAlias(v, a);
-            txt += `alias ${a} ${v}\n`;
+            lists_1.vars.setAlias(r, a);
+            if (!lists_1.use.has("ignore_aliases")) {
+                txt += `alias ${a} ${r}\n`;
+            }
+            console.log(lists_1.vars);
         }
         var b = this.originalText.split('=');
         if (1 in b) {
-            txt += `move ${v} ${b[1].trim()}\n`;
+            txt += `move ${r} ${b[1].trim()}\n`;
         }
         return txt;
     }
@@ -296,6 +299,8 @@ class icXLog extends icXElem {
         this.re.push(/\blog\b/i);
     }
     compile() {
+        if (lists_1.use.has("ignore_aliases") && lists_1.vars.getRD(this.args) !== undefined)
+            return `#log ${lists_1.vars.getRD(this.args)}`;
         return `#log ${this.args}`;
     }
 }
@@ -317,12 +322,7 @@ class icXYield extends icXElem {
         this.re.push(/\byield\b/i);
     }
     compile() {
-        var a = /\b(\S+\b)\-\-/i.exec(this.originalText);
-        if (a !== null)
-            var txt = `sub ${a[1]} ${a[1]} 1\n`;
-        else
-            return null;
-        return txt;
+        return "yield";
     }
 }
 exports.icXYield = icXYield;

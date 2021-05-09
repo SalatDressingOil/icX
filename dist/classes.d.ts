@@ -72,5 +72,5 @@ export declare class icXUse extends icXElem {
 }
 export declare class icXYield extends icXElem {
     constructor(scope: icXElem | null, pos?: number, text?: string);
-    compile(): string | null;
+    compile(): string;
 }

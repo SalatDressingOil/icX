@@ -149,21 +149,25 @@ export class icX {
 	}
 
 	getCompiled(): string {
+		console.log(vars)
 		vars.reset()
 		ifs.reset()
 		whiles.reset()
 		const code = (this.structure?.compile() ?? "") + "\n"
+		// console.log(this.structure?.content)
 		var txt = "move r0 0\n"
-		if (use.has("loop"))
-			txt += "_icXstart:\n"
 		txt += "# ---icX User code start---\n"
 		txt += code
 		txt += "# ---icX User code end---\n"
 		if (functions.fn.length != 0) {
-			txt += "j _icXstart\n"
-			txt += functions.get()
-			if (!use.has("loop"))
+			if (!use.has("loop")) {
+				txt += "j _icXstart\n"
+				txt += functions.get()
 				txt += "_icXstart:\n"
+			} else {
+				txt += "j 1\n"
+				txt += functions.get()
+			}
 		}
 		txt = txt
 			.split("\n")
@@ -172,7 +176,7 @@ export class icX {
 			}).filter((str) => {
 				if (!use.has("comments") && str.startsWith("#")) return false
 				else return str !== ""
-			}).join('\n\n')
+			}).join('\n')
 		console.log(txt)
 		return txt
 	}
