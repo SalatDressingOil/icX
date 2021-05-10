@@ -39,22 +39,22 @@ class icXElementaryMath extends icXElem {
 		switch (a[3]) {
 			case "+":
 				txt += "add"
-				break;
+				break
 			case "-":
 				txt += "sub"
-				break;
+				break
 			case "*":
 				txt += "mul"
-				break;
+				break
 			case "/":
 				txt += "div"
-				break;
+				break
 			case "%":
 				txt += "mod"
-				break;
+				break
 			default:
 				txt += "#log"
-				break;
+				break
 		}
 		return txt + ` ${vars.getAlias(a[1])} ${vars.getAlias(a[2])} ${vars.getAlias(a[4])}\n`
 	}
@@ -72,25 +72,25 @@ class icXMath extends icXElem {
 		switch (a[3]) {
 			case "+":
 				txt += "add"
-				break;
+				break
 			case "-":
 				txt += "sub"
-				break;
+				break
 			case "*":
 				txt += "mul"
-				break;
+				break
 			case "/":
 				txt += "div"
-				break;
+				break
 			case "%":
 				txt += "mod"
-				break;
+				break
 			default:
 				txt += "#log"
-				break;
+				break
 		}
 		return txt + ` ${vars.getAlias(a[1])} ${vars.getAlias(a[2])} ${vars.getAlias(a[4])}\n`
 	}
 }
 
-export default {icXIncrement, icXDecrement, icXElementaryMath, icXMath}
+export default { icXIncrement, icXDecrement, icXElementaryMath, icXMath }
