@@ -80,3 +80,4 @@ typings/
 *.js.map
 *.js
 *.ic10
+tests/000.icX
