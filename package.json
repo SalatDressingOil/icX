@@ -14,9 +14,7 @@
   "author": "Traineratwot",
   "license": "ISC",
   "devDependencies": {
+    "@types/node": "^15.0.2",
     "typescript": "^4.2.4"
-  },
-  "dependencies": {
-    "@types/node": "^15.0.2"
   }
 }
