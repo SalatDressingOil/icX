@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 alias icxTempVar r0 
 move r0 0  
 
@@ -12,3 +13,14 @@ j 0
 test8:
 #log "ffdfs"
 j ra
+=======
+move r0 0
+# ---icX User code start---
+#log x  1 undefined
+#log y  2 undefined
+add x x 1
+sub x x 1
+#log r1  x + y undefined
+#log r1
+# ---icX User code end---
+>>>>>>> Stashed changes
