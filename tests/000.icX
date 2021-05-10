@@ -1,9 +1,9 @@
-use comments aliases
+use comments! aliases!
 var x = 1
 var y = 2
 var z
 
 x++
 x--
-z = x + y
+z = x + 0.1
 log z
