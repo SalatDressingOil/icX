@@ -62,7 +62,7 @@ class icXElementaryMath extends icXElem {
 class icXMath extends icXElem {
 	constructor(scope: icXElem | null, pos: number = 0, text: string = "") {
 		super(scope, pos, text)
-		this.re.push(/\S+[\t\f\v ]*=/)
+		// this.re.push(/\S+[\t\f\v ]*=/)
 	}
 
 	compile() {
