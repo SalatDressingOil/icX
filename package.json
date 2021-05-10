@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "tsc -w",
-    "test": "node test.js"
+    "test": "node test.js",
+    "debug": "nodemon -w ./ -e js,icX test.js"
   },
   "keywords": [
     "ic10",
