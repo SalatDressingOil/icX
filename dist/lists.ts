@@ -16,7 +16,7 @@ export const vars: { count: number; aliases: { [id: string]: string }; RDs: { [i
 		return this.RDs[a]
 	},
 	getAlias: function (a) {
-		if (use.has("ignore_aliases")) return this.getRD(a) ?? a
+		if (!use.has("aliases")) return this.getRD(a) ?? a
 		return a
 	},
 	get: function () {

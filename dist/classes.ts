@@ -261,7 +261,7 @@ export class icXVar extends icXElem {
 		if (0 in this.command.args) {
 			var a = this.command.args[0]
 			vars.setAlias(r, a)
-			if (!use.has("ignore_aliases")){
+			if (use.has("aliases")){
 				txt += `alias ${a} ${r}\n`
 			}
 			console.log(vars)
@@ -313,7 +313,7 @@ export class icXLog extends icXElem {
 	}
 
 	compile() {
-		if (use.has("ignore_aliases") && vars.getRD(this.args) !== undefined) return `#log ${vars.getRD(this.args)}`
+		if (!use.has("aliases") && vars.getRD(this.args) !== undefined) return `#log ${vars.getRD(this.args)}`
 		return `#log ${this.args}`
 	}
 }
