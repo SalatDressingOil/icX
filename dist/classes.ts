@@ -14,6 +14,7 @@ export class icXElem { //инструкция
 		this.scope = scope
 		this.originalPosition = pos
 		this.originalText = text
+		// this.parseMath()
 	}
 
 	setCommand(e: { command: string, args: string[], empty: boolean }) {
@@ -129,7 +130,28 @@ export class icXElem { //инструкция
 		}
 
 	}
+	
+
 }
+
+// class mathBlock {
+//
+// 	constructor(scope: mathBlock | null, pos: number = 0, text: string = "") {
+// 		this.scope = scope;
+// 		this.pos = pos;
+// 		this.text = text;
+//
+// 	}
+// 	setStart(line: number) {
+// 		this.start = line
+// 		return this
+// 	}
+//
+// 	setEnd(line: number) {
+// 		this.end = line
+// 		return this.scope
+// 	}
+// }
 
 export class icXBlock extends icXElem { //блок инструкций
 	public end: number | undefined
@@ -292,7 +314,6 @@ export class icXConst extends icXElem {
 		return txt
 	}
 }
-
 
 export class icXAlias extends icXElem {
 	constructor(scope: icXElem | null, pos: number = 0, text: string = "") {
