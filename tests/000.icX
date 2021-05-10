@@ -1,8 +1,9 @@
-var a = 0
+use comments ignore_aliases
+var x = 1
+var y = 2
+var z
 
-test8()
-
-
-function test8
-    log "ffdfs"
-end
+x++
+x--
+z = x + y
+log z

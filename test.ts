@@ -1,4 +1,4 @@
-import {icX} from "./dist/index";
+import {icX} from "./dist";
 import fs from 'fs';
 
 var text = fs.readFileSync('./tests/000.icX', 'utf8');

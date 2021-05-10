@@ -18,10 +18,14 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.icX = exports.regexes = void 0;
 const classes = __importStar(require("./classes"));
-const classes_1 = require("./classes");
+const lists_1 = require("./lists");
+const modules_1 = __importDefault(require("./modules"));
 exports.regexes = {
     'rr1': new RegExp("[rd]{1,}(r(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|a))$"),
     'r1': new RegExp("^r(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|a)$"),
@@ -32,22 +36,51 @@ exports.regexes = {
 };
 class icX {
     constructor(text) {
+        this.keyFirstWord = [];
         this.position = 0;
         this.commands = [];
-        this.keyFirstWord = [
-            { class: 'icXFunction', re: /\bfunction\b/i },
-            { class: 'icXFunction', re: /\bdef\b/i },
-            { class: 'icXIf', re: /\bif\b/i },
-            { class: 'icXWhile', re: /\bfor\b/i },
-            { class: 'icXWhile', re: /\bwhile\b/i },
-            { class: 'icXVar', re: /\bvar\b/i },
-            { class: 'icXConst', re: /\bconst\b/i },
-            { class: 'icXIncrement', re: /\b(\S+\b)\+\+/i },
-            { class: 'icXAlias', re: /\balias\b/i },
-            { class: 'icXLog', re: /\blog\b/i },
-        ];
+        this.structure = null;
+        this.currentBlock = null;
+        this.operators = {};
+        for (const key in classes) {
+            try {
+                if (Object.prototype.hasOwnProperty.call(classes, key)) {
+                    const element = classes[key];
+                    try {
+                        var x = new element;
+                        if (x instanceof classes.icXElem) {
+                            x.re.forEach(re => {
+                                this.keyFirstWord.push({ class: key, re });
+                                this.operators[key] = classes[key];
+                            });
+                        }
+                    }
+                    catch { }
+                }
+            }
+            catch { }
+        }
+        for (const key in modules_1.default) {
+            try {
+                if (Object.prototype.hasOwnProperty.call(modules_1.default, key)) {
+                    const element = modules_1.default[key];
+                    try {
+                        var x = new element;
+                        if (x instanceof classes.icXElem) {
+                            x.re.forEach(re => {
+                                this.keyFirstWord.push({ class: key, re });
+                                this.operators[key] = modules_1.default[key];
+                            });
+                        }
+                    }
+                    catch { }
+                }
+            }
+            catch { }
+        }
+        console.log(this.keyFirstWord);
         this.position = 0;
-        this.text = 'var icxTempVar = 0\n' + text;
+        this.text = text;
         this.init(this.text);
     }
     init(text) {
@@ -55,45 +88,36 @@ class icX {
         var commands = this.lines
             .map((line) => {
             const args = line.trim().split(/\s+/);
-            const command = args.shift();
+            const command = args.shift() ?? "";
             const empty = (!command || command.startsWith("#")) ? true : false;
-            return { command, args, empty: empty };
+            return { command, args, empty };
         });
-        for (const commandsKey in this.lines) {
-            if (commands.hasOwnProperty(commandsKey)) {
-                let command = commands[commandsKey];
-                var newArgs = {};
-                var mode = 0;
-                var argNumber = 0;
-                for (let argsKey in command.args) {
-                    if (command.args.hasOwnProperty(argsKey)) {
-                        let arg = command.args[argsKey];
-                        if (arg.startsWith("#")) {
-                            break;
-                        }
-                        if (mode === 0) {
-                            argNumber++;
-                        }
-                        if (exports.regexes.strStart.test(arg)) {
-                            mode = 1;
-                        }
-                        if (argNumber in newArgs) {
-                            newArgs[argNumber] += ' ' + arg;
-                        }
-                        else {
-                            newArgs[argNumber] = arg;
-                        }
-                        if (exports.regexes.strEnd.test(arg)) {
-                            mode = 0;
-                        }
-                    }
+        commands.forEach(command => {
+            var newArgs = {};
+            var mode = 0;
+            var argNumber = 0;
+            command.args.forEach(arg => {
+                if (arg.startsWith("#")) {
+                    return;
                 }
-                commands[commandsKey].args = Object.values(newArgs);
-            }
-            else {
-                commands.push({ command: '', args: [], empty: true });
-            }
-        }
+                if (mode === 0) {
+                    argNumber++;
+                }
+                if (exports.regexes.strStart.test(arg)) {
+                    mode = 1;
+                }
+                if (argNumber in newArgs) {
+                    newArgs[argNumber] += ' ' + arg;
+                }
+                else {
+                    newArgs[argNumber] = arg;
+                }
+                if (exports.regexes.strEnd.test(arg)) {
+                    mode = 0;
+                }
+                command.args = Object.values(newArgs);
+            });
+        });
         this.commands = commands;
         this.position = 0;
         var blockLvl = 0;
@@ -113,38 +137,65 @@ class icX {
                     }
                 }
                 if (r) {
-                    var cls = new classes[r](this.currentBlock, position, line);
-                    cls.setCommand(c);
-                    cls.originalPosition = position;
-                    this.currentBlock.addElem(cls);
-                    if (cls instanceof classes.icXBlock) {
-                        this.currentBlock = cls.setStart(cls.originalPosition + 1);
+                    try {
+                        var a = new this.operators[r](this.currentBlock, position, line);
+                        a.setCommand(c);
+                        a.originalPosition = position;
+                        this.currentBlock.addElem(a);
+                        if (a instanceof classes.icXBlock) {
+                            this.currentBlock = a.setStart(a.originalPosition + 1);
+                        }
                     }
+                    catch { }
                 }
                 else {
                     if (this.currentBlock.endKeys.test(line)) {
-                        let a = this.currentBlock.setEnd(position - 1);
-                        if (a instanceof classes.icXBlock) {
-                            this.currentBlock = a;
+                        var block = this.currentBlock.setEnd(position - 1);
+                        if (block instanceof classes.icXBlock) {
+                            this.currentBlock = block;
                         }
                     }
                     else {
-                        var cls = new classes.icXElem(this.currentBlock, position, line);
-                        cls.setCommand(c);
-                        this.currentBlock.addElem(cls);
+                        var elem = new classes.icXElem(this.currentBlock, position, line);
+                        elem.setCommand(c);
+                        this.currentBlock.addElem(elem);
                     }
                 }
             }
         }
     }
     getCompiled() {
-        classes_1.vars.reset();
-        classes_1.ifs.reset();
-        classes_1.whiles.reset();
-        var txt = this.structure.compile();
-        txt += "j 0 \n";
-        txt += "# ---function---\n";
-        txt += classes_1.functions.get();
+        console.log(lists_1.vars);
+        lists_1.vars.reset();
+        lists_1.ifs.reset();
+        lists_1.whiles.reset();
+        const code = (this.structure?.compile() ?? "") + "\n";
+        var txt = "move r0 0\n";
+        txt += "# ---icX User code start---\n";
+        txt += code;
+        txt += "# ---icX User code end---\n";
+        if (lists_1.functions.fn.length != 0) {
+            if (!lists_1.use.has("loop")) {
+                txt += "j _icXstart\n";
+                txt += lists_1.functions.get();
+                txt += "_icXstart:\n";
+            }
+            else {
+                txt += "j 1\n";
+                txt += lists_1.functions.get();
+            }
+        }
+        txt = txt
+            .split("\n")
+            .map((str) => {
+            return str.trim();
+        }).filter((str) => {
+            if (!lists_1.use.has("comments") && str.startsWith("#"))
+                return false;
+            else
+                return str !== "";
+        }).join('\n');
+        console.log(txt);
         return txt;
     }
 }
