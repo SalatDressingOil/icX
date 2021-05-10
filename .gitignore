@@ -74,3 +74,8 @@ typings/
 
 # FuseBox cache
 .fusebox/
+
+
+*.d.ts
+*.js.map
+*.js
