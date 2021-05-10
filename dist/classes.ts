@@ -1,4 +1,3 @@
-import { StringDecoder } from "string_decoder"
 import { vars, functions, ifs, whiles, use } from "./lists"
 
 
