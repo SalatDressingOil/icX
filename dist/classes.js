@@ -1,57 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.icXLog = exports.icXAlias = exports.icXIncrement = exports.icXConst = exports.icXVar = exports.icXWhile = exports.icXIf = exports.icXFunction = exports.icXBlock = exports.icXElem = exports.functions = exports.ifs = exports.whiles = exports.vars = void 0;
-exports.vars = {
-    count: 0,
-    aliases: {},
-    setAlias: function (v, a) {
-        this.aliases[a] = v;
-        this.aliases[v] = a;
-    },
-    get: function () {
-        if (this.count == 16) {
-            this.count++;
-        }
-        if (this.count > 15) {
-            throw 'not enough vars :(';
-        }
-        return 'r' + this.count++;
-    },
-    reset: function () {
-        this.count = 0;
-        this.aliases = {};
-    }
-};
-exports.whiles = {
-    count: 0,
-    get: function () {
-        return 'while' + this.count++;
-    },
-    reset: function () {
-        this.count = 0;
-    }
-};
-exports.ifs = {
-    count: 0,
-    get: function () {
-        return 'if' + this.count++;
-    },
-    reset: function () {
-        this.count = 0;
-    }
-};
-exports.functions = {
-    fn: [],
-    add: function (txt) {
-        this.fn.push(txt);
-    },
-    get: function () {
-        return this.fn.join('\n');
-    }
-};
+exports.icXYield = exports.icXUse = exports.icXLog = exports.icXAlias = exports.icXConst = exports.icXVar = exports.icXWhile = exports.icXIf = exports.icXFunction = exports.icXBlock = exports.icXElem = void 0;
+const lists_1 = require("./lists");
 class icXElem {
-    constructor(scope, pos = 0, text = '') {
+    constructor(scope, pos = 0, text = "") {
         this.command = { command: '', args: [], empty: true };
+        this.args = "";
+        this.rule = null;
+        this.re = [];
         this.scope = scope;
         this.originalPosition = pos;
         this.originalText = text;
@@ -67,38 +23,50 @@ class icXElem {
         var re;
         var byDots = this.originalText.split('.');
         if (byDots.length > 1) {
-            if (byDots[0].trim() in exports.vars.aliases) {
+            if (byDots[0].trim() in lists_1.vars.aliases) {
                 re = /\b([\w\d]+)\.([\w\d]+)\s{0,}(=)\s{0,}([\w\d]+)\b/i;
                 if (re.test(this.originalText)) {
                     var a = re.exec(this.originalText);
+                    if (a == null)
+                        return null;
                     return `s ${a[1]} ${a[2]} ${a[4]}`;
                 }
             }
             re = /\b([\w\d]+)\s{0,}(=)\s{0,}([\w\d]+)\.([\w\d]+)\s{0,}$/i;
             if (re.test(this.originalText)) {
                 var a = re.exec(this.originalText);
+                if (a == null)
+                    return null;
                 return `l ${a[1]} ${a[3]} ${a[4]}`;
             }
             re = /\b([\w\d]+)\s{0,}(=)\s{0,}([\w\d]+)\.slot\(([\w\d]+)\).([\w\d]+)\b/i;
             if (re.test(this.originalText)) {
                 var a = re.exec(this.originalText);
+                if (a == null)
+                    return null;
                 return `ls ${a[1]} ${a[3]} ${a[4]} ${a[5]}`;
             }
             re = /\b([\w\d]+)\s{0,}(=)\s{0,}d\(([\w\d]+)\).([\w\d]+)\(([\w\d]+)\b/i;
             if (re.test(this.originalText)) {
                 var a = re.exec(this.originalText);
+                if (a == null)
+                    return null;
                 return `lb ${a[1]} ${a[3]} ${a[4]} ${a[5]}`;
             }
         }
         re = /\b([\.\d\w]+)\s{0,}(=)\s{0,}([\s\.\d\w]+?\b)/i;
         if (re.test(this.originalText)) {
             var a = re.exec(this.originalText);
-            return `move ${a[1]} ${a[3]} \n`;
+            if (a == null)
+                return null;
+            return `move ${a[1]} ${a[3]}\n`;
         }
         re = /\b([\w\d]+)?\(\)/i;
         if (re.test(this.originalText)) {
             var a = re.exec(this.originalText);
-            return `jal ${a[1]} \n`;
+            if (a == null)
+                return null;
+            return `jal ${a[1]}\n`;
         }
         return this.originalText;
     }
@@ -106,59 +74,61 @@ class icXElem {
         var re = /\b([\.\d\w]+)\s{0,}(<|==|>|<=|>=|\||!=|\&|\~\=)\s{0,}([\s\.\d\w]+?\b)(\,[\s\.\d\w]+){0,}/i;
         if (re.test(this.args)) {
             this.rule = re.exec(this.args);
+            if (this.rule == null)
+                return null;
             switch (this.rule[2]) {
                 case '<':
                     if (parseInt(this.rule[3]) === 0) {
-                        return `sltz icxTempVar ${this.rule[1]}`;
+                        return `sltz r0 ${this.rule[1]}`;
                     }
                     else {
-                        return `slt icxTempVar ${this.rule[1]} ${this.rule[3]}`;
+                        return `slt r0 ${this.rule[1]} ${this.rule[3]}`;
                     }
                 case '==':
                     if (parseInt(this.rule[3]) === 0) {
-                        return `seqz icxTempVar ${this.rule[1]}`;
+                        return `seqz r0 ${this.rule[1]}`;
                     }
                     else {
-                        return `seq icxTempVar ${this.rule[1]} ${this.rule[3]}`;
+                        return `seq r0 ${this.rule[1]} ${this.rule[3]}`;
                     }
                 case '>':
                     if (parseInt(this.rule[3]) === 0) {
-                        return `sgtz icxTempVar ${this.rule[1]}`;
+                        return `sgtz r0 ${this.rule[1]}`;
                     }
                     else {
-                        return `sgt icxTempVar ${this.rule[1]} ${this.rule[3]}`;
+                        return `sgt r0 ${this.rule[1]} ${this.rule[3]}`;
                     }
                 case '<=':
                     if (parseInt(this.rule[3]) === 0) {
-                        return `slez icxTempVar ${this.rule[1]}`;
+                        return `slez r0 ${this.rule[1]}`;
                     }
                     else {
-                        return `sle icxTempVar ${this.rule[1]} ${this.rule[3]}`;
+                        return `sle r0 ${this.rule[1]} ${this.rule[3]}`;
                     }
                 case '>=':
                     if (parseInt(this.rule[3]) === 0) {
-                        return `sgez icxTempVar ${this.rule[1]}`;
+                        return `sgez r0 ${this.rule[1]}`;
                     }
                     else {
-                        return `sge icxTempVar ${this.rule[1]} ${this.rule[3]}`;
+                        return `sge r0 ${this.rule[1]} ${this.rule[3]}`;
                     }
                 case '|':
-                    return `or icxTempVar ${this.rule[1]} ${this.rule[3]}`;
+                    return `or r0 ${this.rule[1]} ${this.rule[3]}`;
                 case '&':
-                    return `and icxTempVar ${this.rule[1]} ${this.rule[3]}`;
+                    return `and r0 ${this.rule[1]} ${this.rule[3]}`;
                 case '~=':
                     if (parseInt(this.rule[3]) === 0) {
-                        return `sapz icxTempVar ${this.rule[1]} ${this.rule[4]}`;
+                        return `sapz r0 ${this.rule[1]} ${this.rule[4]}`;
                     }
                     else {
-                        return `sap icxTempVar ${this.rule[1]} ${this.rule[3]} ${this.rule[4]}`;
+                        return `sap r0 ${this.rule[1]} ${this.rule[3]} ${this.rule[4]}`;
                     }
                 case '!=':
                     if (parseInt(this.rule[3]) === 0) {
-                        return `snez icxTempVar ${this.rule[1]}`;
+                        return `snez r0 ${this.rule[1]}`;
                     }
                     else {
-                        return `sne icxTempVar ${this.rule[1]} ${this.rule[3]}`;
+                        return `sne r0 ${this.rule[1]} ${this.rule[3]}`;
                     }
             }
         }
@@ -166,8 +136,8 @@ class icXElem {
 }
 exports.icXElem = icXElem;
 class icXBlock extends icXElem {
-    constructor(scope, pos, text) {
-        super(scope, pos = 0, text = '');
+    constructor(scope, pos = 0, text = "") {
+        super(scope, pos, text);
         this.content = {};
         this.endKeys = /\bend\b/i;
     }
@@ -183,17 +153,22 @@ class icXBlock extends icXElem {
         return this.scope;
     }
     compile() {
-        var txt = [];
+        const txt = [];
         for (const contentKey in this.content) {
-            txt.push(this.content[contentKey].compile());
+            const text = this.content[contentKey].compile();
+            if (text !== null)
+                txt.push(text);
         }
         return txt.join("\n") + "\n";
     }
 }
 exports.icXBlock = icXBlock;
 class icXFunction extends icXBlock {
-    constructor(scope, pos, text) {
-        super(scope, pos = 0, text = '');
+    constructor(scope, pos = 0, text = "") {
+        super(scope, pos, text);
+        this.name = null;
+        this.re.push(/\bfunction\b/i);
+        this.re.push(/\bdef\b/i);
     }
     setCommand(e) {
         super.setCommand(e);
@@ -203,19 +178,20 @@ class icXFunction extends icXBlock {
         var txt = `${this.name}:\n`;
         txt += super.compile();
         txt += 'j ra\n';
-        exports.functions.add(txt);
+        lists_1.functions.add(txt);
         return '';
     }
 }
 exports.icXFunction = icXFunction;
 class icXIf extends icXBlock {
-    constructor(scope, pos, text) {
-        super(scope, pos = 0, text = '');
+    constructor(scope, pos = 0, text = "") {
+        super(scope, pos, text);
+        this.re.push(/\bif\b/i);
     }
     compile() {
         var isElse = false;
         var r = this.parseRules();
-        var l = exports.ifs.get();
+        var l = lists_1.ifs.get();
         var txt = [];
         var _txt = [];
         for (const contentKey in this.content) {
@@ -230,12 +206,12 @@ class icXIf extends icXBlock {
         }
         txt.push(r);
         if (!isElse) {
-            txt.push(`beqz icxTempVar ${l}exit`);
-            txt.push(`beq icxTempVar 1 ${l}`);
+            txt.push(`beqz r0 ${l}exit`);
+            txt.push(`beq r0 1 ${l}`);
         }
         else {
-            txt.push(`beqz icxTempVar ${l}else`);
-            txt.push(`beq icxTempVar 1 ${l}`);
+            txt.push(`beqz r0 ${l}else`);
+            txt.push(`beq r0 1 ${l}`);
         }
         txt.push(`${l}:`);
         txt.push(_txt.join('\n'));
@@ -245,16 +221,18 @@ class icXIf extends icXBlock {
 }
 exports.icXIf = icXIf;
 class icXWhile extends icXBlock {
-    constructor(scope, pos, text) {
-        super(scope, pos = 0, text = '');
+    constructor(scope, pos = 0, text = "") {
+        super(scope, pos, text);
+        this.re.push(/\bfor\b/i);
+        this.re.push(/\bwhile\b/i);
     }
     compile() {
         var r = this.parseRules();
-        var l = exports.whiles.get();
+        var l = lists_1.whiles.get();
         var txt = [];
         txt.push(`${l}:`);
         txt.push(r);
-        txt.push(`beqz icxTempVar ${l}exit`);
+        txt.push(`beqz r0 ${l}exit`);
         txt.push(super.compile());
         txt.push(`j ${l}`);
         txt.push(`${l}exit:`);
@@ -263,28 +241,33 @@ class icXWhile extends icXBlock {
 }
 exports.icXWhile = icXWhile;
 class icXVar extends icXElem {
-    constructor(scope, pos, text) {
-        super(scope, pos = 0, text = '');
+    constructor(scope, pos = 0, text = "") {
+        super(scope, pos, text);
+        this.re.push(/\bvar\b/i);
     }
     compile() {
         var txt = '';
-        var v = exports.vars.get();
+        var r = lists_1.vars.get();
         if (0 in this.command.args) {
             var a = this.command.args[0];
-            exports.vars.setAlias(v, a);
-            txt += `alias ${a} ${v} \n`;
+            lists_1.vars.setAlias(r, a);
+            if (!lists_1.use.has("ignore_aliases")) {
+                txt += `alias ${a} ${r}\n`;
+            }
+            console.log(lists_1.vars);
         }
         var b = this.originalText.split('=');
         if (1 in b) {
-            txt += `move ${v} ${b[1].trim()}  \n`;
+            txt += `move ${r} ${b[1].trim()}\n`;
         }
         return txt;
     }
 }
 exports.icXVar = icXVar;
 class icXConst extends icXElem {
-    constructor(scope, pos, text) {
-        super(scope, pos = 0, text = '');
+    constructor(scope, pos = 0, text = "") {
+        super(scope, pos, text);
+        this.re.push(/\bconst\b/i);
     }
     compile() {
         var txt = '';
@@ -292,41 +275,55 @@ class icXConst extends icXElem {
             var a = this.command.args.join('');
             var b = a.split('=');
             b[0] = b[0].trim();
-            exports.vars.setAlias(b[0], b[0]);
-            txt += `define ${b[0]} ${b[1]} \n`;
+            lists_1.vars.setAlias(b[0], b[0]);
+            txt += `define ${b[0]} ${b[1]}\n`;
         }
         return txt;
     }
 }
 exports.icXConst = icXConst;
-class icXIncrement extends icXElem {
-    constructor(scope, pos, text) {
-        super(scope, pos = 0, text = '');
-    }
-    compile() {
-        var a = /\b(\S+\b)\+\+/i.exec(this.originalText);
-        var txt = `add ${a[1]} ${a[1]} 1  \n`;
-        return txt;
-    }
-}
-exports.icXIncrement = icXIncrement;
 class icXAlias extends icXElem {
-    constructor(scope, pos, text) {
-        super(scope, pos = 0, text = '');
+    constructor(scope, pos = 0, text = "") {
+        super(scope, pos, text);
+        this.re.push(/\balias\b/i);
     }
     compile() {
-        exports.vars.setAlias(this.command.args[0], this.command.args[1]);
+        lists_1.vars.setAlias(this.command.args[0], this.command.args[1]);
         return super.compile();
     }
 }
 exports.icXAlias = icXAlias;
 class icXLog extends icXElem {
-    constructor(scope, pos, text) {
-        super(scope, pos = 0, text = '');
+    constructor(scope, pos = 0, text = "") {
+        super(scope, pos, text);
+        this.re.push(/\blog\b/i);
     }
     compile() {
+        if (lists_1.use.has("ignore_aliases") && lists_1.vars.getRD(this.args) !== undefined)
+            return `#log ${lists_1.vars.getRD(this.args)}`;
         return `#log ${this.args}`;
     }
 }
 exports.icXLog = icXLog;
+class icXUse extends icXElem {
+    constructor(scope, pos = 0, text = "") {
+        super(scope, pos, text);
+        this.re.push(/\buse\b/i);
+    }
+    compile() {
+        lists_1.use.add(...this.command.args);
+        return "";
+    }
+}
+exports.icXUse = icXUse;
+class icXYield extends icXElem {
+    constructor(scope, pos = 0, text = "") {
+        super(scope, pos, text);
+        this.re.push(/\byield\b/i);
+    }
+    compile() {
+        return "yield";
+    }
+}
+exports.icXYield = icXYield;
 //# sourceMappingURL=classes.js.map
