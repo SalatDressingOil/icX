@@ -64,7 +64,11 @@ export class icXElem { //инструкция
 			}
 		},
 		get: function () {
-			var txt = this.txt.join("\n") ?? ''
+			var txt = ''
+			// this.v.forEach((e)=>{
+			// 	txt += `move r${e} 0\n`
+			// })
+			txt += this.txt.join("\n") ?? ''
 			this.txt = [];
 			this.v = [];
 			this.i = -1;
@@ -124,15 +128,19 @@ export class icXElem { //инструкция
 			}
 		}
 		
-		re = /\b([\.\d\w]+)\s{0,}(=)\s{0,}([\s\.\d\w]+?\b)/i
+		re = /([\.\d\w]+)\s{0,}(=)\s{0,}(.+)/i
 		if (re.test(this.originalText)) {
 			var a = re.exec(this.originalText)
 			if (a == null) return null
-			var txt = this.parseMath(a[3])
-			if (txt) {
-				a[3] = 'r0'
+			var math = this.parseMath(a[3])
+			var txt = ''
+			if (math !== false) {
+				txt += math.txt
+				txt += `\nmove ${vars.getAlias(a[1])} ${vars.getAlias(math.var)}\n`
+			} else {
+				txt += `move ${vars.getAlias(a[1])} ${vars.getAlias(a[3])}\n`
 			}
-			return txt + `move ${a[1]} ${a[3]}\n`
+			return txt
 		}
 		re = /\b([\w\d]+)?\(\)/i
 		if (re.test(this.originalText)) {
@@ -152,15 +160,15 @@ export class icXElem { //инструкция
 			switch (this.rule[2]) {
 				case '<':
 					if (parseInt(this.rule[3]) === 0) {
-						return `sltz r0 ${this.rule[1]}`
+						return `sltz r0 ${vars.getAlias(this.rule[1])}`
 					} else {
-						return `slt r0 ${this.rule[1]} ${this.rule[3]}`
+						return `slt r0 ${vars.getAlias(this.rule[1])} ${vars.getAlias(this.rule[3])}`
 					}
 				case '==':
 					if (parseInt(this.rule[3]) === 0) {
-						return `seqz r0 ${this.rule[1]}`
+						return `seqz r0 ${vars.getAlias(this.rule[1])}`
 					} else {
-						return `seq r0 ${this.rule[1]} ${this.rule[3]}`
+						return `seq r0 ${vars.getAlias(this.rule[1])} ${vars.getAlias(this.rule[3])}`
 					}
 				case '>':
 					if (parseInt(this.rule[3]) === 0) {
@@ -170,33 +178,33 @@ export class icXElem { //инструкция
 					}
 				case '<=':
 					if (parseInt(this.rule[3]) === 0) {
-						return `slez r0 ${this.rule[1]}`
+						return `slez r0 ${vars.getAlias(this.rule[1])}`
 					} else {
-						return `sle r0 ${this.rule[1]} ${this.rule[3]}`
+						return `sle r0 ${vars.getAlias(this.rule[1])} ${vars.getAlias(this.rule[3])}`
 					}
 				case '>=':
 					if (parseInt(this.rule[3]) === 0) {
-						return `sgez r0 ${this.rule[1]}`
+						return `sgez r0 ${vars.getAlias(this.rule[1])}`
 					} else {
-						return `sge r0 ${this.rule[1]} ${this.rule[3]}`
+						return `sge r0 ${vars.getAlias(this.rule[1])} ${vars.getAlias(this.rule[3])}`
 					}
 				case '|':
 				case '||':
-					return `or r0 ${this.rule[1]} ${this.rule[3]}`
+					return `or r0 ${vars.getAlias(this.rule[1])} ${vars.getAlias(this.rule[3])}`
 				case '&':
 				case '&&':
-					return `and r0 ${this.rule[1]} ${this.rule[3]}`
+					return `and r0 ${vars.getAlias(this.rule[1])} ${vars.getAlias(this.rule[3])}`
 				case '~=':
 					if (parseInt(this.rule[3]) === 0) {
-						return `sapz r0 ${this.rule[1]} ${this.rule[4]}`
+						return `sapz r0 ${vars.getAlias(this.rule[1])} ${vars.getAlias(this.rule[4])}`
 					} else {
-						return `sap r0 ${this.rule[1]} ${this.rule[3]} ${this.rule[4]}`
+						return `sap r0 ${vars.getAlias(this.rule[1])} ${vars.getAlias(this.rule[3])} ${vars.getAlias(this.rule[4])}`
 					}
 				case '!=':
 					if (parseInt(this.rule[3]) === 0) {
-						return `snez r0 ${this.rule[1]}`
+						return `snez r0 ${vars.getAlias(this.rule[1])}`
 					} else {
-						return `sne r0 ${this.rule[1]} ${this.rule[3]}`
+						return `sne r0 ${vars.getAlias(this.rule[1])} ${vars.getAlias(this.rule[3])}`
 					}
 			}
 		}

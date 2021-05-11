@@ -1,4 +1,12 @@
 use comments
 
-var b = -10
-var a = (5 + 4 + 10)
+var test = 0
+var g = 1
+while test < 5
+    bleat()
+    test++
+end
+
+function bleat
+    g = ((g + g) * g)
+end
