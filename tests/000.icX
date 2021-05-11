@@ -1,8 +1,0 @@
-var x = 1
-var y = 2
-var z
-
-x++
-x--
-z = (5 + 5 /5)
-log z
