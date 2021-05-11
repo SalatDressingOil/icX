@@ -111,8 +111,10 @@ export class icXElem { //инструкция
 						return `sge r0 ${this.rule[1]} ${this.rule[3]}`
 					}
 				case '|':
+				case '||':
 					return `or r0 ${this.rule[1]} ${this.rule[3]}`
 				case '&':
+				case '&&':
 					return `and r0 ${this.rule[1]} ${this.rule[3]}`
 				case '~=':
 					if (parseInt(this.rule[3]) === 0) {
