@@ -65,7 +65,6 @@ export const functions: { fn: string[]; add: (str: string) => void; get: () => s
 export const use: { arg: string[]; add: (...str: string[]) => void; has: (str: string) => boolean } = {
 	arg: [],
 	add: function (...str) {
-		// console.log(ar)
 		this.arg.push(...str)
 	},
 	has: function (str) {

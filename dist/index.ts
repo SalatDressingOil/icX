@@ -60,7 +60,6 @@ export class icX {
 				}
 			} catch {}
 		}
-		console.log(this.keyFirstWord)
 		this.position = 0
 		this.text = text
 		// this.text = 'var _r0 = 0\n' + text
@@ -103,7 +102,6 @@ export class icX {
 		})
 		this.commands = commands
 		this.position = 0
-		// console.log(this.commands)
 		var blockLvl = 0
 		var startBlock = {}
 		this.structure = new classes.icXBlock(null, 0, this.text)
@@ -113,7 +111,6 @@ export class icX {
 				var line = this.lines[position]
 				var c = this.commands[position]
 				var r = ''
-				console.log(line)
 
 				for (const keyFirstWordKey in this.keyFirstWord) {
 					var key = this.keyFirstWord[keyFirstWordKey]
@@ -149,12 +146,10 @@ export class icX {
 	}
 
 	getCompiled(): string {
-		console.log(vars)
 		vars.reset()
 		ifs.reset()
 		whiles.reset()
 		const code = (this.structure?.compile() ?? "") + "\n"
-		// console.log(this.structure?.content)
 		var txt = "move r0 0\n"
 		txt += "# ---icX User code start---\n"
 		txt += code
@@ -177,7 +172,6 @@ export class icX {
 				if (!use.has("comments") && str.startsWith("#")) return false
 				else return str !== ""
 			}).join('\n')
-		console.log(txt)
 		return txt
 	}
 }

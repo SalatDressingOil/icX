@@ -1,0 +1,4 @@
+use comments
+
+var b = -10
+var a = (5 + 4 + 10)
