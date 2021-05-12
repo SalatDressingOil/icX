@@ -1,12 +1,13 @@
-use comments
+use comments 
+move r1 r2
 
 var test = 0
-var g = 1
+var g
 while test < 5
     bleat()
     test++
 end
 
 function bleat
-    g = ((g + g) * g)
+	g = ((g + g) \ g)
 end

@@ -2,7 +2,7 @@
   "name": "icX",
   "version": "1.0.0",
   "description": "Compiler icX to ic10 ",
-  "main": "index.js",
+  "main": "./dist/index.js",
   "scripts": {
     "start": "tsc -w",
     "test": "node test.js",
@@ -10,7 +10,19 @@
   },
   "keywords": [
     "ic10",
+    "icX",
     "compiller"
+  ],
+  "include": [
+    "./node_modules/@scicave"
+  ],
+  "exclude": [
+    "./tests",
+    "./index.html",
+    "./tsconfig.json",
+    "./.vscode",
+    "./.idea",
+    "./test.ts"
   ],
   "author": "Traineratwot",
   "license": "ISC",
