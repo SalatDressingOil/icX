@@ -59,38 +59,6 @@ class icXElementaryMath extends icXElem {
 		return txt + ` ${vars.getAlias(a[1])} ${vars.getAlias(a[2])} ${vars.getAlias(a[4])}\n`
 	}
 }
-class icXMath extends icXElem {
-	constructor(scope: icXElem | null, pos: number = 0, text: string = "") {
-		super(scope, pos, text)
-		// this.re.push(/\S+[\t\f\v ]*=/)
-	}
 
-	compile() {
-		var a = /(\S+)[\t\f\v ]*=(.*)/.exec(this.originalText)
-		if (a === null) return null
-		var txt = ""
-		switch (a[3]) {
-			case "+":
-				txt += "add"
-				break
-			case "-":
-				txt += "sub"
-				break
-			case "*":
-				txt += "mul"
-				break
-			case "/":
-				txt += "div"
-				break
-			case "%":
-				txt += "mod"
-				break
-			default:
-				txt += "#log"
-				break
-		}
-		return txt + ` ${vars.getAlias(a[1])} ${vars.getAlias(a[2])} ${vars.getAlias(a[4])}\n`
-	}
-}
 
-export default { icXIncrement, icXDecrement, icXElementaryMath, icXMath }
+export default { icXIncrement, icXDecrement, icXElementaryMath}

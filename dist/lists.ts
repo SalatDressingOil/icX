@@ -1,4 +1,76 @@
+class variable {
+	temp: boolean
+	to: string
+	from: string
+	ready: boolean = true
+	constructor(from: string, to: string, temp = false) {
+		this.temp = temp
+		this.to = to
+		this.from = from
+	}
+	release(){
+		this.ready = true
+		return this
+	}
+	get(){
+		this.ready = false
+		return this
+	}
+}
 
+class vars2 {
+	aliases: variable[] = []
+	temps: variable[] = []
+	empty: string[] = []
+	constructor() {
+		for (let i = 0; i <= 15; i++) {
+			this.empty.push("r" + i)
+		}
+		this.getTemp()
+		console.log(this.empty)
+	}
+	set(from: string, temp = false) {
+		if (this.exists(from))
+			throw new Error(`Variable ${from} already exists`)
+		else
+			this.aliases.push(new variable(from, this.empty.pop()??"null", temp))
+	}
+	exists(from: string) {
+		var found = false
+		this.aliases.forEach((variable) => {
+			if (from === variable.from)
+				found = true
+		})
+		return found
+	}
+	find(from: string): false | variable {
+		var found: boolean | variable = false
+		this.aliases.forEach((variable) => {
+			if (from === variable.from)
+				found = variable
+		})
+		return found
+	}
+	get(from: string) {
+		const find = this.find(from)
+		if (find === false) return from
+		return find.to
+	}
+	getTemp() {
+		var found: boolean | variable = false
+		this.temps.forEach((variable) => {
+			if (variable.ready)
+				found = variable
+		})
+		if (found === false) return this.newTemp().get()
+
+	}
+	newTemp() {
+		const newTemp = new variable("", this.empty.pop()??"null", true)
+		this.temps.push(newTemp)
+		return newTemp
+	}
+}
 
 export const vars: { count: number; aliases: { [id: string]: string }; RDs: { [id: string]: string }; getRD: (a: string) => string | undefined; getAlias: (a: string) => string; setAlias: (r: string, a: string) => void; setRDs: (r: string, a: string) => void; reset: () => void; get: () => string } = {
 	count: 1,
@@ -13,9 +85,11 @@ export const vars: { count: number; aliases: { [id: string]: string }; RDs: { [i
 		this.RDs[a] = r
 	},
 	getRD: function (a) {
+
 		return this.RDs[a]
 	},
 	getAlias: function (a) {
+		console.log(this.getRD(a) ?? a)
 		if (!use.has("aliases")) return this.getRD(a) ?? a
 		return a
 	},

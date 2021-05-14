@@ -1,5 +1,6 @@
 use comments
 
-var g = 2
-g = ((g * g) / (2 * 2 - 1))
-log g
+var x = 2
+var z = 3
+x = ((x * z) + 2 / 2 * 3)
+log x
