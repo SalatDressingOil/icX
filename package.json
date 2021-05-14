@@ -6,7 +6,7 @@
   "scripts": {
     "start": "tsc -w",
     "test": "node test.js",
-    "debug": "nodemon -w ./ -e js,icX,ts,ic10 test.js"
+    "debug": "nodemon -w ./ -e js,icX,ic10 test.js"
   },
   "keywords": [
     "ic10",
@@ -27,11 +27,8 @@
   "author": "Traineratwot",
   "license": "ISC",
   "devDependencies": {
+    "@scicave/math-parser": "^5.1.0",
     "@types/node": "^15.0.2",
-    "typescript": "^4.2.4",
-    "scicave/math-parser": "^5.1.0"
-  },
-  "dependencies": {
-    "@scicave/math-parser": "^5.1.0"
+    "typescript": "^4.2.4"
   }
 }

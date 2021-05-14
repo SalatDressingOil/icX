@@ -226,21 +226,17 @@ export class icXElem { //инструкция
 			if (pre !== false && !isNaN(pre)) {
 				return {txt: '', var: String(pre)}
 			} else {
-				
 				if (this.out.v.length == 0) {
 					this.out.v.push(vars.count)
 					this.out.v.push(++vars.count)
 					this.out.v.push(++vars.count)
 				}
-				
+				console.log(text)
 				var math = mathParser.parse(text)
-				
 				this.out.convert(math)
-				
 				if (this.out.v[this.out.i] > 0) {
 					this.out.txt.push(`move r0 r${this.out.v[this.out.i]}`)
 				}
-				
 				return this.out.get()
 			}
 		}

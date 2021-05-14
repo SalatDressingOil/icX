@@ -1,0 +1,5 @@
+use comments
+
+var g = 2
+g = ((g * g) / (2 * 2 - 1))
+log g
