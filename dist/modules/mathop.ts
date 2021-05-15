@@ -11,7 +11,7 @@ class icXIncrement extends icXElem {
 	compile() {
 		var a = /\b(\S+\b)\+\+/i.exec(this.originalText)
 		if (a === null) return null
-		return `add ${vars.getAlias(a[1])} ${vars.getAlias(a[1])} 1\n`
+		return `add ${vars.get(a[1])} ${vars.get(a[1])} 1\n`
 	}
 }
 class icXDecrement extends icXElem {
@@ -23,7 +23,7 @@ class icXDecrement extends icXElem {
 	compile() {
 		var a = /\b(\S+\b)\-\-/i.exec(this.originalText)
 		if (a === null) return null
-		return `sub ${vars.getAlias(a[1])} ${vars.getAlias(a[1])} 1\n`
+		return `sub ${vars.get(a[1])} ${vars.get(a[1])} 1\n`
 	}
 }
 class icXElementaryMath extends icXElem {
@@ -56,7 +56,7 @@ class icXElementaryMath extends icXElem {
 				txt += "#log"
 				break
 		}
-		return txt + ` ${vars.getAlias(a[1])} ${vars.getAlias(a[2])} ${vars.getAlias(a[4])}\n`
+		return txt + ` ${vars.get(a[1])} ${vars.get(a[2])} ${vars.get(a[4])}\n`
 	}
 }
 

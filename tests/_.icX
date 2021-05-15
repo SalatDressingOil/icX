@@ -1,6 +1,8 @@
 use comments
 
 var x = 2
-var z = 3
-x = ((x * z) + 2 / 2 * 3)
+var y = 10
+var z = 0
+log x
+z = (z * z / x + x)
 log x

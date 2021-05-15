@@ -1,4 +1,4 @@
-class variable {
+export class variable {
 	temp: boolean
 	to: string
 	from: string
@@ -18,23 +18,40 @@ class variable {
 	}
 }
 
-class vars2 {
+export class varsclass {
 	aliases: variable[] = []
 	temps: variable[] = []
 	empty: string[] = []
 	constructor() {
+		this.reset()
+		this.getTemp()
+	}
+	reset(){
+		this.temps = []
+		this.aliases = []
+		this.empty = []
 		for (let i = 0; i <= 15; i++) {
 			this.empty.push("r" + i)
 		}
-		this.getTemp()
-		console.log(this.empty)
 	}
 	set(from: string, temp = false) {
+		var result
 		if (this.exists(from))
 			throw new Error(`Variable ${from} already exists`)
 		else
-			this.aliases.push(new variable(from, this.empty.pop()??"null", temp))
+			result = new variable(from, this.empty.shift()??"null", temp)
+		this.aliases.push(result)
+		return result
 	}
+	// setCustom(from: string, to: string, temp = false) {
+	// 	var result
+	// 	if (this.exists(from))
+	// 		throw new Error(`Variable ${from} already exists`)
+	// 	else
+	// 		result = new variable(from, to, temp)
+	// 	this.aliases.push(result)
+	// 	return result
+	// }
 	exists(from: string) {
 		var found = false
 		this.aliases.forEach((variable) => {
@@ -57,56 +74,60 @@ class vars2 {
 		return find.to
 	}
 	getTemp() {
-		var found: boolean | variable = false
-		this.temps.forEach((variable) => {
-			if (variable.ready)
+		var found: undefined | variable
+		this.temps.forEach(function(variable) {
+			if (variable.ready){
 				found = variable
+				console.log(1, variable)
+			}
 		})
-		if (found === false) return this.newTemp().get()
+		if (found === undefined) return this.newTemp().get()
+		return found.get()
 
 	}
 	newTemp() {
 		const newTemp = new variable("", this.empty.pop()??"null", true)
-		this.temps.push(newTemp)
+		this.temps.unshift(newTemp)
 		return newTemp
 	}
 }
+const vars = new varsclass
+export {vars}
+// export const vars: { count: number; aliases: { [id: string]: string }; RDs: { [id: string]: string }; getRD: (a: string) => string | undefined; getAlias: (a: string) => string; setAlias: (r: string, a: string) => void; setRDs: (r: string, a: string) => void; reset: () => void; get: () => string } = {
+// 	count: 1,
+// 	aliases: {},
+// 	RDs: {},
+// 	setAlias: function (r, a) {
+// 		this.aliases[a] = r
+// 		this.aliases[r] = a
+// 		this.setRDs(r, a)
+// 	},
+// 	setRDs: function (r, a) {
+// 		this.RDs[a] = r
+// 	},
+// 	getRD: function (a) {
 
-export const vars: { count: number; aliases: { [id: string]: string }; RDs: { [id: string]: string }; getRD: (a: string) => string | undefined; getAlias: (a: string) => string; setAlias: (r: string, a: string) => void; setRDs: (r: string, a: string) => void; reset: () => void; get: () => string } = {
-	count: 1,
-	aliases: {},
-	RDs: {},
-	setAlias: function (r, a) {
-		this.aliases[a] = r
-		this.aliases[r] = a
-		this.setRDs(r, a)
-	},
-	setRDs: function (r, a) {
-		this.RDs[a] = r
-	},
-	getRD: function (a) {
-
-		return this.RDs[a]
-	},
-	getAlias: function (a) {
-		console.log(this.getRD(a) ?? a)
-		if (!use.has("aliases")) return this.getRD(a) ?? a
-		return a
-	},
-	get: function () {
-		if (this.count == 16) {
-			this.count++
-		}
-		if (this.count > 15) {
-			throw 'not enough vars :('
-		}
-		return 'r' + this.count++
-	},
-	reset: function () {
-		this.count = 1
-		this.aliases = {}
-	}
-}
+// 		return this.RDs[a]
+// 	},
+// 	getAlias: function (a) {
+// 		console.log(this.getRD(a) ?? a)
+// 		if (!use.has("aliases")) return this.getRD(a) ?? a
+// 		return a
+// 	},
+// 	get: function () {
+// 		if (this.count == 16) {
+// 			this.count++
+// 		}
+// 		if (this.count > 15) {
+// 			throw 'not enough vars :('
+// 		}
+// 		return 'r' + this.count++
+// 	},
+// 	reset: function () {
+// 		this.count = 1
+// 		this.aliases = {}
+// 	}
+// }
 export const whiles: { count: number; reset: () => void; get: () => string } = {
 	count: 0,
 	reset: function () {
