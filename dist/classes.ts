@@ -16,7 +16,7 @@ export class icXElem { //инструкция
 		temps: number,
 		result: string,
 		convert: (r: any, result:string | null, iter?: number) => {} 
-		get: () => { txt: string, var: string } | false
+		get: () => string
 	} = {
 		txt: [],
 		vars: [],
@@ -26,6 +26,8 @@ export class icXElem { //инструкция
 			if (r.type == 'operator') {
 				var a0 = this.convert(r.args[0], null)
 				var a1 = this.convert(r.args[1], null)
+				if (a0 == Infinity || a0 == -Infinity || a1 == Infinity || a1 == -Infinity)
+					throw new Error(`Infinity is used`)
 				var temp:string|variable = ""
 				if (result !== null){
 					temp = result
@@ -126,9 +128,9 @@ export class icXElem { //инструкция
 			this.txt = [];
 			this.vars = []
 			if (txt) {
-				return {txt: txt, var: 'r0'}
+				return txt
 			} else {
-				return false
+				return ""
 			}
 		}
 	};
@@ -188,7 +190,7 @@ export class icXElem { //инструкция
 			var math = this.parseMath(a[3], vars.get(a[1]))
 			var txt = ''
 			if (math !== false) {
-				txt += math.txt
+				txt += math
 				// txt += `\nmove ${vars.get(a[1])} ${vars.get(math.var)}\n`
 			} else {
 				txt += `move ${vars.get(a[1])} ${vars.get(a[3])}\n`
@@ -207,25 +209,27 @@ export class icXElem { //инструкция
 	
 	
 	
-	parseMath(text: string, r:string): { txt: string, var: string } | false {
+	parseMath(text: string, r:string): string | false {
 		
 		text = text.replace(/\s+/g, "")
-		const regex = /^\((.+)\)$/
+		const regex = /^(.+)$/
 		if (regex.test(text)) {
 			text = (regex.exec(text) ?? "")[1] ?? ""
-			var pre
+			if (vars.exists(text))
+				return `move ${r} ${vars.get(text)}`
+			var math = mathParser.parse(text)
 			try {
-				pre = eval(text)
-			} catch (e) {
-				pre = false
+				var resultvar = this.out.convert(math, r)
+				if (resultvar === Infinity || resultvar === -Infinity) throw new Error(`Infinity is used`)
+			} catch (e){
+				throw new Error(e.message + ` at ${this.originalPosition+1}`)
 			}
-			if (pre !== false && !isNaN(pre)) {
-				return {txt: `move ${r} ${pre}`, var: String(pre)}
-			} else {
-				var math = mathParser.parse(text)
-				this.out.convert(math, r)
-				return this.out.get()
-			}
+			if (!isNaN(+resultvar))
+				return `move ${r} ${resultvar}`
+
+			var result = this.out.get()
+			if (result === "") throw new Error(`${text} is not valid at line ${this.originalPosition+1}`)
+			return result
 		}
 		return false;
 	}
@@ -428,9 +432,9 @@ export class icXVar extends icXElem {
 			txt += `alias ${a} ${r.to}\n`
 		}
 		if (1 in b) {
-			var math = this.parseMath(`(${b[1]})`, vars.get(r))
+			var math = this.parseMath(b[1], vars.get(r))
 			if (math !== false) {
-				txt += math.txt
+				txt += math
 				// txt += `\nmove ${r} ${math.var}\n`
 			} else {
 				txt += `move ${r} ${b[1].trim()}\n`
@@ -449,6 +453,9 @@ export class icXConst extends icXElem {
 	compile() {
 		var txt = ''
 		if (this.command.args.length >= 2) {
+			// if (use.has("aliases")) {
+			// 	txt += `alias ${b[0]} ${b[1]}\n`
+			// }
 			var a = this.command.args.join('')
 			var b = a.split('=')
 			b[0] = b[0].trim()

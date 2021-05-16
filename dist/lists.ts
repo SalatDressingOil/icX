@@ -40,6 +40,8 @@ export class varsclass {
 	}
 	set(from: string, temp = false) {
 		var result
+		if (!/^[a-zA-Z_]\w*/.test(from))
+			throw new Error(`Variable ${from} is not valid`)
 		if (this.exists(from))
 			throw new Error(`Variable ${from} already exists`)
 		else

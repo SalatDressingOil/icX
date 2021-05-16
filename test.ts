@@ -13,6 +13,12 @@ for (const key in a?.structure?.content) {
 	}
 }
 console.log(r)
-var b = a.getCompiled()
-fs.writeFileSync('./tests/_.ic10', b);
-console.info(b)
+var b = ""
+try {
+	b = a.getCompiled()
+	fs.writeFileSync('./tests/_.ic10', b);
+	console.info(b)
+} catch(e) {
+	console.log(e)
+}
+

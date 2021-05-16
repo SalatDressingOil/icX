@@ -1,8 +1,13 @@
-use comments 
-var x = 2
-const y = 3
+use comments aliases
+var _x2 = (x+5 ^ 3)
+var y = (5 ^ 3 / .1)
+log x
+log x
+# y = 2x2
+
+log x
+log x
 if x > 0
-	y = (x * 2 + (2 + 2))
 else
 	x++
 end
