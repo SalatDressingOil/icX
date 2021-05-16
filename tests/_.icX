@@ -1,8 +1,8 @@
 var setting = d0.Setting
 const rule = 10 + 10 * 2
-while setting  < rule
-	setting++ 
-	d0.Setting = setting
+while setting < rule
+    setting++
+    d0.Setting = setting
 end
 setting = d0.Setting
 

@@ -24,6 +24,8 @@ export class icXElem { //инструкция
 		temps: 0,
 		result: "",
 		convert: function (r, result, originalPosition = 0) {
+			if (r.type == 'automult')
+				console.log(r.args[0].args[0])
 			if (r.type == 'operator') {
 				var a0 = this.convert(r.args[0], null, originalPosition)
 				var a1 = this.convert(r.args[1], null, originalPosition)
@@ -98,6 +100,7 @@ export class icXElem { //инструкция
 					if (!map[v[1]]) map[v[1]] = [i, i]
 					else map[v[1]][0] = i
 				}
+				console.log(v)
 				if (typeof v[2] !== "number" && v[2].startsWith("__temp_") && v[2].endsWith("__")) {
 					if (!map[v[2]]) map[v[2]] = [0, i]
 					else map[v[2]][1] = i
@@ -240,7 +243,7 @@ export class icXElem { //инструкция
 			text = (regex.exec(text) ?? "")[1] ?? ""
 			if (vars.exists(text))
 				return `move ${r} ${vars.get(text)}`
-			var math = mathParser.parse(text)
+			var math = mathParser.parse(text, { singleCharName: false})
 			try {
 				var resultvar = this.out.convert(math, r, this.originalPosition)
 				if (resultvar === Infinity || resultvar === -Infinity) throw new Err(403, `Infinity is used`, this.originalPosition)
