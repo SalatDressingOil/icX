@@ -16,6 +16,10 @@ export class variable {
 		this.ready = false
 		return this
 	}
+	toString(){
+		if (use.has("aliases") && this.temp === false) return this.from
+		else return this.to
+	}
 }
 
 export class varsclass {
@@ -68,17 +72,17 @@ export class varsclass {
 		})
 		return found
 	}
-	get(from: string) {
+	get(from: string|variable) {
+		if (from instanceof variable) return from.toString()
 		const find = this.find(from)
 		if (find === false) return from
-		return find.to
+		return find.toString()
 	}
 	getTemp() {
 		var found: undefined | variable
 		this.temps.forEach(function(variable) {
 			if (variable.ready){
 				found = variable
-				console.log(1, variable)
 			}
 		})
 		if (found === undefined) return this.newTemp().get()

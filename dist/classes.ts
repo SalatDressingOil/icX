@@ -11,24 +11,27 @@ export class icXElem { //инструкция
 	public rule: RegExpExecArray | null = null
 	public re: RegExp[] = []
 	public out: {
-		txt: string[],
+		txt: any[][],
 		vars: variable[],
+		temps: number,
+		result: string,
 		convert: (r: any, result:string | null, iter?: number) => {} 
 		get: () => { txt: string, var: string } | false
 	} = {
 		txt: [],
 		vars: [],
-		convert: function (r, result, iter = 0) {
+		temps: 0,
+		result: "",
+		convert: function (r, result) {
 			if (r.type == 'operator') {
-				var a0 = this.convert(r.args[0], null, iter+1)
-				var a1 = this.convert(r.args[1], null, iter+1)
+				var a0 = this.convert(r.args[0], null)
+				var a1 = this.convert(r.args[1], null)
 				var temp:string|variable = ""
-				if (iter == 0){
-					temp = result ?? ""
+				if (result !== null){
+					temp = result
+					this.result = result
 				} else {
-					temp = vars.getTemp()
-					this.vars.push(temp)
-					temp = temp.to
+					temp = `__temp_${++this.temps}__`
 				}
 				if (!isNaN(+a0) && !isNaN(+a1)){
 					switch (r.name) {
@@ -40,8 +43,8 @@ export class icXElem { //инструкция
 							return +a0 * +a1
 						case '/':
 							return +a0 / +a1
-						// case '^':
-						// 	return Math.pow(+a0, +a1)
+						case '^':
+							return Math.pow(+a0, +a1)
 						case '%':
 							return +a0 % +a1
 					}
@@ -49,19 +52,19 @@ export class icXElem { //инструкция
 				} else {
 					switch (r.name) {
 						case '-':
-							this.txt.push(`sub ${temp} ${a0} ${a1}`)
+							this.txt.push(["sub", temp, a0, a1])
 							break;
 						case '+':
-							this.txt.push(`add ${temp} ${a0} ${a1}`)
+							this.txt.push(["add", temp, a0, a1])
 							break;
 						case '*':
-							this.txt.push(`mul ${temp} ${a0} ${a1}`)
+							this.txt.push(["mul", temp, a0, a1])
 							break;
 						case '/':
-							this.txt.push(`div ${temp} ${a0} ${a1}`)
+							this.txt.push(["div", temp, a0, a1])
 							break;
 						case '%':
-							this.txt.push(`mod ${temp} ${a0} ${a1}`)
+							this.txt.push(["mod", temp, a0, a1])
 							break;
 					}
 					this.txt.push()
@@ -76,7 +79,7 @@ export class icXElem { //инструкция
 				if (r.args[0].type == 'number') {
 					return Math.abs(r.args[0].value)
 				} else if (r.args[0].type == 'id') {
-					this.txt.unshift(`abs ${r.args[0].name} ${vars.get(r.args[0].name)}`)
+					this.txt.unshift(["abs", r.args[0].name, vars.get(r.args[0].name)])
 					return r.args[0].name
 				}
 				return r.name
@@ -87,11 +90,40 @@ export class icXElem { //инструкция
 			// this.v.forEach((e)=>{
 			// 	txt += `move r${e} 0\n`
 			// })
-			var txt = this.txt.join("\n") ?? ''
-			this.txt = [];
-			this.vars.forEach(v => {
-				v.release()
+			var used:{[id:string]:variable} = {}
+			var map:{[id:string]:[number, number, variable?]} = {}
+			this.txt.forEach((v, i, a) => {
+				if (typeof v[1] !== "number" && v[1].startsWith("__temp_") && v[1].endsWith("__")) {
+					if (!map[v[1]]) map[v[1]] = [i, i]
+					else map[v[1]][0] = i
+				}
+				if (typeof v[2] !== "number" && v[2].startsWith("__temp_") && v[2].endsWith("__")) {
+					if (!map[v[2]]) map[v[2]] = [0, i]
+					else map[v[2]][1] = i
+				}
+				if (typeof v[3] !== "number" && v[3].startsWith("__temp_") && v[3].endsWith("__")) {
+					if (!map[v[3]]) map[v[3]] = [0, i]
+					else map[v[3]][1] = i
+				}
 			})
+			this.txt.forEach((v, i, a) => {
+				if (v[3] in map) {
+					if (i == map[v[3]][1]) map[v[3]][2]?.release()
+					v[3] = map[v[3]][2]?.to
+				}
+				if (v[2] in map) {
+					if (i == map[v[2]][1]) map[v[2]][2]?.release()
+					v[2] = map[v[2]][2]?.to
+				}
+				if (v[1] in map) {
+					if (i == map[v[1]][0]){
+						map[v[1]][2] = vars.getTemp()
+						v[1] = map[v[1]][2]?.to
+					}
+				}
+			})
+			var txt = this.txt.map((v) => v.join(" ")).join("\n") ?? ''
+			this.txt = [];
 			this.vars = []
 			if (txt) {
 				return {txt: txt, var: 'r0'}
@@ -173,64 +205,7 @@ export class icXElem { //инструкция
 		return this.originalText
 	}
 	
-	parseRules() {
-		var re = /\b([\.\d\w]+)\s{0,}(<|==|>|<=|>=|\||!=|\&|\~\=)\s{0,}([\s\.\d\w]+?\b)(\,[\s\.\d\w]+){0,}/i
-		if (re.test(this.args)) {
-			this.rule = re.exec(this.args)
-			if (this.rule == null) return null
-			switch (this.rule[2]) {
-				case '<':
-					if (parseInt(this.rule[3]) === 0) {
-						return `sltz r0 ${vars.get(this.rule[1])}`
-					} else {
-						return `slt r0 ${vars.get(this.rule[1])} ${vars.get(this.rule[3])}`
-					}
-				case '==':
-					if (parseInt(this.rule[3]) === 0) {
-						return `seqz r0 ${vars.get(this.rule[1])}`
-					} else {
-						return `seq r0 ${vars.get(this.rule[1])} ${vars.get(this.rule[3])}`
-					}
-				case '>':
-					if (parseInt(this.rule[3]) === 0) {
-						return `sgtz r0 ${this.rule[1]}`
-					} else {
-						return `sgt r0 ${this.rule[1]} ${this.rule[3]}`
-					}
-				case '<=':
-					if (parseInt(this.rule[3]) === 0) {
-						return `slez r0 ${vars.get(this.rule[1])}`
-					} else {
-						return `sle r0 ${vars.get(this.rule[1])} ${vars.get(this.rule[3])}`
-					}
-				case '>=':
-					if (parseInt(this.rule[3]) === 0) {
-						return `sgez r0 ${vars.get(this.rule[1])}`
-					} else {
-						return `sge r0 ${vars.get(this.rule[1])} ${vars.get(this.rule[3])}`
-					}
-				case '|':
-				case '||':
-					return `or r0 ${vars.get(this.rule[1])} ${vars.get(this.rule[3])}`
-				case '&':
-				case '&&':
-					return `and r0 ${vars.get(this.rule[1])} ${vars.get(this.rule[3])}`
-				case '~=':
-					if (parseInt(this.rule[3]) === 0) {
-						return `sapz r0 ${vars.get(this.rule[1])} ${vars.get(this.rule[4])}`
-					} else {
-						return `sap r0 ${vars.get(this.rule[1])} ${vars.get(this.rule[3])} ${vars.get(this.rule[4])}`
-					}
-				case '!=':
-					if (parseInt(this.rule[3]) === 0) {
-						return `snez r0 ${vars.get(this.rule[1])}`
-					} else {
-						return `sne r0 ${vars.get(this.rule[1])} ${vars.get(this.rule[3])}`
-					}
-			}
-		}
-		
-	}
+	
 	
 	parseMath(text: string, r:string): { txt: string, var: string } | false {
 		
@@ -245,7 +220,7 @@ export class icXElem { //инструкция
 				pre = false
 			}
 			if (pre !== false && !isNaN(pre)) {
-				return {txt: '', var: String(pre)}
+				return {txt: `move ${r} ${pre}`, var: String(pre)}
 			} else {
 				var math = mathParser.parse(text)
 				this.out.convert(math, r)
@@ -262,11 +237,77 @@ export class icXBlock extends icXElem { //блок инструкций
 	public start: number | undefined
 	public content: { [id: number]: icXElem } = {};
 	public endKeys: RegExp = /\bend\b/i
+	public tempVar?: variable
+		
+	constructor(scope: icXElem | null, pos: number = 0, text: string = "") {
+		super(scope, pos, text)
+		if (scope !== null)
+			this.tempVar = vars.getTemp()
+	}
 	
 	addElem(e: icXElem) {
 		this.content[e.originalPosition] = e
 	}
-	
+
+	parseRules() {
+		var re = /\b([\.\d\w]+)\s{0,}(<|==|>|<=|>=|\||!=|\&|\~\=)\s{0,}([\s\.\d\w]+?\b)(\,[\s\.\d\w]+){0,}/i
+		if (re.test(this.args)) {
+			this.rule = re.exec(this.args)
+			if (this.rule == null) return null
+			switch (this.rule[2]) {
+				case '<':
+					if (parseInt(this.rule[3]) === 0) {
+						return `sltz ${this.tempVar} ${vars.get(this.rule[1])}`
+					} else {
+						return `slt ${this.tempVar} ${vars.get(this.rule[1])} ${vars.get(this.rule[3])}`
+					}
+				case '==':
+					if (parseInt(this.rule[3]) === 0) {
+						return `seqz ${this.tempVar} ${vars.get(this.rule[1])}`
+					} else {
+						return `seq ${this.tempVar} ${vars.get(this.rule[1])} ${vars.get(this.rule[3])}`
+					}
+				case '>':
+					if (parseInt(this.rule[3]) === 0) {
+						return `sgtz ${this.tempVar} ${vars.get(this.rule[1])}`
+					} else {
+						return `sgt ${this.tempVar} ${vars.get(this.rule[1])} ${vars.get(this.rule[3])}`
+					}
+				case '<=':
+					if (parseInt(this.rule[3]) === 0) {
+						return `slez ${this.tempVar} ${vars.get(this.rule[1])}`
+					} else {
+						return `sle ${this.tempVar} ${vars.get(this.rule[1])} ${vars.get(this.rule[3])}`
+					}
+				case '>=':
+					if (parseInt(this.rule[3]) === 0) {
+						return `sgez ${this.tempVar} ${vars.get(this.rule[1])}`
+					} else {
+						return `sge ${this.tempVar} ${vars.get(this.rule[1])} ${vars.get(this.rule[3])}`
+					}
+				case '|':
+				case '||':
+					return `or ${this.tempVar} ${vars.get(this.rule[1])} ${vars.get(this.rule[3])}`
+				case '&':
+				case '&&':
+					return `and ${this.tempVar} ${vars.get(this.rule[1])} ${vars.get(this.rule[3])}`
+				case '~=':
+					if (parseInt(this.rule[3]) === 0) {
+						return `sapz ${this.tempVar} ${vars.get(this.rule[1])} ${vars.get(this.rule[4])}`
+					} else {
+						return `sap ${this.tempVar} ${vars.get(this.rule[1])} ${vars.get(this.rule[3])} ${vars.get(this.rule[4])}`
+					}
+				case '!=':
+					if (parseInt(this.rule[3]) === 0) {
+						return `snez ${this.tempVar} ${vars.get(this.rule[1])}`
+					} else {
+						return `sne ${this.tempVar} ${vars.get(this.rule[1])} ${vars.get(this.rule[3])}`
+					}
+			}
+		}
+		
+	}
+
 	setStart(line: number) {
 		this.start = line
 		return this
@@ -276,12 +317,7 @@ export class icXBlock extends icXElem { //блок инструкций
 		this.end = line
 		return this.scope
 	}
-	
-	constructor(scope: icXElem | null, pos: number = 0, text: string = "") {
-		super(scope, pos, text)
-		
-	}
-	
+
 	compile() {
 		const txt: string[] = []
 		for (const contentKey in this.content) {
@@ -341,15 +377,16 @@ export class icXIf extends icXBlock {
 		}
 		txt.push(r)
 		if (!isElse) {
-			txt.push(`beqz r0 ${l}exit`)
-			txt.push(`beq r0 1 ${l}`)
+			txt.push(`beqz ${this.tempVar} ${l}exit`)
+			txt.push(`beq ${this.tempVar} 1 ${l}`)
 		} else {
-			txt.push(`beqz r0 ${l}else`)
-			txt.push(`beq r0 1 ${l}`)
+			txt.push(`beqz ${this.tempVar} ${l}else`)
+			txt.push(`beq ${this.tempVar} 1 ${l}`)
 		}
 		txt.push(`${l}:`)
 		txt.push(_txt.join('\n'))
 		txt.push(`${l}exit:`)
+		this.tempVar?.release()
 		return txt.join('\n') + '\n'
 	}
 }
@@ -367,7 +404,7 @@ export class icXWhile extends icXBlock {
 		var txt = []
 		txt.push(`${l}:`)
 		txt.push(r)
-		txt.push(`beqz r0 ${l}exit`)
+		txt.push(`beqz ${this.tempVar} ${l}exit`)
 		txt.push(super.compile())
 		txt.push(`j ${l}`)
 		txt.push(`${l}exit:`)
@@ -385,20 +422,19 @@ export class icXVar extends icXElem {
 	compile() {
 		var txt = ''
 		var a = this.command.args[0]
-		var r = vars.set(a).to
-		if (use.has("aliases")) {
-			txt += `alias ${a} ${r}\n`
-		}
+		var r = vars.set(a)
 		var b = this.originalText.split('=')
+		if (use.has("aliases")) {
+			txt += `alias ${a} ${r.to}\n`
+		}
 		if (1 in b) {
-			var math = this.parseMath(b[1], vars.get(r))
+			var math = this.parseMath(`(${b[1]})`, vars.get(r))
 			if (math !== false) {
 				txt += math.txt
 				// txt += `\nmove ${r} ${math.var}\n`
 			} else {
 				txt += `move ${r} ${b[1].trim()}\n`
 			}
-			
 		}
 		return txt
 	}

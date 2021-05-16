@@ -13,13 +13,13 @@ const regexes = {
 }
 export class icX {
 	public text: string
-	private keyFirstWord: { class: string, re: RegExp }[] = []
-	private lines: string[] | undefined
+	public keyFirstWord: { class: string, re: RegExp }[] = []
+	public lines: string[] | undefined
 	public position: number = 0;
-	private commands: { command: string, args: string[], empty: boolean }[] = [];
-	private structure: classes.icXBlock | null = null
-	private currentBlock: classes.icXBlock | null = null
-	private operators:{[id: string]: icXElem } = {}
+	public commands: { command: string, args: string[], empty: boolean }[] = [];
+	public structure: classes.icXBlock | null = null
+	public currentBlock: classes.icXBlock | null = null
+	public operators: { [id: string]: icXElem } = {}
 
 	constructor(text: string) {
 		for (const key in classes) {
@@ -60,6 +60,7 @@ export class icX {
 				}
 			} catch {}
 		}
+		vars.reset()
 		this.position = 0
 		this.text = text
 		// this.text = 'var _r0 = 0\n' + text
@@ -120,6 +121,7 @@ export class icX {
 				}
 				if (r) {
 					try {
+						console.log(position)
 						//@ts-ignore
 						var a = new this.operators[r](this.currentBlock, position, line)
 						a.setCommand(c)
@@ -150,8 +152,7 @@ export class icX {
 		ifs.reset()
 		whiles.reset()
 		const code = (this.structure?.compile() ?? "") + "\n"
-		var txt = "move r0 0\n"
-		txt += "# ---icX User code start---\n"
+		var txt = "# ---icX User code start---\n"
 		txt += code
 		txt += "# ---icX User code end---\n"
 		if (functions.fn.length != 0) {

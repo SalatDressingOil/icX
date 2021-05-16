@@ -29,7 +29,7 @@ class icXDecrement extends icXElem {
 class icXElementaryMath extends icXElem {
 	constructor(scope: icXElem | null, pos: number = 0, text: string = "") {
 		super(scope, pos, text)
-		this.re.push(/([\.\d\w]+)[\t\f\v ]*=[\t\f\v ]*([\.\d\w]+)[\t\f\v ]*([+\-*\/%])[\t\f\v ]*([\.\d\w]+)[\t\f\v ]*$/)
+		this.re.push(/^([\.\d\w]+)[\t\f\v ]*=[\t\f\v ]*([\.\d\w]+)[\t\f\v ]*([+\-*\/%])[\t\f\v ]*([\.\d\w]+)[\t\f\v ]*$/)
 	}
 
 	compile() {
