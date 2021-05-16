@@ -44,6 +44,7 @@ export class icXElem { //инструкция
 						case '*':
 							return +a0 * +a1
 						case '/':
+							if (+a1 === 0) throw new Error("div by zero")
 							return +a0 / +a1
 						case '^':
 							return Math.pow(+a0, +a1)
