@@ -1,6 +1,6 @@
 import * as classes from "./classes"
-import { icXElem } from "./classes"
-import { functions, ifs, vars, whiles, use } from "./lists"
+import {icXElem} from "./classes"
+import {functions, ifs, use, vars, whiles} from "./lists"
 import modules from "./modules"
 
 const regexes = {
@@ -11,6 +11,7 @@ const regexes = {
 	'strStart': new RegExp("^\".+$"),
 	'strEnd': new RegExp(".+\"$"),
 }
+
 export class icX {
 	public text: string
 	public keyFirstWord: { class: string, re: RegExp }[] = []
@@ -20,7 +21,7 @@ export class icX {
 	public structure: classes.icXBlock | null = null
 	public currentBlock: classes.icXBlock | null = null
 	public operators: { [id: string]: icXElem } = {}
-
+	
 	constructor(text: string) {
 		for (const key in classes) {
 			try {
@@ -32,14 +33,16 @@ export class icX {
 						var x = new element
 						if (x instanceof classes.icXElem) {
 							x.re.forEach(re => {
-								this.keyFirstWord.push({ class: key, re })
+								this.keyFirstWord.push({class: key, re})
 								// @ts-ignore
 								this.operators[key] = classes[key]
 							})
 						}
-					} catch {}
+					} catch {
+					}
 				}
-			} catch {}
+			} catch {
+			}
 		}
 		for (const key in modules) {
 			try {
@@ -51,14 +54,16 @@ export class icX {
 						var x = new element
 						if (x instanceof classes.icXElem) {
 							x.re.forEach(re => {
-								this.keyFirstWord.push({ class: key, re })
+								this.keyFirstWord.push({class: key, re})
 								// @ts-ignore
 								this.operators[key] = modules[key]
 							})
 						}
-					} catch {}
+					} catch {
+					}
 				}
-			} catch {}
+			} catch {
+			}
 		}
 		vars.reset()
 		this.position = 0
@@ -66,7 +71,7 @@ export class icX {
 		// this.text = 'var _r0 = 0\n' + text
 		this.init(this.text)
 	}
-
+	
 	init(text: string) {
 		this.lines = text.split(/\r?\n/)
 		var commands: { command: string, args: string[], empty: boolean }[] = this.lines
@@ -74,7 +79,7 @@ export class icX {
 				const args: Array<string> = line.trim().split(/\s+/)
 				const command = args.shift() ?? ""
 				const empty = (!command || command.startsWith("#")) ? true : false
-				return { command, args, empty }
+				return {command, args, empty}
 			})
 		commands.forEach(command => {
 			var newArgs: any = {}
@@ -112,7 +117,7 @@ export class icX {
 				var line = this.lines[position]
 				var c = this.commands[position]
 				var r = ''
-
+				
 				for (const keyFirstWordKey in this.keyFirstWord) {
 					var key = this.keyFirstWord[keyFirstWordKey]
 					if (key.re.test(line)) {
@@ -130,7 +135,8 @@ export class icX {
 						if (a instanceof classes.icXBlock) {
 							this.currentBlock = a.setStart(a.originalPosition + 1)
 						}
-					} catch {}
+					} catch {
+					}
 				} else {
 					if (this.currentBlock.endKeys.test(line)) {
 						var block = this.currentBlock.setEnd(position - 1)
@@ -146,33 +152,39 @@ export class icX {
 			}
 		}
 	}
-
-	getCompiled(): string {
+	
+	getCompiled(): string|boolean {
 		vars.reset()
 		ifs.reset()
 		whiles.reset()
-		const code = (this.structure?.compile() ?? "") + "\n"
-		var txt = "# ---icX User code start---\n"
-		txt += code
-		txt += "# ---icX User code end---\n"
-		if (functions.fn.length != 0) {
-			if (!use.has("loop")) {
-				txt += "j _icXstart\n"
-				txt += functions.get()
-				txt += "_icXstart:\n"
-			} else {
-				txt += "j 1\n"
-				txt += functions.get()
+		try {
+			const code = (this.structure?.compile() ?? "") + "\n"
+			var txt = "# ---icX User code start---\n"
+			txt += code
+			txt += "# ---icX User code end---\n"
+			if (functions.fn.length != 0) {
+				if (!use.has("loop")) {
+					txt += "j _icXstart\n"
+					txt += functions.get()
+					txt += "_icXstart:\n"
+				} else {
+					txt += "j 1\n"
+					txt += functions.get()
+				}
 			}
+			txt = txt
+				.split("\n")
+				.map((str) => {
+					return str.trim()
+				}).filter((str) => {
+					if (!use.has("comments") && str.startsWith("#")) return false
+					else return str !== ""
+				}).join('\n')
+			return txt
+		} catch (e) {
+			throw e
+			return false
 		}
-		txt = txt
-			.split("\n")
-			.map((str) => {
-				return str.trim()
-			}).filter((str) => {
-				if (!use.has("comments") && str.startsWith("#")) return false
-				else return str !== ""
-			}).join('\n')
-		return txt
+		
 	}
 }

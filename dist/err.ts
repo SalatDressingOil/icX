@@ -1,4 +1,4 @@
-class e {
+export class Err {
 	
 	//  сторона ошибки      lvl        номер
 	//      0                0           00
@@ -17,45 +17,46 @@ class e {
 		this.code = code
 		this.message = message
 		this.line = line
-		
+		this.analyze()
 	}
 	
-	analize() {
+	analyze() {
 		var c = 0
-		if (this.code >= e.other) {
-			c = this.code - e.other
+		if (this.code >= Err.other) {
+			c = this.code - Err.other
 			this.group = 'other'
-		} else if (this.code >= e.math) {
-			c = this.code - e.math
+		} else if (this.code >= Err.math) {
+			c = this.code - Err.math
 			this.group = 'math'
-		} else if (this.code >= e.ic10) {
-			c = this.code - e.ic10
+		} else if (this.code >= Err.ic10) {
+			c = this.code - Err.ic10
 			this.group = 'ic10'
-		} else if (this.code >= e.syntax) {
-			c = this.code - e.syntax
+		} else if (this.code >= Err.syntax) {
+			c = this.code - Err.syntax
 			this.group = 'syntax'
-		} else if (this.code >= e.parse) {
-			c = this.code - e.parse
+		} else if (this.code >= Err.parse) {
+			c = this.code - Err.parse
 			this.group = 'parse'
 		} else {
 			this.group = 'мудак'
 		}
 		switch (String(c)[0]) {
+			case '0':
 			case '1':
 			case '2':
 			case '3':
-				break;
 				this.lvl = 'fatal'
+				break;
 			case '4':
 			case '5':
 			case '6':
-				break;
 				this.lvl = 'warn'
+				break;
 			case '7':
 			case '8':
 			case '9':
-				break;
 				this.lvl = 'info'
+				break;
 			default:
 				this.lvl = 'блядь'
 				break
@@ -64,7 +65,37 @@ class e {
 	}
 	
 	getUserMessage() {
-		return `[${this.group.charAt(0).toUpperCase()}${this.lvl.charAt(0).toUpperCase()}] ${this.message}`;
+		var group = this.firstUpper(this.group)
+		var lvl = this.firstUpper(this.lvl)
+		
+		return `[${group}${lvl}]:${this.line} ${this.message} `;
 	}
 	
+	firstUpper(string: string): string {
+		string = string.toLowerCase();
+		return string.charAt(0).toUpperCase() + string.slice(1);
+	}
+}
+
+export class Errors{
+	public e: Err[] = []
+	
+	isError() {
+		if (this.e.length > 0) {
+			return true
+		}
+		return false
+	}
+	
+	push(e: Err) {
+		this.e.push(e)
+	}
+	
+	getUserMessage() {
+		var msg = ''
+		for (const eKey in this.e) {
+			msg += this.e[eKey].getUserMessage() + "\n"
+		}
+		return msg;
+	}
 }

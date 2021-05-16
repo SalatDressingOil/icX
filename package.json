@@ -6,7 +6,7 @@
   "scripts": {
     "start": "tsc -w",
     "test": "node test.js",
-    "debug": "nodemon -w ./ -e js,icX,ic10 test.js"
+    "debug": "nodemon -w ./ -e js,icX test.js"
   },
   "keywords": [
     "ic10",

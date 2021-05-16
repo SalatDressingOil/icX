@@ -22,7 +22,7 @@ export class variable {
 	}
 }
 
-export class varsclass {
+export class varsClass {
 	aliases: variable[] = []
 	temps: variable[] = []
 	empty: string[] = []
@@ -97,7 +97,7 @@ export class varsclass {
 		return newTemp
 	}
 }
-const vars = new varsclass
+const vars = new varsClass
 export {vars}
 // export const vars: { count: number; aliases: { [id: string]: string }; RDs: { [id: string]: string }; getRD: (a: string) => string | undefined; getAlias: (a: string) => string; setAlias: (r: string, a: string) => void; setRDs: (r: string, a: string) => void; reset: () => void; get: () => string } = {
 // 	count: 1,

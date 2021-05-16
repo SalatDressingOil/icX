@@ -1,4 +1,5 @@
-import {functions, ifs, use, vars, whiles, variable} from "./lists"
+import {functions, ifs, use, variable, vars, whiles} from "./lists"
+import {Err, Errors} from "./err";
 
 const mathParser = require('@scicave/math-parser');
 
@@ -15,27 +16,28 @@ export class icXElem { //инструкция
 		vars: variable[],
 		temps: number,
 		result: string,
-		convert: (r: any, result:string | null, iter?: number) => {} 
+		convert: (r: any, result: string | null, iter?: number, originalPosition?: number) => {}
 		get: () => string
 	} = {
 		txt: [],
 		vars: [],
 		temps: 0,
 		result: "",
-		convert: function (r, result) {
+		convert: function (r, result, originalPosition = 0) {
 			if (r.type == 'operator') {
-				var a0 = this.convert(r.args[0], null)
-				var a1 = this.convert(r.args[1], null)
-				if (a0 == Infinity || a0 == -Infinity || a1 == Infinity || a1 == -Infinity)
-					throw new Error(`Infinity is used`)
-				var temp:string|variable = ""
-				if (result !== null){
+				var a0 = this.convert(r.args[0], null, originalPosition)
+				var a1 = this.convert(r.args[1], null, originalPosition)
+				if (a0 == Infinity || a0 == -Infinity || a1 == Infinity || a1 == -Infinity) {
+					throw new Err(401, `Infinity is used`, originalPosition)
+				}
+				var temp: string | variable = ""
+				if (result !== null) {
 					temp = result
 					this.result = result
 				} else {
 					temp = `__temp_${++this.temps}__`
 				}
-				if (!isNaN(+a0) && !isNaN(+a1)){
+				if (!isNaN(+a0) && !isNaN(+a1)) {
 					switch (r.name) {
 						case '-':
 							return +a0 - +a1
@@ -44,7 +46,7 @@ export class icXElem { //инструкция
 						case '*':
 							return +a0 * +a1
 						case '/':
-							if (+a1 === 0) throw new Error("div by zero")
+							if (+a1 === 0) throw new Err(402, "div by zero", originalPosition)
 							return +a0 / +a1
 						case '^':
 							return Math.pow(+a0, +a1)
@@ -93,8 +95,8 @@ export class icXElem { //инструкция
 			// this.v.forEach((e)=>{
 			// 	txt += `move r${e} 0\n`
 			// })
-			var used:{[id:string]:variable} = {}
-			var map:{[id:string]:[number, number, variable?]} = {}
+			var used: { [id: string]: variable } = {}
+			var map: { [id: string]: [number, number, variable?] } = {}
 			this.txt.forEach((v, i, a) => {
 				if (typeof v[1] !== "number" && v[1].startsWith("__temp_") && v[1].endsWith("__")) {
 					if (!map[v[1]]) map[v[1]] = [i, i]
@@ -119,7 +121,7 @@ export class icXElem { //инструкция
 					v[2] = map[v[2]][2]?.to
 				}
 				if (v[1] in map) {
-					if (i == map[v[1]][0]){
+					if (i == map[v[1]][0]) {
 						map[v[1]][2] = vars.getTemp()
 						v[1] = map[v[1]][2]?.to
 					}
@@ -209,8 +211,7 @@ export class icXElem { //инструкция
 	}
 	
 	
-	
-	parseMath(text: string, r:string): string | false {
+	parseMath(text: string, r: string): string | false {
 		
 		text = text.replace(/\s+/g, "")
 		const regex = /^(.+)$/
@@ -220,16 +221,16 @@ export class icXElem { //инструкция
 				return `move ${r} ${vars.get(text)}`
 			var math = mathParser.parse(text)
 			try {
-				var resultvar = this.out.convert(math, r)
-				if (resultvar === Infinity || resultvar === -Infinity) throw new Error(`Infinity is used`)
-			} catch (e){
-				throw new Error(e.message + ` at ${this.originalPosition+1}`)
+				var resultvar = this.out.convert(math, r, this.originalPosition)
+				if (resultvar === Infinity || resultvar === -Infinity) throw new Err(403, `Infinity is used`, this.originalPosition)
+			} catch (e) {
+				throw new Err(403, e.message, this.originalPosition)
 			}
 			if (!isNaN(+resultvar))
 				return `move ${r} ${resultvar}`
-
+			
 			var result = this.out.get()
-			if (result === "") throw new Error(`${text} is not valid at line ${this.originalPosition+1}`)
+			if (result === "") throw new Err(404, `${text} is not valid at line`, this.originalPosition)
 			return result
 		}
 		return false;
@@ -243,7 +244,7 @@ export class icXBlock extends icXElem { //блок инструкций
 	public content: { [id: number]: icXElem } = {};
 	public endKeys: RegExp = /\bend\b/i
 	public tempVar?: variable
-		
+	
 	constructor(scope: icXElem | null, pos: number = 0, text: string = "") {
 		super(scope, pos, text)
 		if (scope !== null)
@@ -253,7 +254,7 @@ export class icXBlock extends icXElem { //блок инструкций
 	addElem(e: icXElem) {
 		this.content[e.originalPosition] = e
 	}
-
+	
 	parseRules() {
 		var re = /\b([\.\d\w]+)\s{0,}(<|==|>|<=|>=|\||!=|\&|\~\=)\s{0,}([\s\.\d\w]+?\b)(\,[\s\.\d\w]+){0,}/i
 		if (re.test(this.args)) {
@@ -312,7 +313,7 @@ export class icXBlock extends icXElem { //блок инструкций
 		}
 		
 	}
-
+	
 	setStart(line: number) {
 		this.start = line
 		return this
@@ -322,13 +323,24 @@ export class icXBlock extends icXElem { //блок инструкций
 		this.end = line
 		return this.scope
 	}
-
+	
 	compile() {
 		const txt: string[] = []
+		var err = new Errors
 		for (const contentKey in this.content) {
-			const text = this.content[contentKey].compile()
-			if (text !== null)
-				txt.push(text)
+			try {
+				const text = this.content[contentKey].compile()
+				if (text !== null)
+					txt.push(text)
+			} catch (e) {
+				if(e.lvl == 'fatal'){
+					throw e
+				}
+				err.push(e)
+			}
+		}
+		if(err.isError()){
+			throw err
 		}
 		return txt.join("\n") + "\n"
 	}
@@ -467,28 +479,24 @@ export class icXConst extends icXElem {
 	}
 }
 
-// export class icXAlias extends icXElem {
-// 	constructor(scope: icXElem | null, pos: number = 0, text: string = "") {
-// 		super(scope, pos, text)
-// 		this.re.push(/\balias\b/i)
-// 	}
+export class icXAlias extends icXElem {
+	constructor(scope: icXElem | null, pos: number = 0, text: string = "") {
+		super(scope, pos, text)
+		this.re.push(/\balias\b/i)
+	}
 	
-// 	compile() {
-// 		vars.setCustom(this.command.args[0], this.command.args[1])
-// 		return super.compile()
-// 	}
-// }
+	compile() {
+		throw new Err(100, 'You can`t use "alias" in "icX"', this.originalPosition)
+		return ''
+	}
+}
 
 export class icXLog extends icXElem {
 	constructor(scope: icXElem | null, pos: number = 0, text: string = "") {
 		super(scope, pos, text)
-		this.re.push(/\blog\b/i)
+		this.re.push(/\bdebug\b/i)
 	}
 	
-	// compile() {
-	// 	if (!use.has("aliases") && vars.getRD(this.args) !== undefined) return `#log ${vars.getRD(this.args)}`
-	// 	return `#log ${this.args}`
-	// }
 	compile() {
 		return `#log ${vars.get(this.args)}`
 	}
