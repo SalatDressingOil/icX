@@ -1,15 +1,9 @@
-use comments aliases
-var _x2 = (x+5 ^ 3)
-var y = (5 ^ 3 * 0)
-debug x
-debug x
-
-# y = 2x2
-
-debug x
-debug x
-if x > 0
-else
-	x++
+var setting = d0.Setting
+const rule = 10 + 10 * 2
+while setting  < rule
+	setting++ 
+	d0.Setting = setting
 end
-#log x
+setting = d0.Setting
+
+setting = setting + 8 +2

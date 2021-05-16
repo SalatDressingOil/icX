@@ -91,10 +91,6 @@ export class icXElem { //инструкция
 			}
 		},
 		get: function () {
-			// var txt = ''
-			// this.v.forEach((e)=>{
-			// 	txt += `move r${e} 0\n`
-			// })
 			var used: { [id: string]: variable } = {}
 			var map: { [id: string]: [number, number, variable?] } = {}
 			this.txt.forEach((v, i, a) => {
@@ -142,7 +138,6 @@ export class icXElem { //инструкция
 		this.scope = scope
 		this.originalPosition = pos
 		this.originalText = text
-		// this.parseMath()
 	}
 	
 	setCommand(e: { command: string, args: string[], empty: boolean }) {
@@ -155,35 +150,9 @@ export class icXElem { //инструкция
 	
 	compile(): string | null {
 		var re: RegExp
-		var byDots = this.originalText.split('.')
-		if (byDots.length > 1) {
-			if (byDots[0].trim() in vars.aliases) {
-				re = /\b([\w\d]+)\.([\w\d]+)\s{0,}(=)\s{0,}([\w\d]+)\b/i
-				if (re.test(this.originalText)) {
-					var a = re.exec(this.originalText)
-					if (a == null) return null
-					return `s ${a[1]} ${a[2]} ${a[4]}`
-				}
-				
-			}
-			re = /\b([\w\d]+)\s{0,}(=)\s{0,}([\w\d]+)\.([\w\d]+)\s{0,}$/i
-			if (re.test(this.originalText)) {
-				var a = re.exec(this.originalText)
-				if (a == null) return null
-				return `l ${a[1]} ${a[3]} ${a[4]}`
-			}
-			re = /\b([\w\d]+)\s{0,}(=)\s{0,}([\w\d]+)\.slot\(([\w\d]+)\).([\w\d]+)\b/i
-			if (re.test(this.originalText)) {
-				var a = re.exec(this.originalText)
-				if (a == null) return null
-				return `ls ${a[1]} ${a[3]} ${a[4]} ${a[5]}`
-			}
-			re = /\b([\w\d]+)\s{0,}(=)\s{0,}d\(([\w\d]+)\).([\w\d]+)\(([\w\d]+)\b/i
-			if (re.test(this.originalText)) {
-				var a = re.exec(this.originalText)
-				if (a == null) return null
-				return `lb ${a[1]} ${a[3]} ${a[4]} ${a[5]}`
-			}
+		var dots = this.parseDots(this.originalText)
+		if (dots !== false) {
+			return `${dots.fn} ${dots.op1} ${dots.op2} ${dots.op3} ${dots.op4 ?? ''}`
 		}
 		
 		re = /([\.\d\w]+)\s{0,}(=)\s{0,}(.+)/i
@@ -194,7 +163,6 @@ export class icXElem { //инструкция
 			var txt = ''
 			if (math !== false) {
 				txt += math
-				// txt += `\nmove ${vars.get(a[1])} ${vars.get(math.var)}\n`
 			} else {
 				txt += `move ${vars.get(a[1])} ${vars.get(a[3])}\n`
 			}
@@ -210,6 +178,59 @@ export class icXElem { //инструкция
 		return this.originalText
 	}
 	
+	parseDots(text: string): { fn: string, op1: string | number | null, op2: string | number | null, op3: string | number | null, op4?: string | number } | false {
+		var re: RegExp
+		var byDots = text.split('.')
+		if (byDots.length >= 2) {
+				re = /\b([\w\d]+)\.([\w\d]+)\s{0,}(=)\s{0,}([\w\d]+)\b/i
+				if (re.test(text)) {
+					var a = re.exec(text)
+					if (a == null) return false
+					return {
+						fn: 's',
+						op1: vars.get(a[1]),
+						op2: vars.get(a[2]),
+						op3: vars.get(a[4]),
+					}
+				}
+			re = /\b([\w\d]+)\s{0,}(=)\s{0,}([\w\d]+)\.([\w\d]+)\s{0,}$/i
+			if (re.test(text)) {
+				var a = re.exec(text)
+				if (a == null) return false
+				return {
+					fn: 'l',
+					op1: vars.get(a[1]),
+					op2: vars.get(a[3]),
+					op3: vars.get(a[4]),
+				}
+			}
+			re = /\b([\w\d]+)\s{0,}(=)\s{0,}([\w\d]+)\.slot\(([\w\d]+)\).([\w\d]+)\b/i
+			if (re.test(text)) {
+				var a = re.exec(text)
+				if (a == null) return false
+				return {
+					fn: 'ls',
+					op1: vars.get(a[1]),
+					op2: vars.get(a[3]),
+					op3: vars.get(a[4]),
+					op4: vars.get(a[5]),
+				}
+			}
+			re = /\b([\w\d]+)\s{0,}(=)\s{0,}d\(([\w\d]+)\).([\w\d]+)\(([\w\d]+)\b/i
+			if (re.test(text)) {
+				var a = re.exec(text)
+				if (a == null) return false
+				return {
+					fn: 'lb',
+					op1: vars.get(a[1]),
+					op2: vars.get(a[3]),
+					op3: vars.get(a[4]),
+					op4: vars.get(a[5]),
+				}
+			}
+		}
+		return false
+	}
 	
 	parseMath(text: string, r: string): string | false {
 		
@@ -333,13 +354,13 @@ export class icXBlock extends icXElem { //блок инструкций
 				if (text !== null)
 					txt.push(text)
 			} catch (e) {
-				if(e.lvl == 'fatal'){
+				if (e.lvl == 'fatal') {
 					throw e
 				}
 				err.push(e)
 			}
 		}
-		if(err.isError()){
+		if (err.isError()) {
 			throw err
 		}
 		return txt.join("\n") + "\n"
@@ -445,12 +466,16 @@ export class icXVar extends icXElem {
 			txt += `alias ${a} ${r.to}\n`
 		}
 		if (1 in b) {
-			var math = this.parseMath(b[1], vars.get(r))
-			if (math !== false) {
-				txt += math
-				// txt += `\nmove ${r} ${math.var}\n`
+			var dots = this.parseDots(this.command.args.join(''))
+			if (dots) {
+				txt += `${dots.fn} ${r} ${dots.op2} ${dots.op3} ${dots.op4 ?? ''}\n`
 			} else {
-				txt += `move ${r} ${b[1].trim()}\n`
+				var math = this.parseMath(b[1], vars.get(r))
+				if (math !== false) {
+					txt += math
+				} else {
+					txt += `move ${r} ${b[1].trim()}\n`
+				}
 			}
 		}
 		return txt
@@ -466,12 +491,15 @@ export class icXConst extends icXElem {
 	compile() {
 		var txt = ''
 		if (this.command.args.length >= 2) {
-			// if (use.has("aliases")) {
-			// 	txt += `alias ${b[0]} ${b[1]}\n`
-			// }
 			var a = this.command.args.join('')
 			var b = a.split('=')
 			b[0] = b[0].trim()
+			if(isNaN(Number(b[1]))){
+				b[1] = eval(b[1])
+			}
+			if(isNaN(Number(b[1]))){
+				throw new Err(201, 'invalid constant value', this.originalPosition)
+			}
 			// vars.setAlias(b[0], b[0])
 			txt += `define ${b[0]} ${b[1]}\n`
 		}

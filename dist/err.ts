@@ -68,7 +68,7 @@ export class Err {
 		var group = this.firstUpper(this.group)
 		var lvl = this.firstUpper(this.lvl)
 		
-		return `[${group}${lvl}]:${this.line} ${this.message} `;
+		return `[${group}${lvl}]:${this.line+1} ${this.message} `;
 	}
 	
 	firstUpper(string: string): string {
@@ -94,7 +94,11 @@ export class Errors{
 	getUserMessage() {
 		var msg = ''
 		for (const eKey in this.e) {
-			msg += this.e[eKey].getUserMessage() + "\n"
+			if (this.e[eKey] instanceof Err) {
+				msg += this.e[eKey].getUserMessage() + "\n"
+			}else{
+				return this.e[eKey]
+			}
 		}
 		return msg;
 	}
