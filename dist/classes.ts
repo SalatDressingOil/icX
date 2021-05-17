@@ -1,13 +1,13 @@
-import {functions, ifs, use, variable, vars, whiles} from "./lists"
-import {Err, Errors} from "./err";
+import { functions, ifs, use, variable, vars, whiles } from "./lists"
+import { Err, Errors } from "./err"
 
-const mathParser = require('@scicave/math-parser');
+const mathParser = require('@scicave/math-parser')
 
 export class icXElem { //инструкция
 	public originalPosition: number
 	public originalText: string
 	public scope: icXElem | null
-	public command: { command: string, args: string[], empty: boolean } = {command: '', args: [], empty: true};
+	public command: { command: string, args: string[], empty: boolean } = { command: '', args: [], empty: true };
 	public args: string = ""
 	public rule: RegExpExecArray | null = null
 	public re: RegExp[] = []
@@ -16,133 +16,138 @@ export class icXElem { //инструкция
 		vars: variable[],
 		temps: number,
 		result: string,
-		convert: (r: any, result: string | null, iter?: number, originalPosition?: number) => {}
+		convert: (r: any, result: string | null, originalPosition?: number, settings?: { noVars: boolean, define: boolean }) => {}
 		get: () => string
 	} = {
-		txt: [],
-		vars: [],
-		temps: 0,
-		result: "",
-		convert: function (r, result, originalPosition = 0) {
-			if (r.type == 'automult')
-				console.log(r.args[0].args[0])
-			if (r.type == 'operator') {
-				var a0 = this.convert(r.args[0], null, originalPosition)
-				var a1 = this.convert(r.args[1], null, originalPosition)
-				if (a0 == Infinity || a0 == -Infinity || a1 == Infinity || a1 == -Infinity) {
-					throw new Err(401, `Infinity is used`, originalPosition)
+			txt: [],
+			vars: [],
+			temps: 0,
+			result: "",
+			convert: function (r, result, originalPosition = 0, settings = { noVars: false, define: false }) {
+				if (r.type == 'operator') {
+					var a0 = this.convert(r.args[0], null, originalPosition, settings)
+					var a1 = this.convert(r.args[1], null, originalPosition, settings)
+					if (a0 == Infinity || a0 == -Infinity || a1 == Infinity || a1 == -Infinity) {
+						throw new Err(401, originalPosition)
+					}
+					var temp: string | variable = ""
+					if (result !== null) {
+						temp = result
+						this.result = result
+					} else {
+						temp = `__temp_${++this.temps}__`
+					}
+					if (!isNaN(+a0) && !isNaN(+a1)) {
+						switch (r.name) {
+							case '-':
+								return +a0 - +a1
+							case '+':
+								return +a0 + +a1
+							case '*':
+								return +a0 * +a1
+							case '/':
+								if (+a1 === 0) throw new Err(402, originalPosition)
+								return +a0 / +a1
+							case '^':
+								return Math.pow(+a0, +a1)
+							case '%':
+								if (+a1 === 0) throw new Err(403, originalPosition)
+								return +a0 % +a1
+						}
+						return 0
+					} else {
+						switch (r.name) {
+							case '-':
+								this.txt.push(["sub", temp, a0, a1])
+								break
+							case '+':
+								this.txt.push(["add", temp, a0, a1])
+								break
+							case '*':
+								this.txt.push(["mul", temp, a0, a1])
+								break
+							case '/':
+								if (+a1 === 0) throw new Err(402, originalPosition)
+								this.txt.push(["div", temp, a0, a1])
+								break
+							case '%':
+								if (+a1 === 0) throw new Err(403, originalPosition)
+								this.txt.push(["mod", temp, a0, a1])
+								break
+						}
+						this.txt.push()
+						return temp
+					}
+				} else if (r.type == 'number') {
+					return r.value
+				} else if (r.type == 'id') {
+					if (settings.noVars) {
+						if (isNaN(Number(vars.get(r.name))))
+							throw new Err(901)
+						else return vars.get(r.name)
+					}
+					return vars.get(r.name)
 				}
-				var temp: string | variable = ""
-				if (result !== null) {
-					temp = result
-					this.result = result
+				if (r.type == 'abs') {
+					if (r.args[0].type == 'number') {
+						return Math.abs(r.args[0].value)
+					} else if (r.args[0].type == 'id') {
+						this.txt.unshift(["abs", r.args[0].name, vars.get(r.args[0].name)])
+						return r.args[0].name
+					}
+					return r.name
+				}
+			},
+			get: function () {
+				var used: { [id: string]: variable } = {}
+				var map: { [id: string]: [number, number, variable?] } = {}
+				this.txt.forEach((v, i, a) => {
+					if (typeof v[1] !== "number" && v[1].startsWith("__temp_") && v[1].endsWith("__")) {
+						if (!map[v[1]]) map[v[1]] = [i, i]
+						else map[v[1]][0] = i
+					}
+					if (typeof v[2] !== "number" && v[2].startsWith("__temp_") && v[2].endsWith("__")) {
+						if (!map[v[2]]) map[v[2]] = [0, i]
+						else map[v[2]][1] = i
+					}
+					if (typeof v[3] !== "number" && v[3].startsWith("__temp_") && v[3].endsWith("__")) {
+						if (!map[v[3]]) map[v[3]] = [0, i]
+						else map[v[3]][1] = i
+					}
+				})
+				this.txt.forEach((v, i, a) => {
+					if (v[3] in map) {
+						if (i == map[v[3]][1]) map[v[3]][2]?.release()
+						v[3] = map[v[3]][2]?.to
+					}
+					if (v[2] in map) {
+						if (i == map[v[2]][1]) map[v[2]][2]?.release()
+						v[2] = map[v[2]][2]?.to
+					}
+					if (v[1] in map) {
+						if (i == map[v[1]][0]) {
+							map[v[1]][2] = vars.getTemp()
+							v[1] = map[v[1]][2]?.to
+						}
+					}
+				})
+				var txt = this.txt.map((v) => v.join(" ")).join("\n") ?? ''
+				this.txt = []
+				this.vars = []
+				if (txt) {
+					return txt
 				} else {
-					temp = `__temp_${++this.temps}__`
+					return ""
 				}
-				if (!isNaN(+a0) && !isNaN(+a1)) {
-					switch (r.name) {
-						case '-':
-							return +a0 - +a1
-						case '+':
-							return +a0 + +a1
-						case '*':
-							return +a0 * +a1
-						case '/':
-							if (+a1 === 0) throw new Err(402, "div by zero", originalPosition)
-							return +a0 / +a1
-						case '^':
-							return Math.pow(+a0, +a1)
-						case '%':
-							return +a0 % +a1
-					}
-					return 0
-				} else {
-					switch (r.name) {
-						case '-':
-							this.txt.push(["sub", temp, a0, a1])
-							break;
-						case '+':
-							this.txt.push(["add", temp, a0, a1])
-							break;
-						case '*':
-							this.txt.push(["mul", temp, a0, a1])
-							break;
-						case '/':
-							this.txt.push(["div", temp, a0, a1])
-							break;
-						case '%':
-							this.txt.push(["mod", temp, a0, a1])
-							break;
-					}
-					this.txt.push()
-					return temp
-				}
-			} else if (r.type == 'number') {
-				return r.value
-			} else if (r.type == 'id') {
-				return vars.get(r.name)
 			}
-			if (r.type == 'abs') {
-				if (r.args[0].type == 'number') {
-					return Math.abs(r.args[0].value)
-				} else if (r.args[0].type == 'id') {
-					this.txt.unshift(["abs", r.args[0].name, vars.get(r.args[0].name)])
-					return r.args[0].name
-				}
-				return r.name
-			}
-		},
-		get: function () {
-			var used: { [id: string]: variable } = {}
-			var map: { [id: string]: [number, number, variable?] } = {}
-			this.txt.forEach((v, i, a) => {
-				if (typeof v[1] !== "number" && v[1].startsWith("__temp_") && v[1].endsWith("__")) {
-					if (!map[v[1]]) map[v[1]] = [i, i]
-					else map[v[1]][0] = i
-				}
-				console.log(v)
-				if (typeof v[2] !== "number" && v[2].startsWith("__temp_") && v[2].endsWith("__")) {
-					if (!map[v[2]]) map[v[2]] = [0, i]
-					else map[v[2]][1] = i
-				}
-				if (typeof v[3] !== "number" && v[3].startsWith("__temp_") && v[3].endsWith("__")) {
-					if (!map[v[3]]) map[v[3]] = [0, i]
-					else map[v[3]][1] = i
-				}
-			})
-			this.txt.forEach((v, i, a) => {
-				if (v[3] in map) {
-					if (i == map[v[3]][1]) map[v[3]][2]?.release()
-					v[3] = map[v[3]][2]?.to
-				}
-				if (v[2] in map) {
-					if (i == map[v[2]][1]) map[v[2]][2]?.release()
-					v[2] = map[v[2]][2]?.to
-				}
-				if (v[1] in map) {
-					if (i == map[v[1]][0]) {
-						map[v[1]][2] = vars.getTemp()
-						v[1] = map[v[1]][2]?.to
-					}
-				}
-			})
-			var txt = this.txt.map((v) => v.join(" ")).join("\n") ?? ''
-			this.txt = [];
-			this.vars = []
-			if (txt) {
-				return txt
-			} else {
-				return ""
-			}
-		}
-	};
-	
+		};
+
 	constructor(scope: icXElem | null, pos: number = 0, text: string = "") {
 		this.scope = scope
 		this.originalPosition = pos
 		this.originalText = text
 	}
-	
+
 	setCommand(e: { command: string, args: string[], empty: boolean }) {
 		this.command = e
 		if (!this.originalText) {
@@ -150,14 +155,14 @@ export class icXElem { //инструкция
 		}
 		this.args = this.command.args.join(' ')
 	}
-	
+
 	compile(): string | null {
 		var re: RegExp
 		var dots = this.parseDots(this.originalText)
 		if (dots !== false) {
 			return `${dots.fn} ${dots.op1} ${dots.op2} ${dots.op3} ${dots.op4 ?? ''}`
 		}
-		
+
 		re = /([\.\d\w]+)\s{0,}(=)\s{0,}(.+)/i
 		if (re.test(this.originalText)) {
 			var a = re.exec(this.originalText)
@@ -177,25 +182,25 @@ export class icXElem { //инструкция
 			if (a == null) return null
 			return `jal ${a[1]}\n`
 		}
-		
+
 		return this.originalText
 	}
-	
+
 	parseDots(text: string): { fn: string, op1: string | number | null, op2: string | number | null, op3: string | number | null, op4?: string | number } | false {
 		var re: RegExp
 		var byDots = text.split('.')
 		if (byDots.length >= 2) {
-				re = /\b([\w\d]+)\.([\w\d]+)\s{0,}(=)\s{0,}([\w\d]+)\b/i
-				if (re.test(text)) {
-					var a = re.exec(text)
-					if (a == null) return false
-					return {
-						fn: 's',
-						op1: vars.get(a[1]),
-						op2: vars.get(a[2]),
-						op3: vars.get(a[4]),
-					}
+			re = /\b([\w\d]+)\.([\w\d]+)\s{0,}(=)\s{0,}([\w\d]+)\b/i
+			if (re.test(text)) {
+				var a = re.exec(text)
+				if (a == null) return false
+				return {
+					fn: 's',
+					op1: vars.get(a[1]),
+					op2: vars.get(a[2]),
+					op3: vars.get(a[4]),
 				}
+			}
 			re = /\b([\w\d]+)\s{0,}(=)\s{0,}([\w\d]+)\.([\w\d]+)\s{0,}$/i
 			if (re.test(text)) {
 				var a = re.exec(text)
@@ -234,32 +239,36 @@ export class icXElem { //инструкция
 		}
 		return false
 	}
-	
-	parseMath(text: string, r: string): string | false {
-		
+
+	parseMath(text: string, r: string, settings: { noVars?: boolean, define?: boolean } = {}): string | false {
+		var set: { noVars: boolean, define: boolean } = {
+			noVars: settings.noVars ?? false,
+			define: settings.define ?? false,
+		}
 		text = text.replace(/\s+/g, "")
 		const regex = /^(.+)$/
 		if (regex.test(text)) {
 			text = (regex.exec(text) ?? "")[1] ?? ""
 			if (vars.exists(text))
 				return `move ${r} ${vars.get(text)}`
-			var math = mathParser.parse(text, { singleCharName: false})
+			var math = mathParser.parse(text, { singleCharName: false })
 			try {
-				var resultvar = this.out.convert(math, r, this.originalPosition)
-				if (resultvar === Infinity || resultvar === -Infinity) throw new Err(403, `Infinity is used`, this.originalPosition)
+				var resultvar = this.out.convert(math, r, this.originalPosition, set)
+				if (resultvar === Infinity || resultvar === -Infinity) throw new Err(401, this.originalPosition)
 			} catch (e) {
-				throw new Err(403, e.message, this.originalPosition)
+				throw new Err(e.code, this.originalPosition)
 			}
 			if (!isNaN(+resultvar))
-				return `move ${r} ${resultvar}`
-			
+				if (set.define) return String(resultvar)
+				else return `move ${r} ${resultvar}`
+
 			var result = this.out.get()
-			if (result === "") throw new Err(404, `${text} is not valid at line`, this.originalPosition)
+			if (result === "") throw new Err(201, this.originalPosition, text)
 			return result
 		}
-		return false;
+		return false
 	}
-	
+
 }
 
 export class icXBlock extends icXElem { //блок инструкций
@@ -268,17 +277,17 @@ export class icXBlock extends icXElem { //блок инструкций
 	public content: { [id: number]: icXElem } = {};
 	public endKeys: RegExp = /\bend\b/i
 	public tempVar?: variable
-	
+
 	constructor(scope: icXElem | null, pos: number = 0, text: string = "") {
 		super(scope, pos, text)
 		if (scope !== null)
 			this.tempVar = vars.getTemp()
 	}
-	
+
 	addElem(e: icXElem) {
 		this.content[e.originalPosition] = e
 	}
-	
+
 	parseRules() {
 		var re = /\b([\.\d\w]+)\s{0,}(<|==|>|<=|>=|\||!=|\&|\~\=)\s{0,}([\s\.\d\w]+?\b)(\,[\s\.\d\w]+){0,}/i
 		if (re.test(this.args)) {
@@ -335,19 +344,19 @@ export class icXBlock extends icXElem { //блок инструкций
 					}
 			}
 		}
-		
+
 	}
-	
+
 	setStart(line: number) {
 		this.start = line
 		return this
 	}
-	
+
 	setEnd(line: number) {
 		this.end = line
 		return this.scope
 	}
-	
+
 	compile() {
 		const txt: string[] = []
 		var err = new Errors
@@ -372,23 +381,23 @@ export class icXBlock extends icXElem { //блок инструкций
 
 export class icXFunction extends icXBlock {
 	public name: string | null = null
-	
+
 	constructor(scope: icXElem | null, pos: number = 0, text: string = "") {
 		super(scope, pos, text)
 		this.re.push(/\bfunction\b/i)
 		this.re.push(/\bdef\b/i)
 	}
-	
+
 	setCommand(e: { command: string, args: string[], empty: boolean }) {
 		super.setCommand(e)
 		this.name = e.args[0]
 	}
-	
+
 	compile() {
 		var txt = `${this.name}:\n`
 		txt += super.compile()
 		txt += 'j ra\n'
-		
+
 		functions.add(txt)
 		return ''
 	}
@@ -398,9 +407,9 @@ export class icXIf extends icXBlock {
 	constructor(scope: icXElem | null, pos: number = 0, text: string = "") {
 		super(scope, pos, text)
 		this.re.push(/\bif\b/i)
-		
+
 	}
-	
+
 	compile() {
 		var isElse = false
 		var r = this.parseRules()
@@ -438,7 +447,7 @@ export class icXWhile extends icXBlock {
 		this.re.push(/\bfor\b/i)
 		this.re.push(/\bwhile\b/i)
 	}
-	
+
 	compile() {
 		var r = this.parseRules()
 		var l = whiles.get()
@@ -457,9 +466,9 @@ export class icXVar extends icXElem {
 	constructor(scope: icXElem | null, pos: number = 0, text: string = "") {
 		super(scope, pos, text)
 		this.re.push(/\bvar\b/i)
-		
+
 	}
-	
+
 	compile() {
 		var txt = ''
 		var a = this.command.args[0]
@@ -490,21 +499,29 @@ export class icXConst extends icXElem {
 		super(scope, pos, text)
 		this.re.push(/\bconst\b/i)
 	}
-	
+
 	compile() {
 		var txt = ''
 		if (this.command.args.length >= 2) {
 			var a = this.command.args.join('')
 			var b = a.split('=')
 			b[0] = b[0].trim()
-			if(isNaN(Number(b[1]))){
-				b[1] = eval(b[1])
+			try {
+				if (isNaN(Number(b[1]))) {
+					b[1] = this.parseMath(b[1], vars.get(a), { noVars: true, define : true }) || "0"
+				}
+				console.log(b[1])
+			} catch (e) {
+				if (e.code == 901) throw new Err(203, this.originalPosition)
+				else throw new Err(501, this.originalPosition)
 			}
-			if(isNaN(Number(b[1]))){
-				throw new Err(201, 'invalid constant value', this.originalPosition)
+			if (isNaN(Number(b[1]))) {
+				throw new Err(202, this.originalPosition)
 			}
-			// vars.setAlias(b[0], b[0])
-			txt += `define ${b[0]} ${b[1]}\n`
+			vars.setCustom(b[0], b[1])
+
+
+			// txt += `define ${b[0]} ${b[1]}\n`
 		}
 		return txt
 	}
@@ -515,9 +532,9 @@ export class icXAlias extends icXElem {
 		super(scope, pos, text)
 		this.re.push(/\balias\b/i)
 	}
-	
+
 	compile() {
-		throw new Err(100, 'You can`t use "alias" in "icX"', this.originalPosition)
+		throw new Err(101, this.originalPosition)
 		return ''
 	}
 }
@@ -527,7 +544,7 @@ export class icXLog extends icXElem {
 		super(scope, pos, text)
 		this.re.push(/\bdebug\b/i)
 	}
-	
+
 	compile() {
 		return `#log ${vars.get(this.args)}`
 	}
@@ -538,7 +555,7 @@ export class icXUse extends icXElem {
 		super(scope, pos, text)
 		this.re.push(/\buse\b/i)
 	}
-	
+
 	compile(): "" {
 		use.add(...this.command.args)
 		return ""
@@ -550,7 +567,7 @@ export class icXYield extends icXElem {
 		super(scope, pos, text)
 		this.re.push(/\byield\b/i)
 	}
-	
+
 	compile() {
 		return "yield"
 	}

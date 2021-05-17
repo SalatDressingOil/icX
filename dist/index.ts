@@ -126,7 +126,6 @@ export class icX {
 				}
 				if (r) {
 					try {
-						console.log(position)
 						//@ts-ignore
 						var a = new this.operators[r](this.currentBlock, position, line)
 						a.setCommand(c)

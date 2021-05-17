@@ -1,3 +1,4 @@
+import ErrorCodes from "./errorCodes"
 export class Err {
 	
 	//  сторона ошибки      lvl        номер
@@ -7,15 +8,24 @@ export class Err {
 	static ic10 = 300 // ошибка в скомпилированном 1с10
 	static math = 400 // ошибка в математике
 	static other = 500 //
+	static iternal = 900 //
 	public message: string = ''
 	public code: number = 0
 	public line: number = 0
 	public lvl: string = ''
 	public group: string = ''
 	
-	constructor(code: number, message: string, line: number) {
+	constructor(code: number, line: number = -2, ...params:string[]) {
 		this.code = code
-		this.message = message
+		if (this.code in ErrorCodes) {
+			this.message = ErrorCodes[this.code]
+		} else {
+			this.message = "Unknown Error"
+		}
+		params.forEach((txt, i) => {
+			this.message = this.message.replaceAll(`{${i}}`, txt)
+		});
+		
 		this.line = line
 		this.analyze()
 	}
@@ -24,56 +34,51 @@ export class Err {
 		var c = 0
 		if (this.code >= Err.other) {
 			c = this.code - Err.other
-			this.group = 'other'
+			this.group = 'Other'
 		} else if (this.code >= Err.math) {
 			c = this.code - Err.math
-			this.group = 'math'
+			this.group = 'Math'
 		} else if (this.code >= Err.ic10) {
 			c = this.code - Err.ic10
 			this.group = 'ic10'
 		} else if (this.code >= Err.syntax) {
 			c = this.code - Err.syntax
-			this.group = 'syntax'
+			this.group = 'Syntax'
 		} else if (this.code >= Err.parse) {
 			c = this.code - Err.parse
-			this.group = 'parse'
+			this.group = 'Parse'
 		} else {
-			this.group = 'мудак'
+			this.group = 'Other'
 		}
 		switch (String(c)[0]) {
 			case '0':
 			case '1':
 			case '2':
 			case '3':
-				this.lvl = 'fatal'
+				this.lvl = 'Fatal'
 				break;
 			case '4':
 			case '5':
 			case '6':
-				this.lvl = 'warn'
+				this.lvl = 'Warn'
 				break;
 			case '7':
 			case '8':
 			case '9':
-				this.lvl = 'info'
+				this.lvl = 'Info'
 				break;
 			default:
-				this.lvl = 'блядь'
+				this.lvl = 'Other'
 				break
 		}
-		
 	}
 	
 	getUserMessage() {
-		var group = this.firstUpper(this.group)
-		var lvl = this.firstUpper(this.lvl)
-		
-		return `[${group}${lvl}]:${this.line+1} ${this.message} `;
+		return `[${this.code}:${this.group}${this.lvl}] Line: ${this.line+1}, ${this.message}`;
 	}
 	
 	firstUpper(string: string): string {
-		string = string.toLowerCase();
-		return string.charAt(0).toUpperCase() + string.slice(1);
+		return string.toLowerCase().charAt(0).toUpperCase() + string.slice(1);
 	}
 }
 
@@ -103,3 +108,4 @@ export class Errors{
 		return msg;
 	}
 }
+

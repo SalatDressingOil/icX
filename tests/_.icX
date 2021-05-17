@@ -1,9 +1,21 @@
-var setting = d0.Setting
-const rule = 10 + 10 * 2
-while setting < rule
-    setting++
-    d0.Setting = setting
-end
-setting = d0.Setting
 
-setting = setting + 8 +2
+
+const x = 2 + 2
+const y = x + 2
+var z = y + 2
+
+function func(test, test2)
+	return test2 * test
+end
+
+x = func(y, z)
+
+# var setting = d0.Setting
+# const rule = 10 + 10 * 2
+# while setting < rule
+#     setting++
+#     d0.Setting = setting
+# end
+# setting = d0.Setting
+
+# setting = setting + 8 +2

@@ -1,3 +1,5 @@
+import { Err } from "./err"
+
 export class variable {
 	temp: boolean
 	to: string
@@ -8,15 +10,15 @@ export class variable {
 		this.to = to
 		this.from = from
 	}
-	release(){
+	release() {
 		this.ready = true
 		return this
 	}
-	get(){
+	get() {
 		this.ready = false
 		return this
 	}
-	toString(){
+	toString() {
 		if (use.has("aliases") && this.temp === false) return this.from
 		else return this.to
 	}
@@ -30,7 +32,7 @@ export class varsClass {
 		this.reset()
 		this.getTemp()
 	}
-	reset(){
+	reset() {
 		this.temps = []
 		this.aliases = []
 		this.empty = []
@@ -41,11 +43,26 @@ export class varsClass {
 	set(from: string, temp = false) {
 		var result
 		if (!/^[a-zA-Z_]\w*/.test(from))
-			throw new Error(`Variable ${from} is not valid`)
+			//TODO             ↓
+			throw new Err(205, 0, from)
 		if (this.exists(from))
-			throw new Error(`Variable ${from} already exists`)
+			//TODO             ↓
+			throw new Err(204, 0, from)
 		else
-			result = new variable(from, this.empty.shift()??"null", temp)
+			result = new variable(from, this.empty.shift() ?? "null", temp)
+		this.aliases.push(result)
+		return result
+	}
+	setCustom(from: string, to: number | string, temp = false) {
+		var result
+		if (!/^[a-zA-Z_]\w*/.test(from))
+			//TODO             ↓
+			throw new Err(205, 0, from)
+		if (this.exists(from))
+			//TODO             ↓
+			throw new Err(204, 0, from)
+		else
+			result = new variable(from, String(to), temp)
 		this.aliases.push(result)
 		return result
 	}
@@ -74,7 +91,7 @@ export class varsClass {
 		})
 		return found
 	}
-	get(from: string|variable) {
+	get(from: string | variable) {
 		if (from instanceof variable) return from.toString()
 		const find = this.find(from)
 		if (find === false) return from
@@ -82,8 +99,8 @@ export class varsClass {
 	}
 	getTemp() {
 		var found: undefined | variable
-		this.temps.forEach(function(variable) {
-			if (variable.ready){
+		this.temps.forEach(function (variable) {
+			if (variable.ready) {
 				found = variable
 			}
 		})
@@ -92,13 +109,13 @@ export class varsClass {
 
 	}
 	newTemp() {
-		const newTemp = new variable("", this.empty.pop()??"null", true)
+		const newTemp = new variable("", this.empty.pop() ?? "null", true)
 		this.temps.unshift(newTemp)
 		return newTemp
 	}
 }
 const vars = new varsClass
-export {vars}
+export { vars }
 // export const vars: { count: number; aliases: { [id: string]: string }; RDs: { [id: string]: string }; getRD: (a: string) => string | undefined; getAlias: (a: string) => string; setAlias: (r: string, a: string) => void; setRDs: (r: string, a: string) => void; reset: () => void; get: () => string } = {
 // 	count: 1,
 // 	aliases: {},
