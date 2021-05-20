@@ -1,6 +1,6 @@
 {
-  "name": "icX",
-  "version": "1.0.0",
+  "name": "stationeers-icx",
+  "version": "1.0.2",
   "description": "Compiler icX to ic10 ",
   "main": "./dist/index.js",
   "scripts": {
@@ -8,10 +8,15 @@
     "test": "node test.js",
     "debug": "nodemon -w ./ -e js,icX test.js"
   },
+  "homepage": "https://github.com/Traineratwot/icX",
   "keywords": [
     "ic10",
     "icX",
     "compiller"
+  ],
+  "files": [
+    "./node_modules/@scicave",
+    "./dist"
   ],
   "include": [
     "./node_modules/@scicave"
@@ -24,10 +29,13 @@
     "./.idea",
     "./test.ts"
   ],
+  "module": "commonjs",
   "author": "Traineratwot",
-  "license": "ISC",
+  "license": "MIT",
+  "dependencies": {
+    "@scicave/math-parser": "^5.1.0"
+  },
   "devDependencies": {
-    "@scicave/math-parser": "^5.1.0",
     "@types/node": "^15.0.2",
     "typescript": "^4.2.4"
   }

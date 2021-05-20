@@ -66,15 +66,6 @@ export class varsClass {
 		this.aliases.push(result)
 		return result
 	}
-	// setCustom(from: string, to: string, temp = false) {
-	// 	var result
-	// 	if (this.exists(from))
-	// 		throw new Error(`Variable ${from} already exists`)
-	// 	else
-	// 		result = new variable(from, to, temp)
-	// 	this.aliases.push(result)
-	// 	return result
-	// }
 	exists(from: string) {
 		var found = false
 		this.aliases.forEach((variable) => {
@@ -116,41 +107,6 @@ export class varsClass {
 }
 const vars = new varsClass
 export { vars }
-// export const vars: { count: number; aliases: { [id: string]: string }; RDs: { [id: string]: string }; getRD: (a: string) => string | undefined; getAlias: (a: string) => string; setAlias: (r: string, a: string) => void; setRDs: (r: string, a: string) => void; reset: () => void; get: () => string } = {
-// 	count: 1,
-// 	aliases: {},
-// 	RDs: {},
-// 	setAlias: function (r, a) {
-// 		this.aliases[a] = r
-// 		this.aliases[r] = a
-// 		this.setRDs(r, a)
-// 	},
-// 	setRDs: function (r, a) {
-// 		this.RDs[a] = r
-// 	},
-// 	getRD: function (a) {
-
-// 		return this.RDs[a]
-// 	},
-// 	getAlias: function (a) {
-// 		console.log(this.getRD(a) ?? a)
-// 		if (!use.has("aliases")) return this.getRD(a) ?? a
-// 		return a
-// 	},
-// 	get: function () {
-// 		if (this.count == 16) {
-// 			this.count++
-// 		}
-// 		if (this.count > 15) {
-// 			throw 'not enough vars :('
-// 		}
-// 		return 'r' + this.count++
-// 	},
-// 	reset: function () {
-// 		this.count = 1
-// 		this.aliases = {}
-// 	}
-// }
 export const whiles: { count: number; reset: () => void; get: () => string } = {
 	count: 0,
 	reset: function () {
