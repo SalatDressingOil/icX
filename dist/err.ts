@@ -23,7 +23,7 @@ export class Err {
 			this.message = "Unknown Error"
 		}
 		params.forEach((txt, i) => {
-			this.message = this.message.replaceAll(`{${i}}`, txt)
+			this.message = this.message.replace(`{${i}}`, txt)
 		});
 		
 		this.line = line
