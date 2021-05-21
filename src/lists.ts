@@ -1,23 +1,27 @@
-import { Err } from "./err"
+import {Err} from "./err"
 
 export class variable {
 	temp: boolean
 	to: string
 	from: string
 	ready: boolean = true
+
 	constructor(from: string, to: string, temp = false) {
 		this.temp = temp
 		this.to = to
 		this.from = from
 	}
+
 	release() {
 		this.ready = true
 		return this
 	}
+
 	get() {
 		this.ready = false
 		return this
 	}
+
 	toString() {
 		if (use.has("aliases") && this.temp === false) return this.from
 		else return this.to
@@ -28,10 +32,12 @@ export class varsClass {
 	aliases: variable[] = []
 	temps: variable[] = []
 	empty: string[] = []
+
 	constructor() {
 		this.reset()
 		this.getTemp()
 	}
+
 	reset() {
 		this.temps = []
 		this.aliases = []
@@ -40,6 +46,7 @@ export class varsClass {
 			this.empty.push("r" + i)
 		}
 	}
+
 	set(from: string, temp = false) {
 		var result
 		if (!/^[a-zA-Z_]\w*/.test(from))
@@ -53,6 +60,7 @@ export class varsClass {
 		this.aliases.push(result)
 		return result
 	}
+
 	setCustom(from: string, to: number | string, temp = false) {
 		var result
 		if (!/^[a-zA-Z_]\w*/.test(from))
@@ -66,6 +74,7 @@ export class varsClass {
 		this.aliases.push(result)
 		return result
 	}
+
 	exists(from: string) {
 		var found = false
 		this.aliases.forEach((variable) => {
@@ -74,6 +83,7 @@ export class varsClass {
 		})
 		return found
 	}
+
 	find(from: string): false | variable {
 		var found: boolean | variable = false
 		this.aliases.forEach((variable) => {
@@ -82,12 +92,14 @@ export class varsClass {
 		})
 		return found
 	}
+
 	get(from: string | variable) {
 		if (from instanceof variable) return from.toString()
 		const find = this.find(from)
 		if (find === false) return from
 		return find.toString()
 	}
+
 	getTemp() {
 		var found: undefined | variable
 		this.temps.forEach(function (variable) {
@@ -99,14 +111,16 @@ export class varsClass {
 		return found.get()
 
 	}
+
 	newTemp() {
 		const newTemp = new variable("", this.empty.pop() ?? "null", true)
 		this.temps.unshift(newTemp)
 		return newTemp
 	}
 }
+
 const vars = new varsClass
-export { vars }
+export {vars}
 export const whiles: { count: number; reset: () => void; get: () => string } = {
 	count: 0,
 	reset: function () {
@@ -125,18 +139,22 @@ export const ifs: { count: number; reset: () => void; get: () => string } = {
 	get: function () {
 		return 'if' + this.count++
 	}
+
 }
 
-export const functions: { fn: string[]; add: (str: string) => void; get: () => string } = {
+export const functions: { fn: string[]; add: (str: string) => void; get: () => string; reset: () => void } = {
 	fn: [],
 	add: function (str) {
 		this.fn.push(str)
 	},
 	get: function () {
 		return this.fn.join('\n')
+	},
+	reset: function () {
+		this.fn = []
 	}
 }
-export const use: { arg: string[]; add: (...str: string[]) => void; has: (str: string) => boolean } = {
+export const use: { arg: string[]; add: (...str: string[]) => void; has: (str: string) => boolean; reset: () => void } = {
 	arg: [],
 	add: function (...str) {
 		this.arg.push(...str)
@@ -146,5 +164,8 @@ export const use: { arg: string[]; add: (...str: string[]) => void; has: (str: s
 			return false
 		else
 			return true
+	},
+	reset: function () {
+		this.arg = []
 	}
 }

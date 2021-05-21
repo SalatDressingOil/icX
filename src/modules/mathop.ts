@@ -1,5 +1,5 @@
-import { icXElem, icXBlock } from "../classes"
-import { functions, ifs, vars, whiles, use } from "../lists"
+import {icXElem} from "../classes";
+import {vars} from "../lists";
 
 
 class icXIncrement extends icXElem {
@@ -14,6 +14,7 @@ class icXIncrement extends icXElem {
 		return `add ${vars.get(a[1])} ${vars.get(a[1])} 1\n`
 	}
 }
+
 class icXDecrement extends icXElem {
 	constructor(scope: icXElem | null, pos: number = 0, text: string = "") {
 		super(scope, pos, text)
@@ -26,6 +27,7 @@ class icXDecrement extends icXElem {
 		return `sub ${vars.get(a[1])} ${vars.get(a[1])} 1\n`
 	}
 }
+
 class icXElementaryMath extends icXElem {
 	constructor(scope: icXElem | null, pos: number = 0, text: string = "") {
 		super(scope, pos, text)
@@ -61,4 +63,4 @@ class icXElementaryMath extends icXElem {
 }
 
 
-export default { icXIncrement, icXDecrement, icXElementaryMath}
+export default {icXIncrement, icXDecrement, icXElementaryMath}

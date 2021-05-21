@@ -1,7 +1,7 @@
-import * as classes from "./classes"
-import {icXElem} from "./classes"
-import {functions, ifs, use, vars, whiles} from "./lists"
-import modules from "./modules"
+import * as classes from "./src/classes"
+import {icXElem} from "./src/classes"
+import {functions, ifs, use, vars, whiles} from "./src/lists"
+import modules from "./src/modules"
 
 const regexes = {
 	'rr1': new RegExp("[rd]{1,}(r(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|a))$"),
@@ -21,7 +21,7 @@ export class icX {
 	public structure: classes.icXBlock | null = null
 	public currentBlock: classes.icXBlock | null = null
 	public operators: { [id: string]: icXElem } = {}
-	
+
 	constructor(text: string) {
 		for (const key in classes) {
 			try {
@@ -71,7 +71,7 @@ export class icX {
 		// this.text = 'var _r0 = 0\n' + text
 		this.init(this.text)
 	}
-	
+
 	init(text: string) {
 		this.lines = text.split(/\r?\n/)
 		var commands: { command: string, args: string[], empty: boolean }[] = this.lines
@@ -117,7 +117,7 @@ export class icX {
 				var line = this.lines[position]
 				var c = this.commands[position]
 				var r = ''
-				
+
 				for (const keyFirstWordKey in this.keyFirstWord) {
 					var key = this.keyFirstWord[keyFirstWordKey]
 					if (key.re.test(line)) {
@@ -151,11 +151,13 @@ export class icX {
 			}
 		}
 	}
-	
-	getCompiled(): string|boolean {
+
+	getCompiled(): string {
 		vars.reset()
 		ifs.reset()
 		whiles.reset()
+		functions.reset()
+		use.reset()
 		try {
 			const code = (this.structure?.compile() ?? "") + "\n"
 			var txt = "# ---icX User code start---\n"
@@ -182,8 +184,7 @@ export class icX {
 			return txt
 		} catch (e) {
 			throw e
-			return false
 		}
-		
+
 	}
 }

@@ -1,6 +1,7 @@
-import {icX} from "./dist";
+
 import fs from 'fs';
-import {Err, Errors} from "./dist/err";
+import {Err, Errors} from "./src/err";
+import {icX} from "./index";
 
 try {
 	var text = fs.readFileSync('./tests/_.icX', 'utf8');
@@ -16,7 +17,7 @@ try {
 	}
 	console.log(r)
 	var b: string | boolean = a.getCompiled()
-	if (b !== false) {
+	if (b) {
 		fs.writeFileSync('./tests/_.ic10', String(b));
 	}
 	console.info(b)

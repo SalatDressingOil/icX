@@ -1,0 +1,8 @@
+var x = 4
+a()
+a()
+a()
+function a
+	x++
+end
+

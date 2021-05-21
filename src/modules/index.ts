@@ -1,14 +1,9 @@
-import { icXElem } from "../classes"
+import {icXElem} from "../classes";
+
 const modules: { [smile: string]: icXElem } = {}
 //-------------------------------------------------
 import mathop from "./mathop"
 push(mathop)
-
-
-
-
-
-
 
 //-------------------------------------------------
 function push(mod: { [id: string]: any }) {

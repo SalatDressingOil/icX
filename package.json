@@ -1,8 +1,8 @@
 {
-  "name": "stationeers-icx",
-  "version": "1.0.2",
+  "name": "icx-compiler",
+  "version": "1.0.3",
   "description": "Compiler icX to ic10 ",
-  "main": "./dist/index.js",
+  "main": "index.js",
   "scripts": {
     "start": "tsc -w",
     "test": "node test.js",
@@ -15,19 +15,19 @@
     "compiller"
   ],
   "files": [
-    "./node_modules/@scicave",
-    "./dist"
-  ],
-  "include": [
-    "./node_modules/@scicave"
+    "src/*",
+    "index.ts",
+    "index.d.ts",
+    "index.js",
+    "index.js.map",
+    "test.ts"
   ],
   "exclude": [
-    "./tests",
-    "./index.html",
-    "./tsconfig.json",
-    "./.vscode",
-    "./.idea",
-    "./test.ts"
+    ".idea",
+    ".vscode",
+    ".ic10",
+    ".icX",
+    "tests"
   ],
   "module": "commonjs",
   "author": "Traineratwot",
