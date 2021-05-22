@@ -1,8 +1,13 @@
+use aliases
 var x = 4
-a()
-a()
-a()
+if x > 5
+	a()
+end
+var x2 = 5
+if x > 5
+	a()
+end
+
 function a
 	x++
 end
-
