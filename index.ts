@@ -22,15 +22,10 @@ export class icX {
 	public structure: classes.icXBlock | null = null
 	public currentBlock: classes.icXBlock | null = null
 	public operators: { [id: string]: icXElem } = {}
+	private icxOptions: { [p: string]: boolean } | null;
 
 	constructor(text: string, icxOptions: { [key: string]: boolean } | null = null) {
-		if (icxOptions) {
-			for (const key in icxOptions) {
-				if (icxOptions.hasOwnProperty(key) && icxOptions[key]) {
-					use.add(key)
-				}
-			}
-		}
+		this.icxOptions = icxOptions
 		for (const key in classes) {
 			try {
 				if (Object.prototype.hasOwnProperty.call(classes, key)) {
@@ -166,6 +161,13 @@ export class icX {
 		whiles.reset()
 		functions.reset()
 		use.reset()
+		if (this.icxOptions) {
+			for (const key in this.icxOptions) {
+				if (this.icxOptions.hasOwnProperty(key) && this.icxOptions[key]) {
+					use.add(key)
+				}
+			}
+		}
 		try {
 			const code = (this.structure?.compile() ?? "") + "\n"
 			var txt = "# ---icX User code start---\n"
