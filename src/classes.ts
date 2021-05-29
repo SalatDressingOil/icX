@@ -480,12 +480,9 @@ export class icXIf extends icXBlock {
     txt.push(r)
     if (!isElse) {
       txt.push(`beqz ${this.tempVar} ${l}exit`)
-      txt.push(`beq ${this.tempVar} 1 ${l}`)
     } else {
       txt.push(`beqz ${this.tempVar} ${l}else`)
-      txt.push(`beq ${this.tempVar} 1 ${l}`)
     }
-    txt.push(`${l}:`)
     txt.push(_txt.join('\n'))
     txt.push(`${l}exit:`)
     this.tempVar?.release()

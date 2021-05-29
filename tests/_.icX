@@ -1,5 +1,7 @@
-use loop
+use loop comments
 var a =1
 if a > 0 && a <5 && a == 4
-
+	a = 12
+else
+a = 10
 end
