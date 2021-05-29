@@ -26,7 +26,11 @@ export class variable {
 
   toString(n: boolean = true) {
     if(this.constant){
-      return this.to
+      if(use.has('constants')){
+        return this.from
+      }else {
+        return this.to
+      }
     }
     if (use.has("aliases") && this.temp === false && n) return this.from
     else return this.to

@@ -593,9 +593,9 @@ export class icXConst extends icXElem {
         throw new Err(202, this.originalPosition)
       }
       vars.setCustom(b[0], b[1], false, true)
-
-
-      // txt += `define ${b[0]} ${b[1]}\n`
+      if(use.has('constants')){
+       txt += `define ${b[0]} ${b[1]}\n`
+      }
     }
     return txt
   }
