@@ -4,7 +4,7 @@ import {functions, ifs, use, vars, varsClass, whiles} from "./src/lists"
 import modules from "./src/modules"
 import {Err} from "./src/err";
 
-const regexes = {
+export const regexes = {
 	'rr1': new RegExp("[rd]{1,}(r(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|a))$"),
 	'r1': new RegExp("^r(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|a)$"),
 	'd1': new RegExp("^d(0|1|2|3|4|5|b)$"),
@@ -180,7 +180,7 @@ export class icX {
 					txt += `jr ${t}\n`
 					txt += a
 				} else {
-					txt += "j 1\n"
+					txt += "j 0\n"
 					txt += functions.get()
 				}
 			}
@@ -234,7 +234,7 @@ export class icX {
 					txt += `jr ${t}\n`
 					txt += a
 				} else {
-					txt += "j 1\n"
+					txt += "j 0\n"
 					txt += functions.get()
 				}
 			}

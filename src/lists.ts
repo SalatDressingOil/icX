@@ -126,7 +126,7 @@ export class varsClass {
   newTemp() {
     const newTemp = new variable("", this.empty.pop() ?? "null", true)
     this.temps.unshift(newTemp)
-    console.log('46846514567432157984+98', this.temps)
+     // console.log('46846514567432157984+98', this.temps)
     return newTemp
   }
 }

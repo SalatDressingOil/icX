@@ -1,5 +1,6 @@
 import {functions, ifs, use, variable, vars, whiles} from "./lists"
 import {Err, Errors} from "./err"
+import {regexes} from "../index";
 
 var functionList: string[] = require('./ic10.functions.json')
 
@@ -301,7 +302,7 @@ export class icXBlock extends icXElem { //блок инструкций
   public content: { [id: number]: icXElem } = {};
   public endKeys: RegExp = /\bend\b/i
   public tempVar?: variable
-  public tempVars?: variable[]
+  public tempVars: variable[] = []
 
   constructor(scope: icXElem | null, pos: number = 0, text: string = "") {
     super(scope, pos, text)
@@ -314,14 +315,19 @@ export class icXBlock extends icXElem { //блок инструкций
   parseRules() {
     this.tempVars = [];
     var re = /\b([\.\d\w]+)\s*(<|==|>|<=|>=|\||!=|\&|\~\=)\s*([\s\.\d\w]+?\b)(\,[\s\.\d\w]+){0,}/i
-    var rules = this.args.split('&&')
+    var args = this.args.replace(/\s*/g, '')
+    var rules = args.split(/&&|\|\|/)
     var returns = []
+    var ifs: { [key: number]: string } = {}
     for (const rulesKey in rules) {
+
       if (re.test(rules[rulesKey])) {
         this.rule = re.exec(rules[rulesKey])
         if (this.rule == null) return null
         var v = vars.getTemp()
         this.tempVars.push(v)
+        var o = args.indexOf(rules[rulesKey])
+        ifs[this.tempVars.length - 1] = args[o +rules[rulesKey].length] + args[o +rules[rulesKey].length + 1];
         switch (this.rule[2]) {
           case '<':
             if (parseInt(this.rule[3]) === 0) {
@@ -384,18 +390,27 @@ export class icXBlock extends icXElem { //блок инструкций
       this.tempVar = vars.getTemp()
       for (var i in this.tempVars) {
         var _i = parseInt(i)
-        if(_i == 1){
+        if (_i == 1) {
           continue;
         }
-        if(_i == 0){
-          returns.push(`and ${this.tempVar} ${this.tempVars[i]} ${this.tempVars[_i+1]}`)
-        }else{
-          returns.push(`and ${this.tempVar} ${this.tempVar} ${this.tempVars[_i]}`)
+        if (_i == 0) {
+          if (ifs[_i] == '&&') {
+            returns.push(`and ${this.tempVar} ${this.tempVars[i]} ${this.tempVars[_i + 1]}`)
+          } else {
+            returns.push(`or ${this.tempVar} ${this.tempVars[i]} ${this.tempVars[_i + 1]}`)
+          }
+        } else {
+          if (ifs[_i] == '&&') {
+            returns.push(`and ${this.tempVar} ${this.tempVar} ${this.tempVars[_i]}`)
+          } else {
+            returns.push(`or ${this.tempVar} ${this.tempVar} ${this.tempVars[_i]}`)
+          }
         }
       }
     } else if (this.tempVars.length == 1) {
       this.tempVar = this.tempVars[0]
     }
+     // console.log('dfsdssd',ifs)
     return returns.join('\n');
   }
 
@@ -486,6 +501,10 @@ export class icXIf extends icXBlock {
     txt.push(_txt.join('\n'))
     txt.push(`${l}exit:`)
     this.tempVar?.release()
+    for (const tv in this.tempVars) {
+      var t = parseInt(tv);
+      this.tempVars[t].release()
+    }
     return txt.join('\n') + '\n'
   }
 }
@@ -509,6 +528,10 @@ export class icXWhile extends icXBlock {
     txt.push(super.compile(this))
     txt.push(`j ${this.l}`)
     txt.push(`${this.l}exit:`)
+    for (const tv in this.tempVars) {
+      var t = parseInt(tv);
+      this.tempVars[t].release()
+    }
     return txt.join('\n') + '\n'
   }
 }
@@ -561,7 +584,7 @@ export class icXConst extends icXElem {
         if (isNaN(Number(b[1]))) {
           b[1] = this.parseMath(b[1], vars.get(a), {noVars: true, define: true}) || "0"
         }
-        console.log(b[1])
+         // console.log(b[1])
       } catch (e) {
         if (e.code == 901) throw new Err(203, this.originalPosition)
         else throw new Err(501, this.originalPosition)
@@ -585,8 +608,14 @@ export class icXAlias extends icXElem {
   }
 
   compile(parent?: icXElem) {
-    throw new Err(101, this.originalPosition)
-    return ''
+    var op2 = this.originalText.split(/ +/)[2]
+    if (regexes.d1.test(op2)) {
+      return this.originalText
+    } else {
+      throw new Err(101, this.originalPosition)
+      return ''
+    }
+
   }
 }
 
