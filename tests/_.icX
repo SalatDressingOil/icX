@@ -1,4 +1,7 @@
 var x
+
+add x x 5
+
 d[x].Setting = 4
 var t = d[x].Setting
 var a = d[x].slot(5).Setting

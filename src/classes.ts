@@ -1,5 +1,6 @@
 import {functions, ifs, use, variable, vars, whiles} from "./lists"
 import {Err, Errors} from "./err"
+var functionList: string[] = require('./ic10.functions.json')
 
 const mathParser = require('@scicave/math-parser')
 
@@ -181,6 +182,17 @@ export class icXElem { //инструкция
       var a = re.exec(this.originalText)
       if (a == null) return null
       return `jal ${a[1]}\n`
+    }
+    for (const functionListKey in functionList) {
+      if(this.originalText.trim().startsWith(functionList[functionListKey])){
+        var args = this.originalText.trim().split(/\s+/)
+        for (const argsKey in args) {
+          if(parseInt(argsKey) > 0){
+            args[argsKey] = vars.get(args[argsKey])
+          }
+        }
+        return args.join(' ')
+      }
     }
 
     return this.originalText
