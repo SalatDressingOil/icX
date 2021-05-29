@@ -1,5 +1,6 @@
 import {functions, ifs, use, variable, vars, whiles} from "./lists"
 import {Err, Errors} from "./err"
+
 var functionList: string[] = require('./ic10.functions.json')
 
 const mathParser = require('@scicave/math-parser')
@@ -157,7 +158,7 @@ export class icXElem { //инструкция
     this.args = this.command.args.join(' ')
   }
 
-  compile(): string | null {
+  compile(parent?: icXElem): string | null {
     var re: RegExp
     var dots = this.parseDots(this.originalText)
     if (dots !== false) {
@@ -184,10 +185,10 @@ export class icXElem { //инструкция
       return `jal ${a[1]}\n`
     }
     for (const functionListKey in functionList) {
-      if(this.originalText.trim().startsWith(functionList[functionListKey])){
+      if (this.originalText.trim().startsWith(functionList[functionListKey])) {
         var args = this.originalText.trim().split(/\s+/)
         for (const argsKey in args) {
-          if(parseInt(argsKey) > 0){
+          if (parseInt(argsKey) > 0) {
             args[argsKey] = vars.get(args[argsKey])
           }
         }
@@ -209,7 +210,7 @@ export class icXElem { //инструкция
         return {
           fn: 's',
           op1: vars.get(a[1]),
-          op2: vars.get(a[2]),
+          op2: a[2],
           op3: vars.get(a[4]),
         }
       }
@@ -222,7 +223,7 @@ export class icXElem { //инструкция
           op1: vars.get(a[1]),
           op2: vars.get(a[3]),
           op3: vars.get(a[4]),
-          op4: vars.get(a[5]),
+          op4: a[5],
         }
       }
       re = /\b([\w]+)\s*(=)\s*([\w\[\]]+)\.([\w]+)\s*\b/i
@@ -233,7 +234,7 @@ export class icXElem { //инструкция
           fn: 'l',
           op1: vars.get(a[1]),
           op2: vars.get(a[3]),
-          op3: vars.get(a[4]),
+          op3: a[4],
         }
       }
       re = /\b([\w]+)\s*(=)\s*d\(([\w]+)\).([\w]+)\(([\w]+)\b/i
@@ -300,6 +301,7 @@ export class icXBlock extends icXElem { //блок инструкций
   public content: { [id: number]: icXElem } = {};
   public endKeys: RegExp = /\bend\b/i
   public tempVar?: variable
+  public tempVars?: variable[]
 
   constructor(scope: icXElem | null, pos: number = 0, text: string = "") {
     super(scope, pos, text)
@@ -310,6 +312,7 @@ export class icXBlock extends icXElem { //блок инструкций
   }
 
   parseRules() {
+    this.tempVars = [];
     var re = /\b([\.\d\w]+)\s*(<|==|>|<=|>=|\||!=|\&|\~\=)\s*([\s\.\d\w]+?\b)(\,[\s\.\d\w]+){0,}/i
     var rules = this.args.split('&&')
     var returns = []
@@ -317,66 +320,81 @@ export class icXBlock extends icXElem { //блок инструкций
       if (re.test(rules[rulesKey])) {
         this.rule = re.exec(rules[rulesKey])
         if (this.rule == null) return null
-        if(!this.tempVar) {
-          this.tempVar = vars.getTemp()
-        }
+        var v = vars.getTemp()
+        this.tempVars.push(v)
         switch (this.rule[2]) {
           case '<':
             if (parseInt(this.rule[3]) === 0) {
-              returns.push(`sltz ${this.tempVar} ${vars.get(this.rule[1])}`)
+              returns.push(`sltz ${v} ${vars.get(this.rule[1])}`)
             } else {
-              returns.push(`slt ${this.tempVar} ${vars.get(this.rule[1])} ${vars.get(this.rule[3])}`)
+              returns.push(`slt ${v} ${vars.get(this.rule[1])} ${vars.get(this.rule[3])}`)
             }
             break;
           case '==':
             if (parseInt(this.rule[3]) === 0) {
-              returns.push(`seqz ${this.tempVar} ${vars.get(this.rule[1])}`)
+              returns.push(`seqz ${v} ${vars.get(this.rule[1])}`)
             } else {
-              returns.push(`seq ${this.tempVar} ${vars.get(this.rule[1])} ${vars.get(this.rule[3])}`)
+              returns.push(`seq ${v} ${vars.get(this.rule[1])} ${vars.get(this.rule[3])}`)
             }
             break;
           case '>':
             if (parseInt(this.rule[3]) === 0) {
-              returns.push(`sgtz ${this.tempVar} ${vars.get(this.rule[1])}`)
+              returns.push(`sgtz ${v} ${vars.get(this.rule[1])}`)
             } else {
-              returns.push(`sgt ${this.tempVar} ${vars.get(this.rule[1])} ${vars.get(this.rule[3])}`)
+              returns.push(`sgt ${v} ${vars.get(this.rule[1])} ${vars.get(this.rule[3])}`)
             }
             break;
           case '<=':
             if (parseInt(this.rule[3]) === 0) {
-              returns.push(`slez ${this.tempVar} ${vars.get(this.rule[1])}`)
+              returns.push(`slez ${v} ${vars.get(this.rule[1])}`)
             } else {
-              returns.push(`sle ${this.tempVar} ${vars.get(this.rule[1])} ${vars.get(this.rule[3])}`)
+              returns.push(`sle ${v} ${vars.get(this.rule[1])} ${vars.get(this.rule[3])}`)
             }
             break;
           case '>=':
             if (parseInt(this.rule[3]) === 0) {
-              returns.push(`sgez ${this.tempVar} ${vars.get(this.rule[1])}`)
+              returns.push(`sgez ${v} ${vars.get(this.rule[1])}`)
             } else {
-              returns.push(`sge ${this.tempVar} ${vars.get(this.rule[1])} ${vars.get(this.rule[3])}`)
+              returns.push(`sge ${v} ${vars.get(this.rule[1])} ${vars.get(this.rule[3])}`)
             }
             break;
           case '|':
-            returns.push(`or ${this.tempVar} ${vars.get(this.rule[1])} ${vars.get(this.rule[3])}`)
+            returns.push(`or ${v} ${vars.get(this.rule[1])} ${vars.get(this.rule[3])}`)
           case '&':
-            returns.push(`and ${this.tempVar} ${vars.get(this.rule[1])} ${vars.get(this.rule[3])}`)
+            returns.push(`and ${v} ${vars.get(this.rule[1])} ${vars.get(this.rule[3])}`)
             break;
           case '~=':
             if (parseInt(this.rule[3]) === 0) {
-              returns.push(`sapz ${this.tempVar} ${vars.get(this.rule[1])} ${vars.get(this.rule[4])}`)
+              returns.push(`sapz ${v} ${vars.get(this.rule[1])} ${vars.get(this.rule[4])}`)
             } else {
-              returns.push(`sap ${this.tempVar} ${vars.get(this.rule[1])} ${vars.get(this.rule[3])} ${vars.get(this.rule[4])}`)
+              returns.push(`sap ${v} ${vars.get(this.rule[1])} ${vars.get(this.rule[3])} ${vars.get(this.rule[4])}`)
             }
             break;
           case '!=':
             if (parseInt(this.rule[3]) === 0) {
-              returns.push(`snez ${this.tempVar} ${vars.get(this.rule[1])}`)
+              returns.push(`snez ${v} ${vars.get(this.rule[1])}`)
             } else {
-              returns.push(`sne ${this.tempVar} ${vars.get(this.rule[1])} ${vars.get(this.rule[3])}`)
+              returns.push(`sne ${v} ${vars.get(this.rule[1])} ${vars.get(this.rule[3])}`)
             }
             break;
         }
       }
+    }
+    if (this.tempVars.length > 1) {
+      this.tempVar = vars.getTemp()
+      for (var i in this.tempVars) {
+        var _i = parseInt(i)
+        if(_i == 1){
+          continue;
+        }
+        if(_i == 0){
+          returns.push(`and ${this.tempVar} ${this.tempVars[i]} ${this.tempVars[_i+1]}`)
+        }else{
+          returns.push(`and ${this.tempVar} ${this.tempVar} ${this.tempVars[_i]}`)
+        }
+      }
+    } else if (this.tempVars.length == 1) {
+      this.tempVar = this.tempVars[0]
     }
     return returns.join('\n');
   }
@@ -391,12 +409,12 @@ export class icXBlock extends icXElem { //блок инструкций
     return this.scope
   }
 
-  compile() {
+  compile(parent?: icXElem) {
     const txt: string[] = []
     var err = new Errors
     for (const contentKey in this.content) {
       try {
-        const text = this.content[contentKey].compile()
+        const text = this.content[contentKey].compile(parent)
         if (text !== null)
           txt.push(text)
       } catch (e) {
@@ -427,9 +445,9 @@ export class icXFunction extends icXBlock {
     this.name = e.args[0]
   }
 
-  compile() {
+  compile(parent?: icXElem) {
     var txt = `${this.name}:\n`
-    txt += super.compile()
+    txt += super.compile(this)
     txt += 'j ra\n'
 
     functions.add(txt)
@@ -444,7 +462,7 @@ export class icXIf extends icXBlock {
 
   }
 
-  compile() {
+  compile(parent?: icXElem): string {
     var isElse = false
     var r = this.parseRules()
     var l = ifs.get()
@@ -456,7 +474,7 @@ export class icXIf extends icXBlock {
         _txt.push(`${l}else:`)
         isElse = true
       } else {
-        _txt.push(this.content[contentKey].compile())
+        _txt.push(this.content[contentKey].compile(parent))
       }
     }
     txt.push(r)
@@ -476,22 +494,24 @@ export class icXIf extends icXBlock {
 }
 
 export class icXWhile extends icXBlock {
+  public l: string | undefined;
+
   constructor(scope: icXElem | null, pos: number = 0, text: string = "") {
     super(scope, pos, text)
     this.re.push(/\bfor\b/i)
     this.re.push(/\bwhile\b/i)
   }
 
-  compile() {
+  compile(parent?: icXElem): string {
     var r = this.parseRules()
-    var l = whiles.get()
+    this.l = whiles.get()
     var txt = []
-    txt.push(`${l}:`)
+    txt.push(`${this.l}:`)
     txt.push(r)
-    txt.push(`beqz ${this.tempVar} ${l}exit`)
-    txt.push(super.compile())
-    txt.push(`j ${l}`)
-    txt.push(`${l}exit:`)
+    txt.push(`beqz ${this.tempVar} ${this.l}exit`)
+    txt.push(super.compile(this))
+    txt.push(`j ${this.l}`)
+    txt.push(`${this.l}exit:`)
     return txt.join('\n') + '\n'
   }
 }
@@ -503,7 +523,7 @@ export class icXVar extends icXElem {
 
   }
 
-  compile() {
+  compile(parent?: icXElem) {
     var txt = ''
     var a = this.command.args[0]
     var r = vars.set(a)
@@ -534,7 +554,7 @@ export class icXConst extends icXElem {
     this.re.push(/\bconst\b/i)
   }
 
-  compile() {
+  compile(parent?: icXElem) {
     var txt = ''
     if (this.command.args.length >= 2) {
       var a = this.command.args.join('')
@@ -552,7 +572,7 @@ export class icXConst extends icXElem {
       if (isNaN(Number(b[1]))) {
         throw new Err(202, this.originalPosition)
       }
-      vars.setCustom(b[0], b[1])
+      vars.setCustom(b[0], b[1], false, true)
 
 
       // txt += `define ${b[0]} ${b[1]}\n`
@@ -567,7 +587,7 @@ export class icXAlias extends icXElem {
     this.re.push(/\balias\b/i)
   }
 
-  compile() {
+  compile(parent?: icXElem) {
     throw new Err(101, this.originalPosition)
     return ''
   }
@@ -579,7 +599,7 @@ export class icXLog extends icXElem {
     this.re.push(/\bdebug\b/i)
   }
 
-  compile() {
+  compile(parent?: icXElem) {
     return `#log ${vars.get(this.args)}`
   }
 }
@@ -590,7 +610,7 @@ export class icXUse extends icXElem {
     this.re.push(/\buse\b/i)
   }
 
-  compile(): "" {
+  compile(parent?: icXElem): "" {
     use.add(...this.command.args)
     return ""
   }
@@ -602,8 +622,22 @@ export class icXYield extends icXElem {
     this.re.push(/\byield\b/i)
   }
 
-  compile() {
+  compile(parent?: icXElem) {
     return "yield"
+  }
+}
+
+export class icXBreak extends icXElem {
+  constructor(scope: icXElem | null, pos: number = 0, text: string = "") {
+    super(scope, pos, text)
+    this.re.push(/\bbreak\b/i)
+  }
+
+  compile(parent?: icXElem) {
+    if (parent instanceof icXWhile) {
+      return 'j ' + parent.l + 'exit'
+    }
+    return '';
   }
 }
 
@@ -611,10 +645,9 @@ export class icXForeach extends icXBlock {
   constructor(scope: icXElem | null, pos: number = 0, text: string = "") {
     super(scope, pos, text)
     this.re.push(/\bforeach\b/i)
-
   }
 
-  compile() {
+  compile(parent?: icXElem) {
 
 
     return ''

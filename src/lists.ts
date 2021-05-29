@@ -5,11 +5,13 @@ export class variable {
   to: string
   from: string
   ready: boolean = true
+  constant: boolean = false
 
-  constructor(from: string, to: string, temp = false) {
+  constructor(from: string, to: string, temp = false, constant = false) {
     this.temp = temp
     this.to = to
     this.from = from
+    this.constant = constant
   }
 
   release() {
@@ -22,7 +24,10 @@ export class variable {
     return this
   }
 
-  toString(n:boolean = true) {
+  toString(n: boolean = true) {
+    if(this.constant){
+      return this.to
+    }
     if (use.has("aliases") && this.temp === false && n) return this.from
     else return this.to
   }
@@ -60,7 +65,7 @@ export class varsClass {
     return result
   }
 
-  setCustom(from: string, to: number | string, temp = false) {
+  setCustom(from: string, to: number | string, temp = false, constant = false) {
     var result
     if (!/^[a-zA-Z_]\w*/.test(from))
       //TODO             ↓
@@ -69,7 +74,7 @@ export class varsClass {
       //TODO             ↓
       throw new Err(204, 0, from)
     else
-      result = new variable(from, String(to), temp)
+      result = new variable(from, String(to), temp, constant)
     this.aliases.push(result)
     return result
   }
@@ -92,13 +97,13 @@ export class varsClass {
     return found
   }
 
-  get(from: string | variable,n:boolean = true): string {
+  get(from: string | variable, n: boolean = true): string {
     if (from instanceof variable) return from.toString()
     var re = /d\[(\w+)\]/
     if (re.test(from)) {
       var a = re.exec(from)
       if (a != null) {
-        return 'd' + this.get(a[1],false)
+        return 'd' + this.get(a[1], false)
       }
     }
     const find = this.find(from)
@@ -121,7 +126,7 @@ export class varsClass {
   newTemp() {
     const newTemp = new variable("", this.empty.pop() ?? "null", true)
     this.temps.unshift(newTemp)
-    console.log('46846514567432157984+98',this.temps)
+    console.log('46846514567432157984+98', this.temps)
     return newTemp
   }
 }
