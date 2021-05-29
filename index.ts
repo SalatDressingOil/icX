@@ -175,9 +175,10 @@ export class icX {
 			txt += "# ---icX User code end---\n"
 			if (functions.fn.length != 0) {
 				if (!use.has("loop")) {
-					txt += "j _icXstart\n"
-					txt += functions.get()
-					txt += "_icXstart:\n"
+					var a = functions.get()
+					var t = a.split("\n").length
+					txt += `jr ${t}\n`
+					txt += a
 				} else {
 					txt += "j 1\n"
 					txt += functions.get()
@@ -212,6 +213,13 @@ export class icX {
 		whiles.reset()
 		functions.reset()
 		use.reset()
+		if (this.icxOptions) {
+			for (const key in this.icxOptions) {
+				if (this.icxOptions.hasOwnProperty(key) && this.icxOptions[key]) {
+					use.add(key)
+				}
+			}
+		}
 		var error = null
 		var result = null
 		try {
@@ -221,9 +229,10 @@ export class icX {
 			txt += "# ---icX User code end---\n"
 			if (functions.fn.length != 0) {
 				if (!use.has("loop")) {
-					txt += "j _icXstart\n"
-					txt += functions.get()
-					txt += "_icXstart:\n"
+					var a = functions.get()
+					var t = a.split("\n").length
+					txt += `jr ${t}\n`
+					txt += a
 				} else {
 					txt += "j 1\n"
 					txt += functions.get()

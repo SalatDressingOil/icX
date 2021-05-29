@@ -73,6 +73,7 @@
        var a = d0.Setting
        var b = d0.slot(a).PrefabHash
        a = d(5438547545).Setting(sum)
+       d(5438547545).Setting = b
     ---ic10
        s d0 Setting 1
        l r0 d0 Setting

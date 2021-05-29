@@ -2,6 +2,7 @@
 import fs from 'fs';
 import {Err, Errors} from "./src/err";
 import {icX} from "./index";
+import {vars} from "./src/lists";
 
 try {
 	var text = fs.readFileSync('./tests/_.icX', 'utf8');

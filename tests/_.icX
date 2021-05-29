@@ -1,0 +1,16 @@
+var x
+d[x].Setting = 4
+var t = d[x].Setting
+var a = d[x].slot(5).Setting
+if a >0 && a <5
+	var b = d4.slot(5).Setting
+end
+test()
+function test
+	a = d4.slot(t).Setting
+end
+
+
+
+
+
