@@ -179,7 +179,7 @@ export class icXElem { //инструкция
       }
       return txt
     }
-    re = /\b([\w]+)?\(\)/i
+    re = /\b([\w-]+)?\(\)/i
     if (re.test(this.originalText)) {
       var a = re.exec(this.originalText)
       if (a == null) return null
@@ -204,7 +204,7 @@ export class icXElem { //инструкция
     var re: RegExp
     var byDots = text.split('.')
     if (byDots.length >= 2) {
-      re = /\b([\w\[\]]+)\.([\w]+)\s*(=)\s*([\w]+)\b/i
+      re = /\b([\w-\[\]]+)\.([\w-]+)\s*(=)\s*([\w-]+)\b/i
       if (re.test(text)) {
         var a = re.exec(text)
         if (a == null) return false
@@ -215,7 +215,7 @@ export class icXElem { //инструкция
           op3: vars.get(a[4]),
         }
       }
-      re = /\b([\w]+)\s*(=)\s*([\w\[\]]+)\.slot\(([\w]+)\).([\w]+)\b/i
+      re = /\b([\w-]+)\s*(=)\s*([\w-\[\]]+)\.slot\(([\w-]+)\).([\w-]+)\b/i
       if (re.test(text)) {
         var a = re.exec(text)
         if (a == null) return false
@@ -227,7 +227,7 @@ export class icXElem { //инструкция
           op4: a[5],
         }
       }
-      re = /\b([\w]+)\s*(=)\s*([\w\[\]]+)\.([\w]+)\s*\b/i
+      re = /\b([\w-]+)\s*(=)\s*([\w-\[\]]+)\.([\w-]+)\s*\b/i
       if (re.test(text)) {
         var a = re.exec(text)
         if (a == null) return false
@@ -238,7 +238,7 @@ export class icXElem { //инструкция
           op3: a[4],
         }
       }
-      re = /\b([\w]+)\s*(=)\s*d\(([\w]+)\).([\w]+)\(([\w]+)\b/i
+      re = /\b([\w-]+)\s*(=)\s*d\(([\w-]+)\).([\w-]+)\(([\w-]+)\b/i
       if (re.test(text)) {
         var a = re.exec(text)
         if (a == null) return false
@@ -250,7 +250,7 @@ export class icXElem { //инструкция
           op4: vars.get(a[5]),
         }
       }
-      re = /\bd\(([\w]+)\)\.([\w\d]+)\s*(=)\s*([\w]+)/i
+      re = /\bd\(([\w-]+)\)\.([\w-\d]+)\s*(=)\s*([\w-]+)/i
       if (re.test(text)) {
         var a = re.exec(text)
         if (a == null) return false
@@ -327,7 +327,7 @@ export class icXBlock extends icXElem { //блок инструкций
         var v = vars.getTemp()
         this.tempVars.push(v)
         var o = args.indexOf(rules[rulesKey])
-        ifs[this.tempVars.length - 1] = args[o +rules[rulesKey].length] + args[o +rules[rulesKey].length + 1];
+        ifs[this.tempVars.length - 1] = args[o -1] + args[o - 2];
         switch (this.rule[2]) {
           case '<':
             if (parseInt(this.rule[3]) === 0) {
@@ -394,7 +394,7 @@ export class icXBlock extends icXElem { //блок инструкций
           continue;
         }
         if (_i == 0) {
-          if (ifs[_i] == '&&') {
+          if (ifs[_i + 1] == '&&') {
             returns.push(`and ${this.tempVar} ${this.tempVars[i]} ${this.tempVars[_i + 1]}`)
           } else {
             returns.push(`or ${this.tempVar} ${this.tempVars[i]} ${this.tempVars[_i + 1]}`)
@@ -410,7 +410,6 @@ export class icXBlock extends icXElem { //блок инструкций
     } else if (this.tempVars.length == 1) {
       this.tempVar = this.tempVars[0]
     }
-     // console.log('dfsdssd',ifs)
     return returns.join('\n');
   }
 

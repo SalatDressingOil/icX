@@ -183,6 +183,10 @@ export class icX {
 					txt += "j 0\n"
 					txt += functions.get()
 				}
+			}else{
+				if (use.has("loop")) {
+					txt += "j 0\n"
+				}
 			}
 			txt = txt
 				.split("\n")
@@ -236,6 +240,10 @@ export class icX {
 				} else {
 					txt += "j 0\n"
 					txt += functions.get()
+				}
+			}else{
+				if (use.has("loop")) {
+					txt += "j 0\n"
 				}
 			}
 			txt = txt
