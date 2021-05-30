@@ -21,7 +21,7 @@ try {
 	if (b) {
 		fs.writeFileSync('./tests/_.ic10', String(b));
 	}
-	console.info(b)
+	//console.info(b)
 } catch (e: Err | Errors | any) {
 	if (e instanceof Err || e instanceof Errors) {
 		 // console.log(e.getUserMessage())
