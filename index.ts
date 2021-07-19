@@ -171,6 +171,9 @@ export class icX {
 		try {
 			const code = (this.structure?.compile() ?? "") + "\n"
 			var txt = "# ---icX User code start---\n"
+			if (use.has("aliases")) {
+				txt += vars.getAliases()
+			}
 			txt += code
 			txt += "# ---icX User code end---\n"
 			if (functions.fn.length != 0) {

@@ -202,6 +202,12 @@ export class icXElem { //инструкция
 
   parseDots(text: string): { fn: string, op1: string | number | null, op2: string | number | null, op3: string | number | null, op4?: string | number } | false {
     var re: RegExp
+    var byEq = text.split('=')
+    if (byEq.length == 2) {
+      if (parseFloat(byEq[1])) {
+        return false;
+      }
+    }
     var byDots = text.split('.')
     if (byDots.length >= 2) {
       re = /\b([\w-\[\]]+)\.([\w-]+)\s*(=)\s*([\w-]+)\b/i
@@ -547,9 +553,6 @@ export class icXVar extends icXElem {
     var a = this.command.args[0]
     var r = vars.set(a)
     var b = this.originalText.split('=')
-    if (use.has("aliases")) {
-      txt += `alias ${a} ${r.to}\n`
-    }
     if (1 in b) {
       var dots = this.parseDots(this.command.args.join(''))
       if (dots) {
