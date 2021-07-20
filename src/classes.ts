@@ -1,6 +1,6 @@
 import {functions, ifs, use, variable, vars, whiles} from "./lists"
 import {Err, Errors} from "./err"
-import {regexes} from "../index";
+import {icX, regexes} from "../index";
 
 var functionList: string[] = require('./ic10.functions.json')
 
@@ -202,9 +202,9 @@ export class icXElem { //инструкция
 
   parseDots(text: string): { fn: string, op1: string | number | null, op2: string | number | null, op3: string | number | null, op4?: string | number } | false {
     var re: RegExp
-    var byEq = text.split('=')
+    var byEq = text.trim().split('=')
     if (byEq.length == 2) {
-      if (parseFloat(byEq[1])) {
+      if (parseFloat(byEq[1]) && (this instanceof icXVar || this instanceof icXConst) ) {
         return false;
       }
     }
