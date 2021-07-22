@@ -216,15 +216,7 @@ export class icX {
 
 	}
 
-	alalize(): {
-		vars: varsClass
-		ifs: { count: number; reset: () => void; get: () => string }
-		whiles: { count: number; reset: () => void; get: () => string }
-		functions: { fn: string[]; add: (str: string) => void; get: () => string; reset: () => void }
-		use: { arg: string[]; add: (...str: string[]) => void; has: (str: string) => boolean; reset: () => void }
-		error: Err | null
-		result: string | null
-	} {
+	analyze(): { result: any; functions: { fn: string[]; add: (str: string) => void; get: () => string; reset: () => void }; use: { arg: Set<string>; add: (...str: string[]) => void; has: (str: string) => boolean; reset: () => void }; ifs: { count: number; reset: () => void; get: () => string }; whiles: { count: number; reset: () => void; get: () => string }; vars: varsClass; error: any } {
 		vars.reset()
 		ifs.reset()
 		whiles.reset()
