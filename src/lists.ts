@@ -37,6 +37,20 @@ export class variable {
 	}
 }
 
+export class devices extends variable {
+	constructor(from: string, to: string, temp = false, constant = false) {
+		super(from,to,temp,constant)
+		this.temp = false
+		this.to = to
+		this.from = from
+		this.constant = true
+	}
+	get() {
+		this.ready = true
+		return this
+	}
+}
+
 export class varsClass {
 	aliases: variable[] = []
 	temps: variable[] = []
@@ -65,6 +79,11 @@ export class varsClass {
 			throw new Err(204, 0, from)
 		else
 			result = new variable(from, this.empty.shift() ?? "null", temp)
+		this.aliases.push(result)
+		return result
+	}
+	setDevice(from: string, to :string) {
+		var result = new devices(from, to, false)
 		this.aliases.push(result)
 		return result
 	}

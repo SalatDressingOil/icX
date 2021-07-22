@@ -631,12 +631,19 @@ export class icXAlias extends icXElem {
 
 	compile(parent?: icXElem) {
 		var op2 = this.originalText.split(/ +/)[2]
+		var op1 = this.originalText.split(/ +/)[1]
 		var txt = this.originalText
 		if (regexes.d1.test(op2)) {
 			if (use.has("comments") && this.comment) {
 				txt = txt.replace("\n", '') + ' # ' + this.comment + "\n"
 			}
-			return txt
+
+			if (use.has("aliases")) {
+				return txt
+			} else {
+				vars.setDevice(op1,op2)
+				return ''
+			}
 		} else {
 			throw new Err(101, this.originalPosition)
 			return ''
@@ -691,7 +698,7 @@ export class icXBreak extends icXElem {
 
 	compile(parent?: icXElem) {
 		if (parent instanceof icXWhile) {
-			var txt ='j ' + parent.l + 'exit\n';
+			var txt = 'j ' + parent.l + 'exit\n';
 			if (use.has("comments") && this.comment) {
 				txt = txt.replace("\n", '') + ' # ' + this.comment + "\n"
 			}

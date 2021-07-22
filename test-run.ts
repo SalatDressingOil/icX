@@ -6,6 +6,7 @@ const testCases = [
     {icX: 'useCommentsTrue', ic10: 'useCommentsTrue', skip: false},
     {icX: 'useCommentsFalse', ic10: 'useCommentsFalse', skip: false},
     {icX: 'example', ic10: 'example', skip: false},
+    {icX: 'aliasForD0', ic10: 'aliasForD0', skip: false},
     {icX: 'devices', ic10: 'devices', skip: false}
 ]
 

@@ -1,2 +1,2 @@
 alias furnace d0  #test
-furnace.On = 2
+furnace.On = 1
