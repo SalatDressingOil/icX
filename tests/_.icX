@@ -1,10 +1,22 @@
-use comments
-# Example
-var a = 0
-var on = d1.Open
-# Example
-d0.On = on
-test()
-function test
- var c = 1
+use  aliases comments constants
+#test
+var a = 6 #gtfdgf
+alias furnace d0  #test
+const ab = 8  #test
+switch a
+	case 5
+		a = 8 #test
+	end
+	case 9
+		a = 8 #test
+	end
+	
 end
+
+ var b = 0
+ while b >= 10
+    b++
+	break #fgdf
+ end
+#test
+#dsffdsgfds

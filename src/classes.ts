@@ -675,7 +675,11 @@ export class icXYield extends icXElem {
 	}
 
 	compile(parent?: icXElem) {
-		return "yield"
+		var txt = "yield"
+		if (use.has("comments") && this.comment) {
+			txt = txt.replace("\n", '') + ' # ' + this.comment + "\n"
+		}
+		return txt
 	}
 }
 
@@ -687,7 +691,11 @@ export class icXBreak extends icXElem {
 
 	compile(parent?: icXElem) {
 		if (parent instanceof icXWhile) {
-			return 'j ' + parent.l + 'exit'
+			var txt ='j ' + parent.l + 'exit\n';
+			if (use.has("comments") && this.comment) {
+				txt = txt.replace("\n", '') + ' # ' + this.comment + "\n"
+			}
+			return txt
 		}
 		return '';
 	}
@@ -700,8 +708,6 @@ export class icXForeach extends icXBlock {
 	}
 
 	compile(parent?: icXElem) {
-
-
 		return ''
 	}
 }
