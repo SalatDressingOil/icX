@@ -81,7 +81,17 @@ export class icX {
 			.map((line) => {
 				const args: Array<string> = line.trim().split(/\s+/)
 				const command = args.shift() ?? ""
-				const empty = (!command || command.startsWith("#")) ? true : false
+				if(command.startsWith("use")){
+					for (const usesKey in args) {
+						use.add(args[usesKey]);
+					}
+				}
+				var empty: boolean
+				if (!use.has("comments")) {
+					empty = (!command || command.startsWith("#")) ? true : false
+				} else {
+					empty = !command
+				}
 				return {command, args, empty}
 			})
 		commands.forEach(command => {
@@ -170,12 +180,12 @@ export class icX {
 		}
 		try {
 			const code = (this.structure?.compile() ?? "") + "\n"
-			var txt = "# ---icX User code start---\n"
+			var txt = ""
 			if (use.has("aliases")) {
 				txt += vars.getAliases()
 			}
 			txt += code
-			txt += "# ---icX User code end---\n"
+			txt += ""
 			if (functions.fn.length != 0) {
 				if (!use.has("loop")) {
 					var a = functions.get()
@@ -186,7 +196,7 @@ export class icX {
 					txt += "j 0\n"
 					txt += functions.get()
 				}
-			}else{
+			} else {
 				if (use.has("loop")) {
 					txt += "j 0\n"
 				}
@@ -244,7 +254,7 @@ export class icX {
 					txt += "j 0\n"
 					txt += functions.get()
 				}
-			}else{
+			} else {
 				if (use.has("loop")) {
 					txt += "j 0\n"
 				}

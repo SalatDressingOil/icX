@@ -8,6 +8,7 @@ const mathParser = require('@scicave/math-parser')
 
 export class icXElem { //инструкция
 	public originalPosition: number
+	public comment: string;
 	public originalText: string
 	public scope: icXElem | null
 	public command: { command: string, args: string[], empty: boolean } = {command: '', args: [], empty: true};
@@ -146,9 +147,13 @@ export class icXElem { //инструкция
 	};
 
 	constructor(scope: icXElem | null, pos: number = 0, text: string = "") {
+		var sp = text.split('#')
+		text = sp[0]
+		this.comment = sp[1] ?? ''
 		this.scope = scope
 		this.originalPosition = pos
 		this.originalText = text
+
 	}
 
 	setCommand(e: { command: string, args: string[], empty: boolean }) {
@@ -177,13 +182,20 @@ export class icXElem { //инструкция
 			} else {
 				txt += `move ${vars.get(a[1])} ${vars.get(a[3])}\n`
 			}
+			if (use.has("comments") && this.comment) {
+				txt = txt.replace("\n", '') + ' # ' + this.comment + "\n"
+			}
 			return txt
 		}
 		re = /\b([\w-]+)?\(\)/i
 		if (re.test(this.originalText)) {
 			var a = re.exec(this.originalText)
 			if (a == null) return null
-			return `jal ${a[1]}\n`
+			var txt = `jal ${a[1]}\n`
+			if (use.has("comments") && this.comment) {
+				txt = txt.replace("\n", '') + ' # ' + this.comment + "\n"
+			}
+			return txt
 		}
 		for (const functionListKey in functionList) {
 			if (this.originalText.trim().startsWith(functionList[functionListKey])) {
@@ -196,7 +208,9 @@ export class icXElem { //инструкция
 				return args.join(' ')
 			}
 		}
-
+		if (use.has("comments") && this.comment && !this.originalText.startsWith('#')) {
+			this.originalText = this.originalText.replace("\n", '') + ' # ' + this.comment + "\n"
+		}
 		return this.originalText
 	}
 
@@ -311,7 +325,7 @@ export class icXBlock extends icXElem { //блок инструкций
 	public tempVars: variable[] = []
 
 	constructor(scope: icXElem | null, pos: number = 0, text: string = "") {
-		super(scope, pos, text)
+		super(scope, pos, text);
 	}
 
 	addElem(e: icXElem) {
@@ -566,6 +580,9 @@ export class icXVar extends icXElem {
 				}
 			}
 		}
+		if (use.has("comments") && this.comment) {
+			txt = txt.replace("\n", '') + ' # ' + this.comment + "\n"
+		}
 		return txt
 	}
 }
@@ -599,6 +616,9 @@ export class icXConst extends icXElem {
 				txt += `define ${b[0]} ${b[1]}\n`
 			}
 		}
+		if (use.has("comments") && this.comment) {
+			txt = txt.replace("\n", '') + ' # ' + this.comment + "\n"
+		}
 		return txt
 	}
 }
@@ -611,8 +631,12 @@ export class icXAlias extends icXElem {
 
 	compile(parent?: icXElem) {
 		var op2 = this.originalText.split(/ +/)[2]
+		var txt = this.originalText
 		if (regexes.d1.test(op2)) {
-			return this.originalText
+			if (use.has("comments") && this.comment) {
+				txt = txt.replace("\n", '') + ' # ' + this.comment + "\n"
+			}
+			return txt
 		} else {
 			throw new Err(101, this.originalPosition)
 			return ''

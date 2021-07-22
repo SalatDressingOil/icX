@@ -1,4 +1,3 @@
-
 import fs from 'fs';
 import {Err, Errors} from "./src/err";
 import {icX} from "./index";
@@ -16,17 +15,17 @@ try {
 			r[key] = element.constructor.name
 		}
 	}
-	 // console.log(r)
+	// console.log(r)
 	var b: string | boolean = a.getCompiled()
 	if (b) {
 		fs.writeFileSync('./tests/_.ic10', String(b));
 	}
-	console.info(b)
+	console.info(a.alalize())
 } catch (e: Err | Errors | any) {
 	if (e instanceof Err || e instanceof Errors) {
-		 // console.log(e.getUserMessage())
+		// console.log(e.getUserMessage())
 	} else {
-		 // console.log(e)
+		// console.log(e)
 	}
 }
 
