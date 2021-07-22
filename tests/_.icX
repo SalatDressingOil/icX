@@ -2,16 +2,9 @@ use aliases
 var a = 5
 switch a
 	case 5
-		a = 6
-		a = 9
-		a = 68
+		a = 8
 	end
-
-	case 8
-		a = 7
-	end
-
 	case 9
-		a = 7
+		a = 8
 	end
 end

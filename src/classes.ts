@@ -1,4 +1,4 @@
-import {functions, ifs, switches, use, variable, vars, whiles} from "./lists"
+import {functions, ifs, use, variable, vars, whiles} from "./lists"
 import {Err, Errors} from "./err"
 import {regexes} from "../index";
 
