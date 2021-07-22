@@ -1,2 +1,8 @@
 alias furnace d0  #test
-furnace.On = 2
+alias furnace d1  #test
+alias furnace d2  #test
+alias furnace d3  #test
+furnace.On = 6
+
+
+
