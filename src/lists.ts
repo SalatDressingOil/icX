@@ -39,12 +39,13 @@ export class variable {
 
 export class devices extends variable {
 	constructor(from: string, to: string, temp = false, constant = false) {
-		super(from,to,temp,constant)
+		super(from, to, temp, constant)
 		this.temp = false
 		this.to = to
 		this.from = from
 		this.constant = true
 	}
+
 	get() {
 		this.ready = true
 		return this
@@ -82,7 +83,8 @@ export class varsClass {
 		this.aliases.push(result)
 		return result
 	}
-	setDevice(from: string, to :string) {
+
+	setDevice(from: string, to: string) {
 		var result = new devices(from, to, false)
 		this.aliases.push(result)
 		return result
@@ -174,7 +176,6 @@ export const whiles: { count: number; reset: () => void; get: () => string } = {
 		return 'while' + this.count++
 	}
 }
-
 export const ifs: { count: number; reset: () => void; get: () => string } = {
 	count: 0,
 	reset: function () {
@@ -185,7 +186,6 @@ export const ifs: { count: number; reset: () => void; get: () => string } = {
 	}
 
 }
-
 export const functions: { fn: string[]; add: (str: string) => void; get: () => string; reset: () => void } = {
 	fn: [],
 	add: function (str) {
@@ -198,18 +198,18 @@ export const functions: { fn: string[]; add: (str: string) => void; get: () => s
 		this.fn = []
 	}
 }
-export const use: { arg: string[]; add: (...str: string[]) => void; has: (str: string) => boolean; reset: () => void } = {
-	arg: [],
-	add: function (...str) {
-		this.arg.push(...str)
+export const use: { arg: Set<string>; add: (...str: string[]) => void; has: (str: string) => boolean; reset: () => void } = {
+	arg: new Set(),
+	add: function (str) {
+		this.arg.add(str)
 	},
 	has: function (str) {
-		if (this.arg.indexOf(str) === -1)
+		if (this.arg.has(str) === false)
 			return false
 		else
 			return true
 	},
 	reset: function () {
-		this.arg = []
+		this.arg = new Set()
 	}
 }
