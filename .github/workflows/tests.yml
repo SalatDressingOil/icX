@@ -10,14 +10,14 @@ jobs:
     name: deploy to staging
     runs-on: ubuntu-18.04
     steps:  
-     - name: Setup Node.js environment
-       run: |
-         sudo apt install nodejs
-         sudo apt install npm
+     - name: Setup Node
+       uses: actions/setup-node@v1
+       with:
+        node-version: '16.x'
      - name: Install Dependencies
-       run: |
-         npm install
-         node tsc
+       run: npm install
+     - name: Compile
+       run: node tsc
      - name: run tests
        run: node test-run.js  
 
