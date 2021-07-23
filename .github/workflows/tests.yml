@@ -13,7 +13,7 @@ jobs:
      - name: debug
        uses: hmarr/debug-action@v2
      - name: debug2
-       run: ls
+       run: ls ${{ github.workspace }}
 #      - name: Setup Node
 #        uses: actions/setup-node@v1
 #        with:
