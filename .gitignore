@@ -82,7 +82,6 @@ typings/
 *.ic10
 tests/000.icX
 package-lock.json
-!test-run.js
 tests/files/compile
 !tests/files
 
