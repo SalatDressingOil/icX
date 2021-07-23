@@ -21,5 +21,5 @@ jobs:
      - name: Compile
        uses: iCrawl/action-tsc@v1
      - name: run tests
-       run: node ${{ github.workspace }}/test-run.js  
+       run: npm run tests 
 
