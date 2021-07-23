@@ -10,8 +10,10 @@ jobs:
     name: deploy to staging
     runs-on: ubuntu-latest
     steps:  
-     - name: Setup Node
-       uses: actions/setup-node@v3
+     - name: Setup Node.js environment
+       uses: actions/setup-node@v2.3.0
+       with:
+        node-version: 16.5.0
      - name: Install Dependencies
        run: |
          npm install
