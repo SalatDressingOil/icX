@@ -10,10 +10,10 @@ jobs:
     name: deploy to staging
     runs-on: ubuntu-18.04
     steps:
-     - name: debug
-       uses: hmarr/debug-action@v2
+     - name: Check out repository code
+       uses: actions/checkout@v2
      - name: debug2
-       run: ls ${{ github.workspace }}
+       run: ls 
 #      - name: Setup Node
 #        uses: actions/setup-node@v1
 #        with:
