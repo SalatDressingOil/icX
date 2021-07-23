@@ -11,7 +11,9 @@ jobs:
     runs-on: ubuntu-18.04
     steps:  
      - name: Setup Node.js environment
-       uses: nodenv/actions-setup-nodenv@v2.0.4
+       run: |
+         sudo apt install nodejs
+         sudo apt install npm
      - name: Install Dependencies
        run: |
          npm install
