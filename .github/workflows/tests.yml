@@ -14,14 +14,11 @@ jobs:
        uses: actions/setup-node@v1
        with:
         node-version: '10.x'
-     - name: run tests
-       run: cd ../   
      - name: Install Dependencies
-       uses: Jaid/action-npm-install@v1.2.4
-     - name: Typescript compiler
-       # You may pin to the exact commit or the version.
-       # uses: iCrawl/action-tsc@c3f25c126c7805dbbbcbf6f1db0c3be6f5dac069
-       uses: iCrawl/action-tsc@v1
+       run: |
+         cd ../
+         npm install
+         node tsc
      - name: run tests
        run: node test-run.js  
 
