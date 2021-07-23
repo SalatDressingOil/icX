@@ -15,7 +15,9 @@ jobs:
        with:
         node-version: '16.x'
      - name: Install Dependencies
-       run: npm install
+       run: |
+        ls
+        npm install
      - name: Compile
        run: node tsc
      - name: run tests
