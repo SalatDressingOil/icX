@@ -1,8 +1,10 @@
-alias furnace d0  #test
-alias furnace d1  #test
-alias furnace d2  #test
-alias furnace d3  #test
-furnace.On = 6
-
-
-
+use comments
+# Example
+var a = 0
+var on = d1.Open
+# Example
+d0.On = on
+test()
+function test
+ var c = 1
+end
