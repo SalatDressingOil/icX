@@ -15,7 +15,7 @@ jobs:
         with:
           node-version: '16.x'
       - uses: Jaid/action-npm-install@v1.2.4
-      - uses: iCrawl/action-tsc@v1
+      - run: tsc
       
       - name: run tests
         run: npm run tests 
