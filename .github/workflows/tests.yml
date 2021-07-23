@@ -17,9 +17,9 @@ jobs:
        with:
         node-version: '16.x'
      - name: Install Dependencies
-       run: npm install
+       uses: Jaid/action-npm-install@v1.2.4
      - name: Compile
        uses: iCrawl/action-tsc@v1
      - name: run tests
-       run: node test-run.js  
+       run: node ${{ github.workspace }}/test-run.js  
 
