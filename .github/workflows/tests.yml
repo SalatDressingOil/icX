@@ -9,4 +9,15 @@ jobs:
   my_job:
     name: deploy to staging
     runs-on: ubuntu-18.04
-    steps:
+    steps:  
+     - name: Setup Node
+       uses: actions/setup-node@v1
+       with:
+        node-version: '10.x'
+     - name: Install Dependencies
+       run: npm install
+     - name: Compile
+       run: node tsc
+     - name: run tests
+       run: node test-run.js  
+
