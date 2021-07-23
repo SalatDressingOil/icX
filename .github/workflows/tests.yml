@@ -19,7 +19,7 @@ jobs:
      - name: Install Dependencies
        run: npm install
      - name: Compile
-       run: node tsc
+       uses: iCrawl/action-tsc@v1
      - name: run tests
        run: node test-run.js  
 
