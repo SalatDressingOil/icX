@@ -75,7 +75,7 @@ typings/
 # FuseBox cache
 .fusebox/
 
-
+.idea
 *.d.ts
 *.js.map
 *.js
@@ -83,5 +83,5 @@ typings/
 tests/000.icX
 package-lock.json
 tests/files/compile
-!tests/files
+!tests/files/**
 
