@@ -708,17 +708,6 @@ export class icXBreak extends icXElem {
 	}
 }
 
-export class icXForeach extends icXBlock {
-	constructor(scope: icXElem | null, pos: number = 0, text: string = "") {
-		super(scope, pos, text)
-		this.re.push(/\bforeach\b/i)
-	}
-
-	compile(parent?: icXElem) {
-		return ''
-	}
-}
-
 export class icXSwitch extends icXBlock {
 	public l: string | undefined;
 
@@ -749,6 +738,52 @@ export class icXSwitchCase extends icXBlock {
 		var count = Object.keys(this.content).length
 		txt.push(`brne ${parent.args[0]} ${this.args[0]} ${count}`)
 		txt.push(super.compile(this))
+		return txt.join('\n') + '\n'
+	}
+}
+
+export class icXStack extends icXElem {
+	constructor(scope: icXElem | null, pos: number = 0, text: string = "") {
+		super(scope, pos, text)
+		this.re.push(/\bstack\b/i)
+	}
+
+	compile(parent?: icXElem) {
+		var txt: Array<string> = []
+		for (const argsKey in this.command.args) {
+			if(this.command.args.hasOwnProperty(argsKey)) {
+				txt.push(`push ${this.command.args[argsKey]}`)
+			}
+
+		}
+		return txt.join('\n')
+	}
+}
+
+export class icXForeach extends icXBlock {
+	public l: string | undefined;
+
+	constructor(scope: icXElem | null, pos: number = 0, text: string = "") {
+		super(scope, pos, text)
+		this.re.push(/\beach\b/i)
+		this.re.push(/\bforeach\b/i)
+	}
+
+	compile(parent?: icXElem): string {
+		var r = this.parseRules()
+		this.l = whiles.get()
+		var txt = []
+		txt.push(`move sp 0`)
+		txt.push(`${this.l}:`)
+		txt.push(`peek ${vars.get(this.command.args[0])}`)
+		txt.push(super.compile(this))
+		txt.push(`breqz ${vars.get(this.command.args[0])} 2`)
+		txt.push(`add sp sp 1`)
+		txt.push(`j ${this.l}`)
+		for (const tv in this.tempVars) {
+			var t = parseInt(tv);
+			this.tempVars[t].release()
+		}
 		return txt.join('\n') + '\n'
 	}
 }

@@ -7,7 +7,8 @@ const testCases = [
     {icX: 'useCommentsFalse', ic10: 'useCommentsFalse', skip: false},
     {icX: 'example', ic10: 'example', skip: false},
     {icX: 'aliasForD0', ic10: 'aliasForD0', skip: false},
-    {icX: 'devices', ic10: 'devices', skip: false}
+    {icX: 'devices', ic10: 'devices', skip: false},
+    {icX: 'foreach', ic10: 'foreach', skip: false}
 ]
 
 let getLog = (result: boolean, name: string, current?: string, expected?: string) => {

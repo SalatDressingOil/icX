@@ -1,24 +1,8 @@
-alias SolarSensor d0
-alias SolarPanel d1
-alias LedVertical d2
-alias LedHorizontal d3
-var SOLAR_HASH = d1.PrefabHash
-
-var verical = 180
-var horizontal = 180
-
-main:
-	updateLED()
-	setSolarPanels()
-	yield
-j main
-
-function setSolarPanels
-d(SOLAR_HASH).Vertical = verical
-d(SOLAR_HASH).Horizontal = horizontal
+var YourVariabele = 0
+stack 342423 432423 54534 6567 
+foreach YourVariabele
+ if YourVariabele == 6567
+	var b = 5
+ end
 end
 
-function updateLED
-d2.Setting = verical
-d3.Setting = horizontal
-end
