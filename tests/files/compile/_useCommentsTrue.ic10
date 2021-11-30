@@ -1,9 +1,15 @@
-# Example
+while0:
+beqz undefined while0exit
 move r0 0
 l r1 d1 Open
-# Example
+while1:
+beqz undefined while1exit
 s d0 On r1
 jal test
+j while1
+while1exit:
+j while0
+while0exit:
 jr 4
 test:
 move r2 1

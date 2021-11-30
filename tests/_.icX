@@ -1,8 +1,5 @@
-var YourVariabele = 0
-stack 342423 432423 54534 6567 
-foreach YourVariabele
- if YourVariabele == 6567
-	var b = 5
- end
-end
-
+use comments
+#test
+#test for
+#log r1
+debug r0

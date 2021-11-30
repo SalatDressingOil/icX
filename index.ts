@@ -2,7 +2,6 @@ import * as classes from "./src/classes"
 import {icXElem} from "./src/classes"
 import {functions, ifs, use, vars, varsClass, whiles} from "./src/lists"
 import modules from "./src/modules"
-import {Err} from "./src/err";
 
 export const regexes = {
 	'rr1': new RegExp("[rd]{1,}(r(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|a))$"),
@@ -81,7 +80,7 @@ export class icX {
 			.map((line) => {
 				const args: Array<string> = line.trim().split(/\s+/)
 				const command = args.shift() ?? ""
-				if(command.startsWith("use")){
+				if (command.startsWith("use")) {
 					for (const usesKey in args) {
 						use.add(args[usesKey]);
 					}
@@ -135,6 +134,7 @@ export class icX {
 					var key = this.keyFirstWord[keyFirstWordKey]
 					if (key.re.test(line)) {
 						r = key.class
+						break;
 					}
 				}
 				if (r) {

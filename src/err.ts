@@ -1,6 +1,7 @@
 import ErrorCodes from "./errorCodes"
+
 export class Err {
-	
+
 	//  сторона ошибки      lvl        номер
 	//      0                0           00
 	static parse = 100 // ошибка в парсере
@@ -14,8 +15,8 @@ export class Err {
 	public line: number = 0
 	public lvl: string = ''
 	public group: string = ''
-	
-	constructor(code: number, line: number = -2, ...params:string[]) {
+
+	constructor(code: number, line: number = -2, ...params: string[]) {
 		this.code = code
 		if (this.code in ErrorCodes) {
 			this.message = ErrorCodes[this.code]
@@ -25,11 +26,11 @@ export class Err {
 		params.forEach((txt, i) => {
 			this.message = this.message.replace(`{${i}}`, txt)
 		});
-		
+
 		this.line = line
 		this.analyze()
 	}
-	
+
 	analyze() {
 		var c = 0
 		if (this.code >= Err.other) {
@@ -72,36 +73,36 @@ export class Err {
 				break
 		}
 	}
-	
+
 	getUserMessage() {
-		return `[${this.code}:${this.group}${this.lvl}] Line: ${this.line+1}, ${this.message}`;
+		return `[${this.code}:${this.group}${this.lvl}] Line: ${this.line + 1}, ${this.message}`;
 	}
-	
+
 	firstUpper(string: string): string {
 		return string.toLowerCase().charAt(0).toUpperCase() + string.slice(1);
 	}
 }
 
-export class Errors{
+export class Errors {
 	public e: Err[] = []
-	
+
 	isError() {
 		if (this.e.length > 0) {
 			return true
 		}
 		return false
 	}
-	
+
 	push(e: Err) {
 		this.e.push(e)
 	}
-	
+
 	getUserMessage() {
 		var msg = ''
 		for (const eKey in this.e) {
 			if (this.e[eKey] instanceof Err) {
 				msg += this.e[eKey].getUserMessage() + "\n"
-			}else{
+			} else {
 				return this.e[eKey]
 			}
 		}

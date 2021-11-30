@@ -1,7 +1,7 @@
-# Example
+# Example while
 move r0 0
 l r1 d1 Open
-# Example
+# Example for
 s d0 On r1
 jal test
 jr 4

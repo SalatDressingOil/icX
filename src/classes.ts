@@ -6,6 +6,7 @@ var functionList: string[] = require('./ic10.functions.json')
 
 const mathParser = require('@scicave/math-parser')
 
+
 export class icXElem { //инструкция
 	public originalPosition: number
 	public comment: string;
@@ -300,7 +301,7 @@ export class icXElem { //инструкция
 			try {
 				var resultvar = this.out.convert(math, r, this.originalPosition, set)
 				if (resultvar === Infinity || resultvar === -Infinity) throw new Err(401, this.originalPosition)
-			} catch (e) {
+			} catch (e: any) {
 				throw new Err(e.code, this.originalPosition)
 			}
 			if (!isNaN(+resultvar))
@@ -314,6 +315,17 @@ export class icXElem { //инструкция
 		return false
 	}
 
+}
+
+export class icXComment extends icXElem {
+	constructor(scope: icXElem | null, pos: number = 0, text: string = "") {
+		super(scope, pos, text)
+		this.re.push(/^#.{0,}/i)
+	}
+	compile(parent?: icXElem) {
+		console.log('COMMENT: '+this.originalText)
+		return this.originalText
+	}
 }
 
 export class icXBlock extends icXElem { //блок инструкций
@@ -451,7 +463,7 @@ export class icXBlock extends icXElem { //блок инструкций
 				const text = this.content[contentKey].compile(parent)
 				if (text !== null)
 					txt.push(text)
-			} catch (e) {
+			} catch (e: any) {
 				if (e.lvl == 'fatal') {
 					throw e
 				}
@@ -604,7 +616,7 @@ export class icXConst extends icXElem {
 					b[1] = this.parseMath(b[1], vars.get(a), {noVars: true, define: true}) || "0"
 				}
 				// console.log(b[1])
-			} catch (e) {
+			} catch (e: any) {
 				if (e.code == 901) throw new Err(203, this.originalPosition)
 				else throw new Err(501, this.originalPosition)
 			}
@@ -641,7 +653,7 @@ export class icXAlias extends icXElem {
 			if (use.has("aliases")) {
 				return txt
 			} else {
-				vars.setDevice(op1,op2)
+				vars.setDevice(op1, op2)
 				return ''
 			}
 		} else {
@@ -751,7 +763,7 @@ export class icXStack extends icXElem {
 	compile(parent?: icXElem) {
 		var txt: Array<string> = []
 		for (const argsKey in this.command.args) {
-			if(this.command.args.hasOwnProperty(argsKey)) {
+			if (this.command.args.hasOwnProperty(argsKey)) {
 				txt.push(`push ${this.command.args[argsKey]}`)
 			}
 

@@ -1,8 +1,9 @@
 # icX
 
-icX is a programming language translated to ic10 used to simplify the programming of ic10 microprocessors in
-the Stationeers game.
+icX is a programming language translated to ic10 used to simplify the programming of ic10 microprocessors in the Stationeers game.
+
 # Quick start
+
 1. Install [plugin for VSC](https://marketplace.visualstudio.com/items?itemName=Traineratwot.stationeers-ic10)
 2. Create a file with **.icX** type
 3. Write a program. For example:
@@ -16,6 +17,7 @@ the Stationeers game.
 6. Paste code into microprocessor Ic10 in the game
 
 # Instructions
+
 ### Comments
 
   ```
@@ -25,6 +27,7 @@ the Stationeers game.
 ### Vars
 
 icX will automatically replace variable names with register names
+
 ```
 ---icX
    var a = 10
@@ -33,6 +36,7 @@ icX will automatically replace variable names with register names
 ```
 
 Using _alias_
+
 ```
 ---icX
    use aliases
@@ -43,6 +47,7 @@ Using _alias_
 ```
 
 Using _define_
+
 ```
 ---icX
    use constants
@@ -52,9 +57,11 @@ Using _define_
 ```
 
 ### Math
+
 #### Unary operations (++, --)
 
 inc
+
 ```
 ---icX
    var a = 0
@@ -65,6 +72,7 @@ inc
 ```
 
 dec
+
 ```
 ---icX
    var a = 0
@@ -77,12 +85,14 @@ dec
 #### Binary operations (+, -, *, /, %)
 
 Constants will be calculated automatically
+
 ```
 ---icX
    var x =  5 + 5 * 2 
 ---ic10
    move r0 15
 ```
+
 ```
 ---icX
    const x = 2 + 2
@@ -172,6 +182,7 @@ Binary logical operations used (<, >, ==, !=, <=, >=, &, |, ~=)
 ### Function
 
 To write a function, use the _function_ keyword
+
 ```
 {function name}()
 
@@ -207,6 +218,7 @@ end
 In addition to _use aliases_ and _use constant_, the following constructs are supported:
 
 To loop the application, use _use loop_
+
 ```
 ---icX
  move r0 0
@@ -229,6 +241,7 @@ To loop the application, use _use loop_
 ```
 
 Use _use comments_ to transfer your comments to ic10 code
+
 ```
 ---icX
  use comments
