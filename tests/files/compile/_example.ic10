@@ -6,7 +6,7 @@ jal updateLED
 jal setSolarPanels
 yield
 j main
-jr 10
+jr 9
 setSolarPanels:
 sb r0 Vertical r1
 sb r0 Horizontal r2
