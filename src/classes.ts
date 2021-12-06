@@ -151,6 +151,9 @@ export class icXElem { //инструкция
 		var sp = text.split('#')
 		text = sp[0]
 		this.comment = sp[1] ?? ''
+		if (this.comment.startsWith('!')) {
+			this.comment = ''
+		}
 		this.scope = scope
 		this.originalPosition = pos
 		this.originalText = text
@@ -183,9 +186,6 @@ export class icXElem { //инструкция
 			} else {
 				txt += `move ${vars.get(a[1])} ${vars.get(a[3])}\n`
 			}
-			if (use.has("comments") && this.comment) {
-				txt = txt.replace("\n", '') + ' # ' + this.comment + "\n"
-			}
 			return txt
 		}
 		re = /\b([\w-]+)?\(\)/i
@@ -193,9 +193,7 @@ export class icXElem { //инструкция
 			var a = re.exec(this.originalText)
 			if (a == null) return null
 			var txt = `jal ${a[1]}\n`
-			if (use.has("comments") && this.comment) {
-				txt = txt.replace("\n", '') + ' # ' + this.comment + "\n"
-			}
+			txt = this.addComment(txt)
 			return txt
 		}
 		for (const functionListKey in functionList) {
@@ -208,9 +206,6 @@ export class icXElem { //инструкция
 				}
 				return args.join(' ')
 			}
-		}
-		if (use.has("comments") && this.comment && !this.originalText.startsWith('#')) {
-			this.originalText = this.originalText.replace("\n", '') + ' # ' + this.comment + "\n"
 		}
 		return this.originalText
 	}
@@ -315,16 +310,40 @@ export class icXElem { //инструкция
 		return false
 	}
 
+	addComment(txt: string): string {
+		if (use.has("comments") && this.comment && !this.comment.startsWith('!')) {
+			if (txt.endsWith("\n")) {
+				txt = txt.replace("\n", '') + ' #' + this.comment + "\n"
+			} else {
+				txt += ' #' + this.comment
+			}
+		}
+		return txt
+	}
 }
 
 export class icXComment extends icXElem {
 	constructor(scope: icXElem | null, pos: number = 0, text: string = "") {
 		super(scope, pos, text)
+		this.re.push(/^#!.{0,}/i)
+	}
+
+	compile(parent?: icXElem) {
+		return ''
+	}
+}
+
+export class ic10Comment extends icXElem {
+	constructor(scope: icXElem | null, pos: number = 0, text: string = "") {
+		super(scope, pos, text)
 		this.re.push(/^#.{0,}/i)
 	}
+
 	compile(parent?: icXElem) {
-		console.log('COMMENT: '+this.originalText)
-		return this.originalText
+		if (use.has("comments")) {
+			return this.originalText
+		}
+		return ''
 	}
 }
 
@@ -397,8 +416,10 @@ export class icXBlock extends icXElem { //блок инструкций
 						}
 						break;
 					case '|':
+					case '||':
 						returns.push(`or ${v} ${vars.get(this.rule[1])} ${vars.get(this.rule[3])}`)
 					case '&':
+					case '&&':
 						returns.push(`and ${v} ${vars.get(this.rule[1])} ${vars.get(this.rule[3])}`)
 						break;
 					case '~=':
@@ -592,9 +613,7 @@ export class icXVar extends icXElem {
 				}
 			}
 		}
-		if (use.has("comments") && this.comment) {
-			txt = txt.replace("\n", '') + ' # ' + this.comment + "\n"
-		}
+		txt = this.addComment(txt)
 		return txt
 	}
 }
@@ -628,9 +647,7 @@ export class icXConst extends icXElem {
 				txt += `define ${b[0]} ${b[1]}\n`
 			}
 		}
-		if (use.has("comments") && this.comment) {
-			txt = txt.replace("\n", '') + ' # ' + this.comment + "\n"
-		}
+		txt = this.addComment(txt)
 		return txt
 	}
 }
@@ -646,10 +663,7 @@ export class icXAlias extends icXElem {
 		var op1 = this.originalText.split(/ +/)[1]
 		var txt = this.originalText
 		if (regexes.d1.test(op2)) {
-			if (use.has("comments") && this.comment) {
-				txt = txt.replace("\n", '') + ' # ' + this.comment + "\n"
-			}
-
+			txt = this.addComment(txt)
 			if (use.has("aliases")) {
 				return txt
 			} else {
@@ -695,9 +709,7 @@ export class icXYield extends icXElem {
 
 	compile(parent?: icXElem) {
 		var txt = "yield"
-		if (use.has("comments") && this.comment) {
-			txt = txt.replace("\n", '') + ' # ' + this.comment + "\n"
-		}
+		txt = this.addComment(txt)
 		return txt
 	}
 }
@@ -711,9 +723,7 @@ export class icXBreak extends icXElem {
 	compile(parent?: icXElem) {
 		if (parent instanceof icXWhile) {
 			var txt = 'j ' + parent.l + 'exit\n';
-			if (use.has("comments") && this.comment) {
-				txt = txt.replace("\n", '') + ' # ' + this.comment + "\n"
-			}
+			txt = this.addComment(txt)
 			return txt
 		}
 		return '';
@@ -748,7 +758,7 @@ export class icXSwitchCase extends icXBlock {
 			throw new Err(203, this.originalPosition).message = 'case must be in switch'
 		}
 		var count = Object.keys(this.content).length
-		txt.push(`brne ${parent.args[0]} ${this.args[0]} ${count}`)
+		txt.push(`brne ${vars.get(parent.args)} ${vars.get(this.args)} ${count}`)
 		txt.push(super.compile(this))
 		return txt.join('\n') + '\n'
 	}

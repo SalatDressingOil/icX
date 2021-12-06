@@ -189,7 +189,7 @@ export class icX {
 			if (functions.fn.length != 0) {
 				if (!use.has("loop")) {
 					var a = functions.get()
-					var t = a.split("\n").length
+					var t = a.split("\n").length - (functions.fn.length) + 1
 					txt += `jr ${t}\n`
 					txt += a
 				} else {

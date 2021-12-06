@@ -1,5 +1,13 @@
-use comments
-#test
-#test for
-#log r1
-debug r0
+alias fillerVariable0 d0
+alias fillerVariable1 d1
+alias fillerVariable2 d2
+alias fillerVariable3 d3
+alias fillerVariable4 d4
+alias fillerVariable5 d5
+r0 = 42
+r1 = 42
+start: 
+breq r0 r1 2
+j start
+r4 = 20
+r4 = 132
