@@ -150,7 +150,7 @@ export class icXElem { //инструкция
 	constructor(scope: icXElem | null, pos: number = 0, text: string = "") {
 		var sp = text.split('#')
 		text = sp[0]
-		this.comment = sp[1] ?? ''
+		this.comment = sp[1] ? sp[1].trim() : ''
 		if (this.comment.startsWith('!')) {
 			this.comment = ''
 		}
@@ -514,6 +514,9 @@ export class icXFunction extends icXBlock {
 
 	compile(parent?: icXElem) {
 		var txt = `${this.name}:\n`
+		if (use.has("comments") && this.comment) {
+			txt = txt.replace("\n", '') + ' # ' + this.comment + "\n"
+		}
 		txt += super.compile(this)
 		txt += 'j ra\n'
 
@@ -741,7 +744,7 @@ export class icXSwitch extends icXBlock {
 	compile(parent?: icXElem): string {
 		var txt = []
 		txt.push(super.compile(this))
-		return txt.join('\n') + '\n'
+		return `# ${this.comment}\n` + txt.join('\n') + '\n'
 	}
 }
 
@@ -778,7 +781,11 @@ export class icXStack extends icXElem {
 			}
 
 		}
-		return txt.join('\n')
+		var _txt = txt.join('\n')
+		if (use.has("comments") && this.comment) {
+			_txt = _txt.replace("\n", '') + ' # ' + this.comment + "\n"
+		}
+		return _txt
 	}
 }
 

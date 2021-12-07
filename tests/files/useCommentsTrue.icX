@@ -5,6 +5,6 @@ var on = d1.Open
 # Example for
 d0.On = on
 test()
-function test
+function test # Example Fn
  var c = 1
 end

@@ -5,6 +5,6 @@ l r1 d1 Open
 s d0 On r1
 jal test
 jr 4
-test:
+test: # Example Fn
 move r2 1
 j ra
