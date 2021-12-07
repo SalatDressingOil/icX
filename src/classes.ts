@@ -12,7 +12,7 @@ export class icXElem { //инструкция
 	public comment: string;
 	public originalText: string
 	public scope: icXElem | null
-	public command: { command: string, args: string[], empty: boolean } = {command: '', args: [], empty: true};
+	public command: { command: string, args: string[], empty: boolean, comment: string } = {command: '', args: [], empty: true, comment: ''};
 	public args: string = ""
 	public rule: RegExpExecArray | null = null
 	public re: RegExp[] = []
@@ -160,10 +160,13 @@ export class icXElem { //инструкция
 
 	}
 
-	setCommand(e: { command: string, args: string[], empty: boolean }) {
+	setCommand(e: { command: string, args: string[], empty: boolean, comment: string }) {
 		this.command = e
 		if (!this.originalText) {
 			this.originalText = this.command.command + ' ' + this.command.args.join(' ')
+			if (this.command.comment) {
+				this.originalText += ' # ' + this.command.comment
+			}
 		}
 		this.args = this.command.args.join(' ')
 	}
@@ -325,7 +328,7 @@ export class icXElem { //инструкция
 export class icXComment extends icXElem {
 	constructor(scope: icXElem | null, pos: number = 0, text: string = "") {
 		super(scope, pos, text)
-		this.re.push(/^#!.{0,}/i)
+		this.re.push(/^#!.*/i)
 	}
 
 	compile(parent?: icXElem) {
@@ -336,7 +339,7 @@ export class icXComment extends icXElem {
 export class ic10Comment extends icXElem {
 	constructor(scope: icXElem | null, pos: number = 0, text: string = "") {
 		super(scope, pos, text)
-		this.re.push(/^#.{0,}/i)
+		this.re.push(/^#.*/i)
 	}
 
 	compile(parent?: icXElem) {
@@ -365,7 +368,7 @@ export class icXBlock extends icXElem { //блок инструкций
 
 	parseRules() {
 		this.tempVars = [];
-		var re = /\b([\.\d\w]+)\s*(<|==|>|<=|>=|\||!=|\&|\~\=)\s*([\s\.\d\w]+?\b)(\,[\s\.\d\w]+){0,}/i
+		var re = /\b([\.\d\w]+)\s*(<|==|>|<=|>=|\||!=|\&|\~\=)\s*([\s\.\d\w]+?\b)(\,[\s\.\d\w]+)*/i
 		var args = this.args.replace(/\s*/g, '')
 		var rules = args.split(/&&|\|\|/)
 		var returns = []
@@ -507,7 +510,7 @@ export class icXFunction extends icXBlock {
 		this.re.push(/\bdef\b/i)
 	}
 
-	setCommand(e: { command: string, args: string[], empty: boolean }) {
+	setCommand(e: { command: string, args: string[], empty: boolean, comment: string }) {
 		super.setCommand(e)
 		this.name = e.args[0]
 	}

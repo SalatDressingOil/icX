@@ -17,7 +17,7 @@ export class icX {
 	public keyFirstWord: { class: string, re: RegExp }[] = []
 	public lines: string[] | undefined
 	public position: number = 0;
-	public commands: { command: string, args: string[], empty: boolean }[] = [];
+	public commands: { command: string, args: string[], empty: boolean,comment:string }[] = [];
 	public structure: classes.icXBlock | null = null
 	public currentBlock: classes.icXBlock | null = null
 	public operators: { [id: string]: icXElem } = {}
@@ -76,8 +76,14 @@ export class icX {
 
 	init(text: string) {
 		this.lines = text.split(/\r?\n/)
-		var commands: { command: string, args: string[], empty: boolean }[] = this.lines
+		var commands: { command: string, args: string[], empty: boolean, comment: string }[] = this.lines
 			.map((line) => {
+				var comment = ''
+				if(!line.trim().startsWith("#")) {
+					var sp = line.split('#')
+					line = sp[0]
+					comment = sp[1] ? sp[1].trim() : '';
+				}
 				const args: Array<string> = line.trim().split(/\s+/)
 				const command = args.shift() ?? ""
 				if (command.startsWith("use")) {
@@ -91,16 +97,13 @@ export class icX {
 				} else {
 					empty = !command
 				}
-				return {command, args, empty}
+				return {command, args, empty, comment}
 			})
 		commands.forEach(command => {
 			var newArgs: any = {}
 			var mode = 0
 			var argNumber: number = 0
 			command.args.forEach(arg => {
-				if (arg.startsWith("#")) {
-					return
-				}
 				if (mode === 0) {
 					argNumber++
 				}

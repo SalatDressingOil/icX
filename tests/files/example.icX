@@ -1,8 +1,16 @@
-#alias SolarSensor d0
-#alias SolarPanel d1
-#alias LedVertical d2
-#alias LedHorizontal d3
-var SOLAR_HASH = d1.PrefabHash
+use aliases
+use constants
+use loop
+use comments
+#d0 -1924492105 #solar panel
+#d1 -1924492105 #solar panel
+#d2 -1924492105 #solar panel
+#d3 235638270 #console
+alias SolarSensor d0
+alias SolarPanel d1
+alias LedVertical d2
+alias LedHorizontal d3
+var SOLAR_HASH = d1.PrefabHash #-1924492105
 
 var verical = 180
 var horizontal = 180
