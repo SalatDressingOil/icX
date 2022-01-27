@@ -763,7 +763,7 @@ export class icXSwitchCase extends icXBlock {
 		if (typeof parent == 'undefined' || !(parent instanceof icXSwitch)) {
 			throw new Err(203, this.originalPosition).message = 'case must be in switch'
 		}
-		var count = Object.keys(this.content).length
+		var count = Object.keys(this.content).length + 1
 		txt.push(`brne ${vars.get(parent.args)} ${vars.get(this.args)} ${count}`)
 		txt.push(super.compile(this))
 		return txt.join('\n') + '\n'
