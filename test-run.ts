@@ -8,6 +8,7 @@ const testCases = [
 	{icX: 'example', ic10: 'example', skip: false},
 	{icX: 'aliasForD0', ic10: 'aliasForD0', skip: false},
 	{icX: 'switch', ic10: 'switch', skip: false},
+	{icX: 'float', ic10: 'float', skip: false},
 	{icX: 'devices', ic10: 'devices', skip: false},
 	{icX: 'foreach', ic10: 'foreach', skip: false}
 ]

@@ -222,7 +222,11 @@ export class icXElem { //инструкция
 			}
 		}
 		var byDots = text.split('.')
+
 		if (byDots.length >= 2) {
+			if(/^\d+$/g.test(byDots[1])){
+				return  false;
+			}
 			re = /\b([\w-\[\]]+)\.([\w-]+)\s*(=)\s*([\w-]+)\b/i
 			if (re.test(text)) {
 				var a = re.exec(text)
@@ -809,7 +813,7 @@ export class icXForeach extends icXBlock {
 		txt.push(`${this.l}:`)
 		txt.push(`peek ${vars.get(this.command.args[0])}`)
 		txt.push(super.compile(this))
-		txt.push(`breqz ${vars.get(this.command.args[0])} 2`)
+		txt.push(`breqz ${vars.get(this.command.args[0])} 3`)
 		txt.push(`add sp sp 1`)
 		txt.push(`j ${this.l}`)
 		for (const tv in this.tempVars) {
