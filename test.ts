@@ -1,6 +1,7 @@
-import fs from 'fs';
+import fs            from 'fs';
 import {Err, Errors} from "./src/err";
-import {icX} from "./index";
+import {icX}         from "./index";
+import {vars}        from "./src/lists";
 
 try {
 	var text = fs.readFileSync('./tests/_.icX', 'utf8');
@@ -20,7 +21,7 @@ try {
 		fs.writeFileSync('./tests/_.ic10', String(b));
 	}
 	// console.info(a.analyze())
-	console.info(a?.structure)
+	console.log(vars)
 } catch (e: Err | Errors | any) {
 	if (e instanceof Err || e instanceof Errors) {
 		// console.log(e.getUserMessage())

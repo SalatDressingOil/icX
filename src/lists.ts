@@ -62,12 +62,14 @@ export class varsClass {
 	}
 
 	reset() {
-		this.temps = []
+		this.temps   = []
 		this.aliases = []
-		this.empty = []
+		this.empty   = []
 		for (let i = 0; i <= 15; i++) {
 			this.empty.push("r" + i)
 		}
+		this.aliases.push(new variable('sp', 'r16'))
+		this.aliases.push(new variable('ra', 'r17'))
 	}
 
 	set(from: string, temp = false) {
@@ -158,8 +160,12 @@ export class varsClass {
 	getAliases() {
 		var txt = ''
 		for (const aliasesKey in this.aliases) {
-			if (this.aliases[aliasesKey].temp == false && this.aliases[aliasesKey].constant == false)
+			if (this.aliases[aliasesKey].temp == false && this.aliases[aliasesKey].constant == false) {
+				if (this.aliases[aliasesKey].from == 'sp' || this.aliases[aliasesKey].from == 'ra') {
+					continue
+				}
 				txt += `alias ${this.aliases[aliasesKey].from} ${this.aliases[aliasesKey].to}\n`
+			}
 		}
 		return txt
 	}

@@ -7,6 +7,7 @@ move a 1.1
 move ab 15
 move ac -1.1
 move ad -15
+define j 10
 s d0 On 1
 s d0 On 0
 l adc d0 On

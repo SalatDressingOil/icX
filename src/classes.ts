@@ -736,6 +736,11 @@ export class icXBreak extends icXElem {
 			txt = this.addComment(txt)
 			return txt
 		}
+		if (parent instanceof icXForeach) {
+			var txt = 'j ' + parent.l + 'exit\n';
+			txt = this.addComment(txt)
+			return txt
+		}
 		return '';
 	}
 }
@@ -809,13 +814,21 @@ export class icXForeach extends icXBlock {
 		var r = this.parseRules()
 		this.l = whiles.get()
 		var txt = []
-		txt.push(`move sp 0`)
+		let offset
+		try {
+			offset =vars.get(this.command.args[1]) ?? 1
+		}
+		catch (e) {
+			offset = 1
+		}
+		txt.push(`move sp ${offset}`)
 		txt.push(`${this.l}:`)
 		txt.push(`peek ${vars.get(this.command.args[0])}`)
 		txt.push(super.compile(this))
 		txt.push(`breqz ${vars.get(this.command.args[0])} 3`)
 		txt.push(`add sp sp 1`)
 		txt.push(`j ${this.l}`)
+		txt.push(`${this.l}exit:`)
 		for (const tv in this.tempVars) {
 			var t = parseInt(tv);
 			this.tempVars[t].release()
