@@ -9,10 +9,10 @@ export const ErrorCodes: { [errorCode: number]: string } = Object.freeze(
 		401: "Infinity is used",
 		402: "Division by zero",
 		403: "Modulo by zero",
-		501: "Other error in constant declaration",
-		502: "Invalid device",
-		503: "Invalid right part",
-		504: "Unknown function",
+		209: "Other error in constant declaration",
+		208: "Invalid device",
+		207: "Invalid right part",
+		206: "Unknown function",
 
 
 		901: "Iternal constant use variable",

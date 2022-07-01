@@ -245,7 +245,7 @@ export class icXElem { //инструкция
 							txt += "\n"
 							break;
 						default:
-							throw new Err(504, this.originalPosition)
+							throw new Err(206, this.originalPosition)
 					}
 				}
 			} else {
@@ -518,7 +518,7 @@ export class icXBlock extends icXElem { //блок инструкций
 					case 'dse':
 						const dn = vars.get(this.rule[1])
 						if (!regexes.rr1.test(dn)) {
-							throw new Err(502, this.originalPosition)
+							throw new Err(208, this.originalPosition)
 						}
 						if (parseInt(this.rule[3]) === 0) {
 							returns.push(`sdse ${v} ${dn}`)
@@ -754,7 +754,7 @@ export class icXVar extends icXElem {
 							txt += "\n"
 							break;
 						default:
-							throw new Err(504, this.originalPosition)
+							throw new Err(206, this.originalPosition)
 					}
 				}
 			} else {
@@ -796,7 +796,7 @@ export class icXConst extends icXElem {
 				// console.log(b[1])
 			} catch (e: any) {
 				if (e.code == 901) throw new Err(203, this.originalPosition)
-				else throw new Err(501, this.originalPosition)
+				else throw new Err(209, this.originalPosition)
 			}
 			if (isNaN(Number(b[1]))) {
 				throw new Err(202, this.originalPosition)
