@@ -23,7 +23,7 @@ export abstract class TestContainer {
 	public test(): ResultContainer {
 		if (!this.skip) {
 			console.log("\x1b[36m", `Test [${this.icXName}] is start...`)
-			var text = fs.readFileSync(`./tests/files/${this.icXName}.icX`, 'utf8');
+			const text = fs.readFileSync(`./tests/files/${this.icXName}.icX`, 'utf8');
 			return this.run(text)
 		}
 		console.log("\x1b[36m", `Test [${this.icXName}] was skipped`)

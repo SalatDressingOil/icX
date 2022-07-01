@@ -9,6 +9,7 @@ export const ErrorCodes: { [errorCode: number]: string } = Object.freeze({
 	402: "Division by zero",
 	403: "Modulo by zero",
 	501: "Other error in constant declaration",
+	502: "Invalid device",
 
 
 	901: "Iternal constant use variable",

@@ -377,7 +377,7 @@ export class icXBlock extends icXElem { //блок инструкций
 
 	parseRules() {
 		this.tempVars                        = [];
-		const re                             = /\b([.\d\w]+)\s*(<|==|>|<=|>=|\||!=|&|~=|=>|<>)\s*([\s.\d\w]+?\b)(,[\s.\d\w]+)*/i;
+		const re                             = /\b([.\d\w]+)\s*(<|==|>|<=|>=|\||!=|&|~=|=>|isConnected)\s*([\s.\d\w]+?\b)(,[\s.\d\w]+)*/i;
 		const args                           = this.args.replace(/\s*/g, '')
 		const rules                          = args.split(/&&|\|\|/)
 		const returns                        = []
@@ -450,11 +450,16 @@ export class icXBlock extends icXElem { //блок инструкций
 						}
 						break;
 					case '=>':
-					case '<>':
+					case 'isConnected':
+						const dn = vars.get(this.rule[1])
+						if (!regexes.d1.test(dn)) {
+							throw new Err(502, this.originalPosition)
+						}
+						const _dn = parseInt(dn.replace("d", ""))
 						if (parseInt(this.rule[3]) === 0) {
-							returns.push(`sdse ${v} ${vars.get(this.rule[1])}}`)
+							returns.push(`sdse ${v} ${_dn}`)
 						} else {
-							returns.push(`sdns ${v} ${vars.get(this.rule[1])}`)
+							returns.push(`sdns ${v} ${_dn}`)
 						}
 						break;
 				}

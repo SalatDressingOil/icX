@@ -1,6 +1,6 @@
 {
 	"name": "icx-compiler",
-	"version": "1.2.4",
+	"version": "1.2.5",
 	"description": "Compiler icX to ic10 ",
 	"main": "index.js",
 	"scripts": {

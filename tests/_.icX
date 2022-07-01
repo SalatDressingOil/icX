@@ -1,8 +1,8 @@
 use aliases
 use constants
 var a
-if 0 => 1
-	a = 1
+if d3 isConnected 1
+	a = 9999999999
 else
-	a = 9
+	a = 9888888888
 end
