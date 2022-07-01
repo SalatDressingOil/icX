@@ -695,13 +695,11 @@ export class icXVar extends icXElem {
 		const a           = this.command.args[0];
 		const r           = vars.set(a);
 		const b           = this.originalText.split('=');
-		let isOk: boolean = false;
 		if (1 in b) {
 			const reFn = /(\w+)\(([\w,]*)\)/;
 			if (reFn.test(b[1])) {
 				const m = reFn.exec(b[1])
 				if (m) {
-					isOk       = true;
 					const func = m[1]
 					const args = m[2].split(",")
 					switch (func) {
@@ -766,7 +764,6 @@ export class icXVar extends icXElem {
 				const dots        = this.parseDots(rightString);
 				if (dots) {
 					txt += `${dots.fn} ${r} ${dots.op2} ${dots.op3} ${dots.op4 ?? ''}\n`
-					isOk = true;
 				} else {
 					const math = this.parseMath(b[1], vars.get(r));
 					if (math !== false) {
@@ -774,12 +771,8 @@ export class icXVar extends icXElem {
 					} else {
 						txt += `move ${r} ${b[1].trim()}\n`
 					}
-					isOk = true;
 				}
 			}
-		}
-		if (!isOk) {
-			throw new Err(503, this.originalPosition)
 		}
 		txt = this.addComment(txt)
 		return txt
