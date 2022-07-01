@@ -1,15 +1,15 @@
-import * as classes from "./src/classes"
-import {icXElem} from "./src/classes"
+import * as classes                                   from "./src/classes"
+import {icXElem}                                      from "./src/classes"
 import {functions, ifs, use, vars, varsClass, whiles} from "./src/lists"
-import modules from "./src/modules"
+import modules                                        from "./src/modules"
 
 export const regexes = {
-	'rr1': new RegExp("[rd]{1,}(r(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|a))$"),
-	'r1': new RegExp("^r(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|a)$"),
-	'd1': new RegExp("^d(0|1|2|3|4|5|b)$"),
-	'rr': new RegExp("^d(0|1|2|3|4|5|b)$"),
+	'rr1'     : new RegExp("[rd]+(r(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|a))$"),
+	'r1'      : new RegExp("^r(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|a)$"),
+	'd1'      : new RegExp("^d([012345b])$"),
+	'rr'      : new RegExp("^d([012345b])$"),
 	'strStart': new RegExp("^\".+$"),
-	'strEnd': new RegExp(".+\"$"),
+	'strEnd'  : new RegExp(".+\"$"),
 }
 
 export class icX {
@@ -21,7 +21,7 @@ export class icX {
 	public structure: classes.icXBlock | null = null
 	public currentBlock: classes.icXBlock | null = null
 	public operators: { [id: string]: icXElem } = {}
-	private icxOptions: { [p: string]: boolean } | null;
+	public icxOptions: { [p: string]: boolean } | null;
 
 	constructor(text: string, icxOptions: { [key: string]: boolean } | null = null) {
 		this.icxOptions = icxOptions
@@ -32,7 +32,7 @@ export class icX {
 					const element: classes.icXElem = classes[key]
 					try {
 						// @ts-ignore
-						var x = new element
+						const x = new element
 						if (x instanceof classes.icXElem) {
 							x.re.forEach(re => {
 								this.keyFirstWord.push({class: key, re})
@@ -53,7 +53,7 @@ export class icX {
 					const element: classes.icXElem = modules[key]
 					try {
 						// @ts-ignore
-						var x = new element
+						const x = new element
 						if (x instanceof classes.icXElem) {
 							x.re.forEach(re => {
 								this.keyFirstWord.push({class: key, re})
@@ -76,33 +76,34 @@ export class icX {
 
 	init(text: string) {
 		this.lines = text.split(/\r?\n/)
-		var commands: { command: string, args: string[], empty: boolean, comment: string }[] = this.lines
-			.map((line) => {
-				var comment = ''
-				if(!line.trim().startsWith("#")) {
-					var sp = line.split('#')
-					line = sp[0]
-					comment = sp[1] ? sp[1].trim() : '';
-				}
-				const args: Array<string> = line.trim().split(/\s+/)
-				const command = args.shift() ?? ""
-				if (command.startsWith("use")) {
-					for (const usesKey in args) {
-						use.add(args[usesKey]);
-					}
-				}
-				var empty: boolean
-				if (!use.has("comments")) {
-					empty = (!command || command.startsWith("#")) ? true : false
-				} else {
-					empty = !command
-				}
-				return {command, args, empty, comment}
-			})
+		const commands: { command: string, args: string[], empty: boolean, comment: string }[]
+				   = this.lines
+						 .map((line) => {
+							 let comment = ''
+							 if (!line.trim().startsWith("#")) {
+								 const sp  = line.split('#')
+								 line    = sp[0]
+								 comment = sp[1] ? sp[1].trim() : '';
+							 }
+							 const args: Array<string> = line.trim().split(/\s+/)
+							 const command             = args.shift() ?? ""
+							 if (command.startsWith("use")) {
+								 for (const usesKey in args) {
+									 use.add(args[usesKey]);
+								 }
+							 }
+							 let empty: boolean
+							 if (!use.has("comments")) {
+								 empty = (!command || command.startsWith("#"))
+							 } else {
+								 empty = !command
+							 }
+							 return {command, args, empty, comment}
+						 });
 		commands.forEach(command => {
-			var newArgs: any = {}
-			var mode = 0
-			var argNumber: number = 0
+			const newArgs: any = {};
+			let mode           = 0;
+			let argNumber: number = 0;
 			command.args.forEach(arg => {
 				if (mode === 0) {
 					argNumber++
@@ -121,20 +122,18 @@ export class icX {
 				command.args = Object.values(newArgs)
 			})
 		})
-		this.commands = commands
-		this.position = 0
-		var blockLvl = 0
-		var startBlock = {}
-		this.structure = new classes.icXBlock(null, 0, this.text)
+		this.commands     = commands
+		this.position     = 0
+		this.structure    = new classes.icXBlock(null, 0, this.text)
 		this.currentBlock = this.structure
 		for (let position: number = 0; position < this.lines.length; position++) {
-			if (this.commands.hasOwnProperty(position) && this.commands[position].empty == false) {
-				var line = this.lines[position]
-				var c = this.commands[position]
-				var r = ''
+			if (this.commands.hasOwnProperty(position) && !this.commands[position].empty) {
+				const line = this.lines[position]
+				const c    = this.commands[position]
+				let r    = ''
 
 				for (const keyFirstWordKey in this.keyFirstWord) {
-					var key = this.keyFirstWord[keyFirstWordKey]
+					const key = this.keyFirstWord[keyFirstWordKey]
 					if (key.re.test(line)) {
 						r = key.class
 						break;
@@ -143,7 +142,7 @@ export class icX {
 				if (r) {
 					try {
 						//@ts-ignore
-						var a = new this.operators[r](this.currentBlock, position, line)
+						const a = new this.operators[r](this.currentBlock, position, line);
 						a.setCommand(c)
 						a.originalPosition = position
 						this.currentBlock.addElem(a)
@@ -154,12 +153,12 @@ export class icX {
 					}
 				} else {
 					if (this.currentBlock.endKeys.test(line)) {
-						var block = this.currentBlock.setEnd(position - 1)
+						const block = this.currentBlock.setEnd(position - 1)
 						if (block instanceof classes.icXBlock) {
 							this.currentBlock = block
 						}
 					} else {
-						var elem = new classes.icXElem(this.currentBlock, position, line)
+						const elem = new classes.icXElem(this.currentBlock, position, line)
 						elem.setCommand(c)
 						this.currentBlock.addElem(elem)
 					}
@@ -183,7 +182,7 @@ export class icX {
 		}
 		try {
 			const code = (this.structure?.compile() ?? "") + "\n"
-			var txt = ""
+			let txt    = "";
 			if (use.has("aliases")) {
 				txt += vars.getAliases()
 			}
@@ -191,8 +190,8 @@ export class icX {
 			txt += ""
 			if (functions.fn.length != 0) {
 				if (!use.has("loop")) {
-					var a = functions.get()
-					var t = a.split("\n").length - (functions.fn.length) + 1
+					const a = functions.get();
+					const t = a.split("\n").length - (functions.fn.length) + 1;
 					txt += `jr ${t}\n`
 					txt += a
 				} else {
@@ -232,17 +231,17 @@ export class icX {
 				}
 			}
 		}
-		var error = null
-		var result = null
+		let error = null;
+		let result = null;
 		try {
 			const code = (this.structure?.compile() ?? "") + "\n"
-			var txt = "# ---icX User code start---\n"
+			let txt    = "# ---icX User code start---\n";
 			txt += code
 			txt += "# ---icX User code end---\n"
 			if (functions.fn.length != 0) {
 				if (!use.has("loop")) {
-					var a = functions.get()
-					var t = a.split("\n").length
+					const a = functions.get();
+					const t = a.split("\n").length;
 					txt += `jr ${t}\n`
 					txt += a
 				} else {

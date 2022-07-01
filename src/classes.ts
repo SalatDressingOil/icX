@@ -1,8 +1,8 @@
 import {functions, ifs, use, variable, vars, whiles} from "./lists"
-import {Err, Errors} from "./err"
-import {regexes} from "../index";
+import {Err, Errors}                                 from "./err"
+import {regexes}                                     from "../index";
 
-var functionList: string[] = require('./ic10.functions.json')
+const functionList: string[] = require('./ic10.functions.json');
 
 const mathParser = require('@scicave/math-parser')
 
@@ -30,14 +30,14 @@ export class icXElem { //инструкция
 		result: "",
 		convert: function (r, result, originalPosition = 0, settings = {noVars: false, define: false}) {
 			if (r.type == 'operator') {
-				var a0 = this.convert(r.args[0], null, originalPosition, settings)
-				var a1 = this.convert(r.args[1], null, originalPosition, settings)
+				const a0 = this.convert(r.args[0], null, originalPosition, settings);
+				const a1 = this.convert(r.args[1], null, originalPosition, settings);
 				if (a0 == Infinity || a0 == -Infinity || a1 == Infinity || a1 == -Infinity) {
 					throw new Err(401, originalPosition)
 				}
-				var temp: string | variable = ""
+				let temp: string | variable;
 				if (result !== null) {
-					temp = result
+					temp        = result
 					this.result = result
 				} else {
 					temp = `__temp_${++this.temps}__`
@@ -104,9 +104,8 @@ export class icXElem { //инструкция
 			}
 		},
 		get: function () {
-			var used: { [id: string]: variable } = {}
-			var map: { [id: string]: [number, number, variable?] } = {}
-			this.txt.forEach((v, i, a) => {
+			const map: { [id: string]: [number, number, variable?] } = {};
+			this.txt.forEach((v, i) => {
 				if (typeof v[1] !== "number" && v[1].startsWith("__temp_") && v[1].endsWith("__")) {
 					if (!map[v[1]]) map[v[1]] = [i, i]
 					else map[v[1]][0] = i
@@ -120,7 +119,7 @@ export class icXElem { //инструкция
 					else map[v[3]][1] = i
 				}
 			})
-			this.txt.forEach((v, i, a) => {
+			this.txt.forEach((v, i) => {
 				if (v[3] in map) {
 					if (i == map[v[3]][1]) map[v[3]][2]?.release()
 					v[3] = map[v[3]][2]?.to
@@ -136,8 +135,8 @@ export class icXElem { //инструкция
 					}
 				}
 			})
-			var txt = this.txt.map((v) => v.join(" ")).join("\n") ?? ''
-			this.txt = []
+			const txt = this.txt.map((v) => v.join(" ")).join("\n") ?? '';
+			this.txt  = []
 			this.vars = []
 			if (txt) {
 				return txt
@@ -148,7 +147,7 @@ export class icXElem { //инструкция
 	};
 
 	constructor(scope: icXElem | null, pos: number = 0, text: string = "") {
-		var sp = text.split('#')
+		const sp = text.split('#');
 		text = sp[0]
 		this.comment = sp[1] ? sp[1].trim() : ''
 		if (this.comment.startsWith('!')) {
@@ -172,18 +171,20 @@ export class icXElem { //инструкция
 	}
 
 	compile(parent?: icXElem): string | null {
-		var re: RegExp
-		var dots = this.parseDots(this.originalText)
+		let txt;
+		let a;
+		let re: RegExp;
+		const dots = this.parseDots(this.originalText);
 		if (dots !== false) {
 			return `${dots.fn} ${dots.op1} ${dots.op2} ${dots.op3} ${dots.op4 ?? ''}`
 		}
 
-		re = /([\.\d\w]+)\s*(=)\s*(.+)/i
+		re = /([.\d\w]+)\s*(=)\s*(.+)/i
 		if (re.test(this.originalText)) {
-			var a = re.exec(this.originalText)
+			a = re.exec(this.originalText);
 			if (a == null) return null
-			var math = this.parseMath(a[3], vars.get(a[1]))
-			var txt = ''
+			const math = this.parseMath(a[3], vars.get(a[1]));
+			txt        = '';
 			if (math !== false) {
 				txt += math
 			} else {
@@ -193,15 +194,15 @@ export class icXElem { //инструкция
 		}
 		re = /\b([\w-]+)?\(\)/i
 		if (re.test(this.originalText)) {
-			var a = re.exec(this.originalText)
+			a = re.exec(this.originalText);
 			if (a == null) return null
-			var txt = `jal ${a[1]}\n`
+			txt = `jal ${a[1]}\n`;
 			txt = this.addComment(txt)
 			return txt
 		}
 		for (const functionListKey in functionList) {
 			if (this.originalText.trim().startsWith(functionList[functionListKey])) {
-				var args = this.originalText.trim().split(/\s+/)
+				const args = this.originalText.trim().split(/\s+/);
 				for (const argsKey in args) {
 					if (parseInt(argsKey) > 0) {
 						args[argsKey] = vars.get(args[argsKey])
@@ -214,22 +215,23 @@ export class icXElem { //инструкция
 	}
 
 	parseDots(text: string): { fn: string, op1: string | number | null, op2: string | number | null, op3: string | number | null, op4?: string | number } | false {
-		var re: RegExp
-		var byEq = text.trim().split('=')
+		let a;
+		let re: RegExp;
+		const byEq = text.trim().split('=');
 		if (byEq.length == 2) {
 			if (parseFloat(byEq[1]) && (this instanceof icXVar || this instanceof icXConst)) {
 				return false;
 			}
 		}
-		var byDots = text.split('.')
+		const byDots = text.split('.');
 
 		if (byDots.length >= 2) {
-			if(/^\d+$/g.test(byDots[1])){
-				return  false;
+			if (/^\d+$/g.test(byDots[1])) {
+				return false;
 			}
 			re = /\b([\w-\[\]]+)\.([\w-]+)\s*(=)\s*([\w-]+)\b/i
 			if (re.test(text)) {
-				var a = re.exec(text)
+				a = re.exec(text);
 				if (a == null) return false
 				return {
 					fn: 's',
@@ -240,7 +242,7 @@ export class icXElem { //инструкция
 			}
 			re = /\b([\w-]+)\s*(=)\s*([\w-\[\]]+)\.slot\(([\w-]+)\).([\w-]+)\b/i
 			if (re.test(text)) {
-				var a = re.exec(text)
+				a = re.exec(text);
 				if (a == null) return false
 				return {
 					fn: 'ls',
@@ -252,7 +254,7 @@ export class icXElem { //инструкция
 			}
 			re = /\b([\w-]+)\s*(=)\s*([\w-\[\]]+)\.([\w-]+)\s*\b/i
 			if (re.test(text)) {
-				var a = re.exec(text)
+				a = re.exec(text);
 				if (a == null) return false
 				return {
 					fn: 'l',
@@ -263,7 +265,7 @@ export class icXElem { //инструкция
 			}
 			re = /\b([\w-]+)\s*(=)\s*d\(([\w-]+)\).([\w-]+)\(([\w-]+)\b/i
 			if (re.test(text)) {
-				var a = re.exec(text)
+				a = re.exec(text);
 				if (a == null) return false
 				return {
 					fn: 'lb',
@@ -275,7 +277,7 @@ export class icXElem { //инструкция
 			}
 			re = /\bd\(([\w-]+)\)\.([\w-\d]+)\s*(=)\s*([\w-]+)/i
 			if (re.test(text)) {
-				var a = re.exec(text)
+				a = re.exec(text);
 				if (a == null) return false
 				return {
 					fn: 'sb',
@@ -289,28 +291,31 @@ export class icXElem { //инструкция
 	}
 
 	parseMath(text: string, r: string, settings: { noVars?: boolean, define?: boolean } = {}): string | false {
-		var set: { noVars: boolean, define: boolean } = {
+		let resultVar
+		const sets: { noVars: boolean, define: boolean } = {
 			noVars: settings.noVars ?? false,
 			define: settings.define ?? false,
 		}
-		text = text.replace(/\s+/g, "")
-		const regex = /^(.+)$/
+		text                                             = text.replace(/\s+/g, "")
+		const regex                                      = /^(.+)$/
 		if (regex.test(text)) {
 			text = (regex.exec(text) ?? "")[1] ?? ""
 			if (vars.exists(text))
 				return `move ${r} ${vars.get(text)}`
-			var math = mathParser.parse(text, {singleCharName: false})
+			const math = mathParser.parse(text, {singleCharName: false})
 			try {
-				var resultvar = this.out.convert(math, r, this.originalPosition, set)
-				if (resultvar === Infinity || resultvar === -Infinity) throw new Err(401, this.originalPosition)
+				resultVar = this.out.convert(math, r, this.originalPosition, sets)
+				if (resultVar === Infinity || resultVar === -Infinity) {
+					throw new Err(401, this.originalPosition)
+				}
 			} catch (e: any) {
 				throw new Err(e.code, this.originalPosition)
 			}
-			if (!isNaN(+resultvar))
-				if (set.define) return String(resultvar)
-				else return `move ${r} ${resultvar}`
+			if (!isNaN(+resultVar))
+				if (sets.define) return String(resultVar)
+				else return `move ${r} ${resultVar}`
 
-			var result = this.out.get()
+			const result = this.out.get();
 			if (result === "") throw new Err(201, this.originalPosition, text)
 			return result
 		}
@@ -371,20 +376,20 @@ export class icXBlock extends icXElem { //блок инструкций
 	}
 
 	parseRules() {
-		this.tempVars = [];
-		var re = /\b([\.\d\w]+)\s*(<|==|>|<=|>=|\||!=|\&|\~\=)\s*([\s\.\d\w]+?\b)(\,[\s\.\d\w]+)*/i
-		var args = this.args.replace(/\s*/g, '')
-		var rules = args.split(/&&|\|\|/)
-		var returns = []
-		var ifs: { [key: number]: string } = {}
+		this.tempVars                        = [];
+		const re                             = /\b([.\d\w]+)\s*(<|==|>|<=|>=|\||!=|&|~=|=>|<>)\s*([\s.\d\w]+?\b)(,[\s.\d\w]+)*/i;
+		const args                           = this.args.replace(/\s*/g, '')
+		const rules                          = args.split(/&&|\|\|/)
+		const returns                        = []
+		const ifs: { [key: number]: string } = {}
 		for (const rulesKey in rules) {
 
 			if (re.test(rules[rulesKey])) {
 				this.rule = re.exec(rules[rulesKey])
 				if (this.rule == null) return null
-				var v = vars.getTemp()
+				const v = vars.getTemp();
 				this.tempVars.push(v)
-				var o = args.indexOf(rules[rulesKey])
+				const o                       = args.indexOf(rules[rulesKey]);
 				ifs[this.tempVars.length - 1] = args[o - 1] + args[o - 2];
 				switch (this.rule[2]) {
 					case '<':
@@ -425,6 +430,7 @@ export class icXBlock extends icXElem { //блок инструкций
 					case '|':
 					case '||':
 						returns.push(`or ${v} ${vars.get(this.rule[1])} ${vars.get(this.rule[3])}`)
+						break;
 					case '&':
 					case '&&':
 						returns.push(`and ${v} ${vars.get(this.rule[1])} ${vars.get(this.rule[3])}`)
@@ -441,6 +447,14 @@ export class icXBlock extends icXElem { //блок инструкций
 							returns.push(`snez ${v} ${vars.get(this.rule[1])}`)
 						} else {
 							returns.push(`sne ${v} ${vars.get(this.rule[1])} ${vars.get(this.rule[3])}`)
+						}
+						break;
+					case '=>':
+					case '<>':
+						if (parseInt(this.rule[3]) === 0) {
+							returns.push(`sdse ${v} ${vars.get(this.rule[1])}}`)
+						} else {
+							returns.push(`sdns ${v} ${vars.get(this.rule[1])}`)
 						}
 						break;
 				}
