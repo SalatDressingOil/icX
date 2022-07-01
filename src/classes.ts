@@ -443,7 +443,7 @@ export class icXBlock extends icXElem { //блок инструкций
 
 	parseRules() {
 		this.tempVars                        = [];
-		const re                             = /\b([.\d\w]+)\s*(<|==|>|<=|>=|\||!=|&|~=|=>|isConnected)\s*([\s.\d\w]+?\b)(,[\s.\d\w]+)*/i;
+		const re                             = /\b([.\d\w]+)\s*(<|==|>|<=|>=|\||!=|&|~=|=>|dse)\s*([\s.\d\w]+?\b)(,[\s.\d\w]+)*/i;
 		const args                           = this.args.replace(/\s*/g, '')
 		const rules                          = args.split(/&&|\|\|/)
 		const returns                        = []
