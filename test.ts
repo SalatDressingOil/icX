@@ -1,16 +1,17 @@
 import fs            from 'fs';
 import {Err, Errors} from "./src/err";
 import {icX}         from "./index";
+
 try {
 	const text = fs.readFileSync('./tests/_.icX', 'utf8');
-	const a = new icX(text);
-	const r = {};
+	const a    = new icX(text);
+	const r    = {};
 	for (const key in a?.structure?.content) {
 		if (Object.prototype.hasOwnProperty.call(a?.structure?.content, key)) {
 			// @ts-ignore
 			const element = a?.structure?.content[key];
 			// @ts-ignore
-			r[key] = element.constructor.name
+			r[key]        = element.constructor.name
 		}
 	}
 	const b: string | boolean = a.getCompiled();

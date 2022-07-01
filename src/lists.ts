@@ -4,13 +4,13 @@ export class variable {
 	temp: boolean
 	to: string
 	from: string
-	ready: boolean = true
+	ready: boolean    = true
 	constant: boolean = false
 
 	constructor(from: string, to: string, temp = false, constant = false) {
-		this.temp = temp
-		this.to = to
-		this.from = from
+		this.temp     = temp
+		this.to       = to
+		this.from     = from
 		this.constant = constant
 	}
 
@@ -40,9 +40,9 @@ export class variable {
 export class devices extends variable {
 	constructor(from: string, to: string, temp = false, constant = false) {
 		super(from, to, temp, constant)
-		this.temp = false
-		this.to = to
-		this.from = from
+		this.temp     = false
+		this.to       = to
+		this.from     = from
 		this.constant = true
 	}
 
@@ -54,8 +54,8 @@ export class devices extends variable {
 
 export class varsClass {
 	aliases: variable[] = []
-	temps: variable[] = []
-	empty: string[] = []
+	temps: variable[]   = []
+	empty: string[]     = []
 
 	constructor() {
 		this.reset()
@@ -173,31 +173,31 @@ export class varsClass {
 
 const vars = new varsClass
 export {vars}
-export const whiles: { count: number; reset: () => void; get: () => string } = {
+export const whiles: { count: number; reset: () => void; get: () => string }                                              = {
 	count: 0,
 	reset: function () {
 		this.count = 0
 	},
-	get: function () {
+	get  : function () {
 		return 'while' + this.count++
 	}
 }
-export const ifs: { count: number; reset: () => void; get: () => string } = {
+export const ifs: { count: number; reset: () => void; get: () => string }                                                 = {
 	count: 0,
 	reset: function () {
 		this.count = 0
 	},
-	get: function () {
+	get  : function () {
 		return 'if' + this.count++
 	}
 
 }
-export const functions: { fn: string[]; add: (str: string) => void; get: () => string; reset: () => void } = {
-	fn: [],
-	add: function (str) {
+export const functions: { fn: string[]; add: (str: string) => void; get: () => string; reset: () => void }                = {
+	fn   : [],
+	add  : function (str) {
 		this.fn.push(str)
 	},
-	get: function () {
+	get  : function () {
 		return this.fn.join('\n')
 	},
 	reset: function () {
@@ -205,11 +205,11 @@ export const functions: { fn: string[]; add: (str: string) => void; get: () => s
 	}
 }
 export const use: { arg: Set<string>; add: (...str: string[]) => void; has: (str: string) => boolean; reset: () => void } = {
-	arg: new Set(),
-	add: function (str) {
+	arg  : new Set(),
+	add  : function (str) {
 		this.arg.add(str)
 	},
-	has: function (str) {
+	has  : function (str) {
 		if (this.arg.has(str) === false)
 			return false
 		else

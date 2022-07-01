@@ -13,9 +13,9 @@ export class icXElem { //инструкция
 	public originalText: string
 	public scope: icXElem | null
 	public command: { command: string, args: string[], empty: boolean, comment: string } = {command: '', args: [], empty: true, comment: ''};
-	public args: string = ""
-	public rule: RegExpExecArray | null = null
-	public re: RegExp[] = []
+	public args: string                                                                  = ""
+	public rule: RegExpExecArray | null                                                  = null
+	public re: RegExp[]                                                                  = []
 	public out: {
 		txt: any[][],
 		vars: variable[],
@@ -23,11 +23,11 @@ export class icXElem { //инструкция
 		result: string,
 		convert: (r: any, result: string | null, originalPosition?: number, settings?: { noVars: boolean, define: boolean }) => {}
 		get: () => string
-	} = {
-		txt: [],
-		vars: [],
-		temps: 0,
-		result: "",
+	}                                                                                    = {
+		txt    : [],
+		vars   : [],
+		temps  : 0,
+		result : "",
 		convert: function (r, result, originalPosition = 0, settings = {noVars: false, define: false}) {
 			if (r.type == 'operator') {
 				const a0 = this.convert(r.args[0], null, originalPosition, settings);
@@ -103,7 +103,7 @@ export class icXElem { //инструкция
 				return r.name
 			}
 		},
-		get: function () {
+		get    : function () {
 			const map: { [id: string]: [number, number, variable?] } = {};
 			this.txt.forEach((v, i) => {
 				if (typeof v[1] !== "number" && v[1].startsWith("__temp_") && v[1].endsWith("__")) {
@@ -131,7 +131,7 @@ export class icXElem { //инструкция
 				if (v[1] in map) {
 					if (i == map[v[1]][0]) {
 						map[v[1]][2] = vars.getTemp()
-						v[1] = map[v[1]][2]?.to
+						v[1]         = map[v[1]][2]?.to
 					}
 				}
 			})
@@ -147,15 +147,15 @@ export class icXElem { //инструкция
 	};
 
 	constructor(scope: icXElem | null, pos: number = 0, text: string = "") {
-		const sp = text.split('#');
-		text = sp[0]
+		const sp     = text.split('#');
+		text         = sp[0]
 		this.comment = sp[1] ? sp[1].trim() : ''
 		if (this.comment.startsWith('!')) {
 			this.comment = ''
 		}
-		this.scope = scope
+		this.scope            = scope
 		this.originalPosition = pos
-		this.originalText = text
+		this.originalText     = text
 
 	}
 
@@ -300,7 +300,7 @@ export class icXElem { //инструкция
 				a = re.exec(text);
 				if (a == null) return false
 				return {
-					fn: 's',
+					fn : 's',
 					op1: vars.get(a[1]),
 					op2: a[2],
 					op3: vars.get(a[4]),
@@ -311,7 +311,7 @@ export class icXElem { //инструкция
 				a = re.exec(text);
 				if (a == null) return false
 				return {
-					fn: 'ls',
+					fn : 'ls',
 					op1: vars.get(a[1]),
 					op2: vars.get(a[3]),
 					op3: vars.get(a[4]),
@@ -323,7 +323,7 @@ export class icXElem { //инструкция
 				a = re.exec(text);
 				if (a == null) return false
 				return {
-					fn: 'l',
+					fn : 'l',
 					op1: vars.get(a[1]),
 					op2: vars.get(a[3]),
 					op3: a[4],
@@ -334,7 +334,7 @@ export class icXElem { //инструкция
 				a = re.exec(text);
 				if (a == null) return false
 				return {
-					fn: 'lb',
+					fn : 'lb',
 					op1: vars.get(a[1]),
 					op2: vars.get(a[3]),
 					op3: vars.get(a[4]),
@@ -346,7 +346,7 @@ export class icXElem { //инструкция
 				a = re.exec(text);
 				if (a == null) return false
 				return {
-					fn: 'sb',
+					fn : 'sb',
 					op1: vars.get(a[1]),
 					op2: vars.get(a[2]),
 					op3: vars.get(a[4]),
@@ -429,9 +429,9 @@ export class icXBlock extends icXElem { //блок инструкций
 	public end: number | undefined
 	public start: number | undefined
 	public content: { [id: number]: icXElem } = {};
-	public endKeys: RegExp = /\bend\b/i
+	public endKeys: RegExp                    = /\bend\b/i
 	public tempVar?: variable
-	public tempVars: variable[] = []
+	public tempVars: variable[]               = []
 
 	constructor(scope: icXElem | null, pos: number = 0, text: string = "") {
 		super(scope, pos, text);
@@ -449,7 +449,6 @@ export class icXBlock extends icXElem { //блок инструкций
 		const returns                        = []
 		const ifs: { [key: number]: string } = {}
 		for (const rulesKey in rules) {
-
 			if (re.test(rules[rulesKey])) {
 				this.rule = re.exec(rules[rulesKey])
 				if (this.rule == null) return null
@@ -518,7 +517,7 @@ export class icXBlock extends icXElem { //блок инструкций
 					case '=>':
 					case 'dse':
 						const dn = vars.get(this.rule[1])
-						if (!regexes.d1.test(dn)) {
+						if (!regexes.rr1.test(dn)) {
 							throw new Err(502, this.originalPosition)
 						}
 						if (parseInt(this.rule[3]) === 0) {
@@ -532,8 +531,8 @@ export class icXBlock extends icXElem { //блок инструкций
 		}
 		if (this.tempVars.length > 1) {
 			this.tempVar = vars.getTemp()
-			for (var i in this.tempVars) {
-				var _i = parseInt(i)
+			for (let i in this.tempVars) {
+				const _i = parseInt(i);
 				if (_i == 1) {
 					continue;
 				}
@@ -569,7 +568,7 @@ export class icXBlock extends icXElem { //блок инструкций
 
 	compile(parent?: icXElem) {
 		const txt: string[] = []
-		var err = new Errors
+		const err           = new Errors;
 		for (const contentKey in this.content) {
 			try {
 				const text = this.content[contentKey].compile(parent)
@@ -604,7 +603,7 @@ export class icXFunction extends icXBlock {
 	}
 
 	compile(parent?: icXElem) {
-		var txt = `${this.name}:\n`
+		let txt = `${this.name}:\n`;
 		if (use.has("comments") && this.comment) {
 			txt = txt.replace("\n", '') + ' # ' + this.comment + "\n"
 		}
@@ -624,11 +623,11 @@ export class icXIf extends icXBlock {
 	}
 
 	compile(parent?: icXElem): string {
-		var isElse = false
-		var r = this.parseRules()
-		var l = ifs.get()
-		var txt = []
-		var _txt = []
+		let isElse = false;
+		const r    = this.parseRules();
+		const l    = ifs.get();
+		const txt  = [];
+		const _txt = [];
 		for (const contentKey in this.content) {
 			if (this.content[contentKey].originalText.trim().toLowerCase() == 'else') {
 				_txt.push(`j ${l}exit`)
@@ -648,7 +647,7 @@ export class icXIf extends icXBlock {
 		txt.push(`${l}exit:`)
 		this.tempVar?.release()
 		for (const tv in this.tempVars) {
-			var t = parseInt(tv);
+			const t = parseInt(tv);
 			this.tempVars[t].release()
 		}
 		return txt.join('\n') + '\n'
@@ -665,9 +664,9 @@ export class icXWhile extends icXBlock {
 	}
 
 	compile(parent?: icXElem): string {
-		var r = this.parseRules()
-		this.l = whiles.get()
-		var txt = []
+		const r   = this.parseRules();
+		this.l    = whiles.get()
+		const txt = [];
 		txt.push(`${this.l}:`)
 		txt.push(r)
 		txt.push(`beqz ${this.tempVar} ${this.l}exit`)
@@ -675,7 +674,7 @@ export class icXWhile extends icXBlock {
 		txt.push(`j ${this.l}`)
 		txt.push(`${this.l}exit:`)
 		for (const tv in this.tempVars) {
-			var t = parseInt(tv);
+			const t = parseInt(tv);
 			this.tempVars[t].release()
 		}
 		return txt.join('\n') + '\n'
@@ -690,10 +689,10 @@ export class icXVar extends icXElem {
 	}
 
 	compile(parent?: icXElem) {
-		let txt           = '';
-		const a           = this.command.args[0];
-		const r           = vars.set(a);
-		const b           = this.originalText.split('=');
+		let txt = '';
+		const a = this.command.args[0];
+		const r = vars.set(a);
+		const b = this.originalText.split('=');
 		if (1 in b) {
 			const reFn = /(\w+)\(([\w,]*)\)/;
 			if (reFn.test(b[1])) {
@@ -785,11 +784,11 @@ export class icXConst extends icXElem {
 	}
 
 	compile(parent?: icXElem) {
-		var txt = ''
+		let txt = '';
 		if (this.command.args.length >= 2) {
-			var a = this.command.args.join('')
-			var b = a.split('=')
-			b[0] = b[0].trim()
+			const a = this.command.args.join('');
+			const b = a.split('=');
+			b[0]    = b[0].trim()
 			try {
 				if (isNaN(Number(b[1]))) {
 					b[1] = this.parseMath(b[1], vars.get(a), {noVars: true, define: true}) || "0"
@@ -867,8 +866,8 @@ export class icXYield extends icXElem {
 	}
 
 	compile(parent?: icXElem) {
-		var txt = "yield"
-		txt = this.addComment(txt)
+		let txt = "yield";
+		txt     = this.addComment(txt)
 		return txt
 	}
 }
@@ -880,13 +879,14 @@ export class icXBreak extends icXElem {
 	}
 
 	compile(parent?: icXElem) {
+		let txt;
 		if (parent instanceof icXWhile) {
-			var txt = 'j ' + parent.l + 'exit\n';
+			txt = 'j ' + parent.l + 'exit\n';
 			txt = this.addComment(txt)
 			return txt
 		}
 		if (parent instanceof icXForeach) {
-			var txt = 'j ' + parent.l + 'exit\n';
+			txt = 'j ' + parent.l + 'exit\n';
 			txt = this.addComment(txt)
 			return txt
 		}
@@ -903,7 +903,7 @@ export class icXSwitch extends icXBlock {
 	}
 
 	compile(parent?: icXElem): string {
-		var txt = []
+		const txt = [];
 		txt.push(super.compile(this))
 		return `# ${this.comment}\n` + txt.join('\n') + '\n'
 	}
@@ -917,11 +917,11 @@ export class icXSwitchCase extends icXBlock {
 	}
 
 	compile(parent?: icXSwitch) {
-		var txt: string[] = []
-		if (typeof parent == 'undefined' || !(parent instanceof icXSwitch)) {
+		const txt: string[] = [];
+		if (typeof parent == 'undefined') {
 			throw new Err(203, this.originalPosition).message = 'case must be in switch'
 		}
-		var count = Object.keys(this.content).length + 1
+		const count = Object.keys(this.content).length + 1
 		txt.push(`brne ${vars.get(parent.args)} ${vars.get(this.args)} ${count}`)
 		txt.push(super.compile(this))
 		return txt.join('\n') + '\n'
@@ -935,14 +935,14 @@ export class icXStack extends icXElem {
 	}
 
 	compile(parent?: icXElem) {
-		var txt: Array<string> = []
+		const txt: Array<string> = [];
 		for (const argsKey in this.command.args) {
 			if (this.command.args.hasOwnProperty(argsKey)) {
 				txt.push(`push ${this.command.args[argsKey]}`)
 			}
 
 		}
-		var _txt = txt.join('\n')
+		let _txt = txt.join('\n');
 		if (use.has("comments") && this.comment) {
 			_txt = _txt.replace("\n", '') + ' # ' + this.comment + "\n"
 		}
@@ -960,14 +960,12 @@ export class icXForeach extends icXBlock {
 	}
 
 	compile(parent?: icXElem): string {
-		var r = this.parseRules()
-		this.l = whiles.get()
-		var txt = []
+		this.l    = whiles.get()
+		const txt = []
 		let offset
 		try {
-			offset =vars.get(this.command.args[1]) ?? 1
-		}
-		catch (e) {
+			offset = vars.get(this.command.args[1]) ?? 1
+		} catch (e) {
 			offset = 1
 		}
 		txt.push(`move sp ${offset}`)
@@ -979,7 +977,7 @@ export class icXForeach extends icXBlock {
 		txt.push(`j ${this.l}`)
 		txt.push(`${this.l}exit:`)
 		for (const tv in this.tempVars) {
-			var t = parseInt(tv);
+			const t = parseInt(tv);
 			this.tempVars[t].release()
 		}
 		return txt.join('\n') + '\n'

@@ -1,5 +1,5 @@
 import {icXElem} from "../classes";
-import {vars} from "../lists";
+import {vars}    from "../lists";
 
 
 class icXIncrement extends icXElem {

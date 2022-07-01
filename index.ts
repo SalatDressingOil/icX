@@ -4,23 +4,22 @@ import {functions, ifs, use, vars, varsClass, whiles} from "./src/lists"
 import modules                                        from "./src/modules"
 
 export const regexes = {
-	'rr1'     : new RegExp("[rd]+(r(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|a))$"),
+	'rr1'     : new RegExp("dr*(10|11|12|13|14|15|16|17|0|1|2|3|4|5|6|7|8|9|a)$"),
 	'r1'      : new RegExp("^r(0|1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|a)$"),
 	'd1'      : new RegExp("^d([012345b])$"),
-	'rr'      : new RegExp("^d([012345b])$"),
 	'strStart': new RegExp("^\".+$"),
 	'strEnd'  : new RegExp(".+\"$"),
 }
 
 export class icX {
 	public text: string
-	public keyFirstWord: { class: string, re: RegExp }[] = []
+	public keyFirstWord: { class: string, re: RegExp }[]                                    = []
 	public lines: string[] | undefined
-	public position: number = 0;
-	public commands: { command: string, args: string[], empty: boolean,comment:string }[] = [];
-	public structure: classes.icXBlock | null = null
-	public currentBlock: classes.icXBlock | null = null
-	public operators: { [id: string]: icXElem } = {}
+	public position: number                                                                 = 0;
+	public commands: { command: string, args: string[], empty: boolean, comment: string }[] = [];
+	public structure: classes.icXBlock | null                                               = null
+	public currentBlock: classes.icXBlock | null                                            = null
+	public operators: { [id: string]: icXElem }                                             = {}
 	public icxOptions: { [p: string]: boolean } | null;
 
 	constructor(text: string, icxOptions: { [key: string]: boolean } | null = null) {
@@ -69,7 +68,7 @@ export class icX {
 		}
 		vars.reset()
 		this.position = 0
-		this.text = text
+		this.text     = text
 		// this.text = 'var _r0 = 0\n' + text
 		this.init(this.text)
 	}
@@ -77,32 +76,31 @@ export class icX {
 	init(text: string) {
 		this.lines = text.split(/\r?\n/)
 		const commands: { command: string, args: string[], empty: boolean, comment: string }[]
-				   = this.lines
-						 .map((line) => {
-							 let comment = ''
-							 if (!line.trim().startsWith("#")) {
-								 const sp  = line.split('#')
-								 line    = sp[0]
-								 comment = sp[1] ? sp[1].trim() : '';
-							 }
-							 const args: Array<string> = line.trim().split(/\s+/)
-							 const command             = args.shift() ?? ""
-							 if (command.startsWith("use")) {
-								 for (const usesKey in args) {
-									 use.add(args[usesKey]);
-								 }
-							 }
-							 let empty: boolean
-							 if (!use.has("comments")) {
-								 empty = (!command || command.startsWith("#"))
-							 } else {
-								 empty = !command
-							 }
-							 return {command, args, empty, comment}
-						 });
+				   = this.lines.map((line) => {
+			let comment = ''
+			if (!line.trim().startsWith("#")) {
+				const sp = line.split('#')
+				line     = sp[0]
+				comment  = sp[1] ? sp[1].trim() : '';
+			}
+			const args: Array<string> = line.trim().split(/\s+/)
+			const command             = args.shift() ?? ""
+			if (command.startsWith("use")) {
+				for (const usesKey in args) {
+					use.add(args[usesKey]);
+				}
+			}
+			let empty: boolean
+			if (!use.has("comments")) {
+				empty = (!command || command.startsWith("#"))
+			} else {
+				empty = !command
+			}
+			return {command, args, empty, comment}
+		});
 		commands.forEach(command => {
-			const newArgs: any = {};
-			let mode           = 0;
+			const newArgs: any    = {};
+			let mode              = 0;
 			let argNumber: number = 0;
 			command.args.forEach(arg => {
 				if (mode === 0) {
@@ -130,8 +128,7 @@ export class icX {
 			if (this.commands.hasOwnProperty(position) && !this.commands[position].empty) {
 				const line = this.lines[position]
 				const c    = this.commands[position]
-				let r    = ''
-
+				let r      = ''
 				for (const keyFirstWordKey in this.keyFirstWord) {
 					const key = this.keyFirstWord[keyFirstWordKey]
 					if (key.re.test(line)) {
@@ -231,7 +228,7 @@ export class icX {
 				}
 			}
 		}
-		let error = null;
+		let error  = null;
 		let result = null;
 		try {
 			const code = (this.structure?.compile() ?? "") + "\n"
@@ -253,7 +250,7 @@ export class icX {
 					txt += "j 0\n"
 				}
 			}
-			txt = txt
+			txt    = txt
 				.split("\n")
 				.map((str) => {
 					return str.trim()
@@ -267,13 +264,13 @@ export class icX {
 		}
 
 		return {
-			vars: vars,
-			ifs: ifs,
-			whiles: whiles,
+			vars     : vars,
+			ifs      : ifs,
+			whiles   : whiles,
 			functions: functions,
-			use: use,
-			error: error,
-			result: result,
+			use      : use,
+			error    : error,
+			result   : result,
 		}
 	}
 

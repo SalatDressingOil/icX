@@ -1,4 +1,4 @@
-import {Err, Errors} from "./src/err";
+import {Err, Errors}                          from "./src/err";
 import {CompileExpectedTest, ResultContainer} from "./tests/tests";
 
 const testCases = [
@@ -37,12 +37,12 @@ var testsErrors = new Errors;
 try {
 	testCases.forEach(function (testCase) {
 		let tr: ResultContainer = new CompileExpectedTest(testCase.icX, testCase.ic10, testCase.skip).test();
-		let text = tr.result
-			? {color: '\x1b[32m', text: getLog(tr.result, tr.name)}
-			: {color: '\x1b[31m', text: getLog(tr.result, tr.name, tr.current, tr.expected)}
+		let text                = tr.result
+								  ? {color: '\x1b[32m', text: getLog(tr.result, tr.name)}
+								  : {color: '\x1b[31m', text: getLog(tr.result, tr.name, tr.current, tr.expected)}
 		if (testCase.skip !== undefined && !testCase.skip) {
 			if (!tr.result) {
-				var e = new Err(600)
+				var e     = new Err(600)
 				e.message = text.text
 				testsErrors.push(e)
 			}
@@ -55,14 +55,14 @@ try {
 		if (e instanceof Err) {
 			testsErrors.push(e)
 		} else {
-			a = new Err(600)
+			a         = new Err(600)
 			// @ts-ignore
 			a.message = e.getUserMessage()
 			testsErrors.push(a)
 		}
 		console.error(e.getUserMessage())
 	} else {
-		a = new Err(600)
+		a         = new Err(600)
 		a.message = e
 		testsErrors.push(a)
 		console.error(e)
