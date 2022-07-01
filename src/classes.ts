@@ -517,7 +517,7 @@ export class icXBlock extends icXElem { //блок инструкций
 					case '=>':
 					case 'dse':
 						const dn = vars.get(this.rule[1])
-						if (!regexes.rr1.test(dn)) {
+						if (!regexes.dr1.test(dn)) {
 							throw new Err(208, this.originalPosition)
 						}
 						if (parseInt(this.rule[3]) === 0) {
@@ -695,7 +695,11 @@ export class icXVar extends icXElem {
 		const b = this.originalText.split('=');
 		if (1 in b) {
 			const reFn = /(\w+)\(([\w,]*)\)/;
-			if (reFn.test(b[1])) {
+			const rightString = this.command.args.join('')
+			const dots        = this.parseDots(rightString);
+			if (dots) {
+				txt += `${dots.fn} ${r} ${dots.op2} ${dots.op3} ${dots.op4 ?? ''}\n`
+			} else if (reFn.test(b[1])) {
 				const m = reFn.exec(b[1])
 				if (m) {
 					const func = m[1]
@@ -758,19 +762,14 @@ export class icXVar extends icXElem {
 					}
 				}
 			} else {
-				const rightString = this.command.args.join('')
-				const dots        = this.parseDots(rightString);
-				if (dots) {
-					txt += `${dots.fn} ${r} ${dots.op2} ${dots.op3} ${dots.op4 ?? ''}\n`
+				const math = this.parseMath(b[1], vars.get(r));
+				if (math !== false) {
+					txt += math
 				} else {
-					const math = this.parseMath(b[1], vars.get(r));
-					if (math !== false) {
-						txt += math
-					} else {
-						txt += `move ${r} ${b[1].trim()}\n`
-					}
+					txt += `move ${r} ${b[1].trim()}\n`
 				}
 			}
+
 		}
 		txt = this.addComment(txt)
 		return txt

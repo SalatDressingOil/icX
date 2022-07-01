@@ -10,7 +10,8 @@ const testCases = [
 	{icX: 'switch', ic10: 'switch', skip: false},
 	{icX: 'float', ic10: 'float', skip: false},
 	{icX: 'devices', ic10: 'devices', skip: false},
-	{icX: 'foreach', ic10: 'foreach', skip: false}
+	{icX: 'foreach', ic10: 'foreach', skip: false},
+	{icX: 'vanillaFunctions', ic10: 'vanillaFunctions', skip: false}
 ]
 
 let getLog = (result: boolean, name: string, current?: string, expected?: string) => {
@@ -32,7 +33,7 @@ let getLog = (result: boolean, name: string, current?: string, expected?: string
 	return text
 }
 
-var testsErrors = new Errors;
+const testsErrors = new Errors;
 
 try {
 	testCases.forEach(function (testCase) {
@@ -42,7 +43,7 @@ try {
 								  : {color: '\x1b[31m', text: getLog(tr.result, tr.name, tr.current, tr.expected)}
 		if (testCase.skip !== undefined && !testCase.skip) {
 			if (!tr.result) {
-				var e     = new Err(600)
+				const e   = new Err(600);
 				e.message = text.text
 				testsErrors.push(e)
 			}
@@ -50,7 +51,7 @@ try {
 		}
 	});
 } catch (e: Err | Errors | any) {
-	var a: Err;
+	let a: Err;
 	if (e instanceof Err || e instanceof Errors) {
 		if (e instanceof Err) {
 			testsErrors.push(e)
