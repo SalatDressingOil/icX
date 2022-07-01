@@ -1,8 +1,6 @@
 use aliases
 use constants
-var a
-if d3 isConnected 1
-	a = 9999999999
-else
-	a = 9888888888
-end
+var a = 1
+var b = 3
+
+var c = and(a,b)

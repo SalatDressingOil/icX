@@ -183,12 +183,78 @@ export class icXElem { //инструкция
 		if (re.test(this.originalText)) {
 			a = re.exec(this.originalText);
 			if (a == null) return null
-			const math = this.parseMath(a[3], vars.get(a[1]));
+			const reFn = /(\w+)\(([\w,]*)\)/;
+			const b    = this.originalText.split('=');
 			txt        = '';
-			if (math !== false) {
-				txt += math
+			if (reFn.test(b[1])) {
+				const m = reFn.exec(b[1])
+				if (m) {
+					const func = m[1]
+					const args = m[2].split(",")
+					switch (func) {
+						case 'select':
+						case 'move':
+						case 'add':
+						case 'sub':
+						case 'mul':
+						case 'div':
+						case 'mod':
+						case 'sqrt':
+						case 'round':
+						case 'trunc':
+						case 'ceil':
+						case 'floor':
+						case 'max':
+						case 'min':
+						case 'abs':
+						case 'log':
+						case 'exp':
+						case 'rand':
+						case 'sin':
+						case 'cos':
+						case 'tan':
+						case 'asin':
+						case 'acos':
+						case 'atan':
+						case 'slt':
+						case 'sltz':
+						case 'sgt':
+						case 'sgtz':
+						case 'sle':
+						case 'slez':
+						case 'sge':
+						case 'sgez':
+						case 'seq':
+						case 'seqz':
+						case 'sne':
+						case 'snez':
+						case 'sap':
+						case 'sapz':
+						case 'sna':
+						case 'snaz':
+						case 'sdse':
+						case 'sdns':
+						case 'and':
+						case 'or':
+						case 'xor':
+						case 'nor':
+							txt += `${func} ${vars.get(a[1])}`
+							for (const arg of args) {
+								txt += ` ${vars.get(arg)}`
+							}
+							txt += "\n"
+							break;
+						default:
+							throw new Err(504, this.originalPosition)
+					}
+				}
 			} else {
-				txt += `move ${vars.get(a[1])} ${vars.get(a[3])}\n`
+				const math = this.parseMath(a[3], vars.get(a[1]));
+				if (math !== false) {
+					txt += math
+				} else {
+					txt += `move ${vars.get(a[1])} ${vars.get(a[3])}\n`
+				}
 			}
 			return txt
 		}
@@ -625,22 +691,95 @@ export class icXVar extends icXElem {
 	}
 
 	compile(parent?: icXElem) {
-		var txt = ''
-		var a = this.command.args[0]
-		var r = vars.set(a)
-		var b = this.originalText.split('=')
+		let txt           = '';
+		const a           = this.command.args[0];
+		const r           = vars.set(a);
+		const b           = this.originalText.split('=');
+		let isOk: boolean = false;
 		if (1 in b) {
-			var dots = this.parseDots(this.command.args.join(''))
-			if (dots) {
-				txt += `${dots.fn} ${r} ${dots.op2} ${dots.op3} ${dots.op4 ?? ''}\n`
+			const reFn = /(\w+)\(([\w,]*)\)/;
+			if (reFn.test(b[1])) {
+				const m = reFn.exec(b[1])
+				if (m) {
+					isOk       = true;
+					const func = m[1]
+					const args = m[2].split(",")
+					switch (func) {
+						case 'select':
+						case 'move':
+						case 'add':
+						case 'sub':
+						case 'mul':
+						case 'div':
+						case 'mod':
+						case 'sqrt':
+						case 'round':
+						case 'trunc':
+						case 'ceil':
+						case 'floor':
+						case 'max':
+						case 'min':
+						case 'abs':
+						case 'log':
+						case 'exp':
+						case 'rand':
+						case 'sin':
+						case 'cos':
+						case 'tan':
+						case 'asin':
+						case 'acos':
+						case 'atan':
+						case 'slt':
+						case 'sltz':
+						case 'sgt':
+						case 'sgtz':
+						case 'sle':
+						case 'slez':
+						case 'sge':
+						case 'sgez':
+						case 'seq':
+						case 'seqz':
+						case 'sne':
+						case 'snez':
+						case 'sap':
+						case 'sapz':
+						case 'sna':
+						case 'snaz':
+						case 'sdse':
+						case 'sdns':
+						case 'and':
+						case 'or':
+						case 'xor':
+						case 'nor':
+							txt += `${func} ${r}`
+							for (const arg of args) {
+								txt += ` ${vars.get(arg)}`
+							}
+							txt += "\n"
+							break;
+						default:
+							throw new Err(504, this.originalPosition)
+					}
+				}
 			} else {
-				var math = this.parseMath(b[1], vars.get(r))
-				if (math !== false) {
-					txt += math
+				const rightString = this.command.args.join('')
+				const dots        = this.parseDots(rightString);
+				if (dots) {
+					txt += `${dots.fn} ${r} ${dots.op2} ${dots.op3} ${dots.op4 ?? ''}\n`
+					isOk = true;
 				} else {
-					txt += `move ${r} ${b[1].trim()}\n`
+					const math = this.parseMath(b[1], vars.get(r));
+					if (math !== false) {
+						txt += math
+					} else {
+						txt += `move ${r} ${b[1].trim()}\n`
+					}
+					isOk = true;
 				}
 			}
+		}
+		if (!isOk) {
+			throw new Err(503, this.originalPosition)
 		}
 		txt = this.addComment(txt)
 		return txt
@@ -688,9 +827,9 @@ export class icXAlias extends icXElem {
 	}
 
 	compile(parent?: icXElem) {
-		var op2 = this.originalText.split(/ +/)[2]
-		var op1 = this.originalText.split(/ +/)[1]
-		var txt = this.originalText
+		const op2 = this.originalText.split(/ +/)[2];
+		const op1 = this.originalText.split(/ +/)[1];
+		let txt   = this.originalText;
 		if (regexes.d1.test(op2)) {
 			txt = this.addComment(txt)
 			if (use.has("aliases")) {
@@ -701,7 +840,6 @@ export class icXAlias extends icXElem {
 			}
 		} else {
 			throw new Err(101, this.originalPosition)
-			return ''
 		}
 
 	}
