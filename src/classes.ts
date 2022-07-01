@@ -516,16 +516,15 @@ export class icXBlock extends icXElem { //блок инструкций
 						}
 						break;
 					case '=>':
-					case 'isConnected':
+					case 'dse':
 						const dn = vars.get(this.rule[1])
 						if (!regexes.d1.test(dn)) {
 							throw new Err(502, this.originalPosition)
 						}
-						const _dn = parseInt(dn.replace("d", ""))
 						if (parseInt(this.rule[3]) === 0) {
-							returns.push(`sdse ${v} ${_dn}`)
+							returns.push(`sdse ${v} ${dn}`)
 						} else {
-							returns.push(`sdns ${v} ${_dn}`)
+							returns.push(`sdns ${v} ${dn}`)
 						}
 						break;
 				}
