@@ -87,10 +87,8 @@ export class Errors {
 	public e: Err[] = []
 
 	isError() {
-		if (this.e.length > 0) {
-			return true
-		}
-		return false
+		return this.e.length > 0;
+
 	}
 
 	push(e: Err) {
@@ -98,7 +96,7 @@ export class Errors {
 	}
 
 	getUserMessage() {
-		var msg = ''
+		let msg = '';
 		for (const eKey in this.e) {
 			if (this.e[eKey] instanceof Err) {
 				msg += this.e[eKey].getUserMessage() + "\n"

@@ -11,7 +11,9 @@ const testCases = [
 	{icX: 'float', ic10: 'float', skip: false},
 	{icX: 'devices', ic10: 'devices', skip: false},
 	{icX: 'foreach', ic10: 'foreach', skip: false},
-	{icX: 'vanillaFunctions', ic10: 'vanillaFunctions', skip: false}
+	{icX: 'vanillaFunctions', ic10: 'vanillaFunctions', skip: false},
+	{icX: 'stack', ic10: 'stack', skip: false},
+	{icX: 'if', ic10: 'if', skip: false},
 ]
 
 let getLog = (result: boolean, name: string, current?: string, expected?: string) => {

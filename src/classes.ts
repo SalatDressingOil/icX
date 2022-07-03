@@ -443,7 +443,7 @@ export class icXBlock extends icXElem { //блок инструкций
 
 	parseRules() {
 		this.tempVars                        = [];
-		const re                             = /\b([.\d\w]+)\s*(<|==|>|<=|>=|\||!=|&|~=|=>|dse)\s*([\s.\d\w]+?\b)(,[\s.\d\w]+)*/i;
+		const re                             = /\b([.\d\w]+)\s*(<|==|>|<=|>=|\|!=|&&|\|\||~=|=>|dse)\s*([\s.\d\w]+?\b)(,[\s.\d\w]+)*/i;
 		const args                           = this.args.replace(/\s*/g, '')
 		const rules                          = args.split(/&&|\|\|/)
 		const returns                        = []
@@ -492,11 +492,9 @@ export class icXBlock extends icXElem { //блок инструкций
 							returns.push(`sge ${v} ${vars.get(this.rule[1])} ${vars.get(this.rule[3])}`)
 						}
 						break;
-					case '|':
 					case '||':
 						returns.push(`or ${v} ${vars.get(this.rule[1])} ${vars.get(this.rule[3])}`)
 						break;
-					case '&':
 					case '&&':
 						returns.push(`and ${v} ${vars.get(this.rule[1])} ${vars.get(this.rule[3])}`)
 						break;
@@ -937,7 +935,7 @@ export class icXStack extends icXElem {
 		const txt: Array<string> = [];
 		for (const argsKey in this.command.args) {
 			if (this.command.args.hasOwnProperty(argsKey)) {
-				txt.push(`push ${this.command.args[argsKey]}`)
+				txt.push(`push ${vars.get(this.command.args[argsKey])}`)
 			}
 
 		}
