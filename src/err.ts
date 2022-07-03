@@ -32,7 +32,7 @@ export class Err {
 	}
 
 	analyze() {
-		var c = 0
+		let c = 0;
 		if (this.code >= Err.other) {
 			c          = this.code - Err.other
 			this.group = 'Other'
@@ -56,12 +56,10 @@ export class Err {
 			case '1':
 			case '2':
 			case '3':
-				this.lvl = 'Fatal'
-				break;
 			case '4':
 			case '5':
 			case '6':
-				this.lvl = 'Warn'
+				this.lvl = 'Fatal'
 				break;
 			case '7':
 			case '8':
