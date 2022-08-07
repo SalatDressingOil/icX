@@ -329,7 +329,7 @@ export class icXElem { //инструкция
 					op3: a[4],
 				}
 			}
-			re = /\b([\w-]+)\s*(=)\s*d\(([\w-]+)\).([\w-]+)\(([\w-]+)\b/i
+			re = /\b([\w-]+)\s*(=)\s*d\(([\w-]+)\).([\w-]+)\(([\w-]+)\)/i
 			if (re.test(text)) {
 				a = re.exec(text);
 				if (a == null) return false
@@ -350,6 +350,17 @@ export class icXElem { //инструкция
 					op1: vars.get(a[1]),
 					op2: vars.get(a[2]),
 					op3: vars.get(a[4]),
+				}
+			}
+			re = /([\w-]+)\s*(=)\s*d\(([\w-]+)\)\.([\w\d]+)\(([\w-]+)\)/i
+			if (re.test(text)) {
+				a = re.exec(text);
+				if (a == null) return false
+				return {
+					fn : 'lb',
+					op1: vars.get(a[1]),
+					op2: vars.get(a[4]),
+					op3: vars.get(a[5]),
 				}
 			}
 		}
@@ -443,7 +454,7 @@ export class icXBlock extends icXElem { //блок инструкций
 
 	parseRules() {
 		this.tempVars                        = [];
-		const re                             = /\b([.\d\w]+)\s*(<|==|>|<=|>=|\|!=|&&|\|\||~=|=>|dse)\s*([\s.\d\w]+?\b)(,[\s.\d\w]+)*/i;
+		const re                             = /\b([.\d\w]+)\s*(<|==|>|<=|>=|\||!=|<>|&&|\|\||~=|=>|dse)\s*([\s.\d\w]+?\b)(,[\s.\d\w]+)*/i;
 		const args                           = this.args.replace(/\s*/g, '')
 		const rules                          = args.split(/&&|\|\|/)
 		const returns                        = []
@@ -505,6 +516,7 @@ export class icXBlock extends icXElem { //блок инструкций
 							returns.push(`sap ${v} ${vars.get(this.rule[1])} ${vars.get(this.rule[3])} ${vars.get(this.rule[4])}`)
 						}
 						break;
+					case '<>':
 					case '!=':
 						if (parseInt(this.rule[3]) === 0) {
 							returns.push(`snez ${v} ${vars.get(this.rule[1])}`)
@@ -525,6 +537,8 @@ export class icXBlock extends icXElem { //блок инструкций
 						}
 						break;
 				}
+			}else{
+				console.log('test')
 			}
 		}
 		if (this.tempVars.length > 1) {
