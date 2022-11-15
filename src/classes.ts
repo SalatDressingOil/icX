@@ -511,9 +511,9 @@ export class icXBlock extends icXElem { //блок инструкций
 						break;
 					case '~=':
 						if (parseInt(this.rule[3]) === 0) {
-							returns.push(`sapz ${v} ${vars.get(this.rule[1])} ${vars.get(this.rule[4])}`)
+							returns.push(`sapz ${v} ${vars.get(this.rule[1])} ${vars.get(this.rule[4])}`.replace(',',''))
 						} else {
-							returns.push(`sap ${v} ${vars.get(this.rule[1])} ${vars.get(this.rule[3])} ${vars.get(this.rule[4])}`)
+							returns.push(`sap ${v} ${vars.get(this.rule[1])} ${vars.get(this.rule[3])} ${vars.get(this.rule[4])}`.replace(',',''))
 						}
 						break;
 					case '<>':
