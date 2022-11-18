@@ -270,7 +270,7 @@ export class icXElem { //инструкция
 			if (this.originalText.trim().startsWith(functionList[functionListKey])) {
 				const args = this.originalText.trim().split(/\s+/);
 				for (const argsKey in args) {
-					if (parseInt(argsKey) > 0) {
+					if (parseFloat(argsKey) > 0) {
 						args[argsKey] = vars.get(args[argsKey])
 					}
 				}
@@ -454,7 +454,7 @@ export class icXBlock extends icXElem { //блок инструкций
 
 	parseRules() {
 		this.tempVars                        = [];
-		const re                             = /\b([.\d\w]+)\s*(<|==|>|<=|>=|\||!=|<>|&&|\|\||~=|=>|dse)\s*([\s.\d\w]+?\b)(,[\s.\d\w]+)*/i;
+		const re                             = /\b([.\d\w]+)\s*(<|==|>|<=|>=|\||!=|<>|&&|\|\||~=|=>|dse)\s*([.\d\w]+)\s*(,\s*[.\d\w]+)*/i;
 		const args                           = this.args.replace(/\s*/g, '')
 		const rules                          = args.split(/&&|\|\|/)
 		const returns                        = []
@@ -469,35 +469,35 @@ export class icXBlock extends icXElem { //блок инструкций
 				ifs[this.tempVars.length - 1] = args[o - 1] + args[o - 2];
 				switch (this.rule[2]) {
 					case '<':
-						if (parseInt(this.rule[3]) === 0) {
+						if (parseFloat(this.rule[3]) === 0) {
 							returns.push(`sltz ${v} ${vars.get(this.rule[1])}`)
 						} else {
 							returns.push(`slt ${v} ${vars.get(this.rule[1])} ${vars.get(this.rule[3])}`)
 						}
 						break;
 					case '==':
-						if (parseInt(this.rule[3]) === 0) {
+						if (parseFloat(this.rule[3]) === 0) {
 							returns.push(`seqz ${v} ${vars.get(this.rule[1])}`)
 						} else {
 							returns.push(`seq ${v} ${vars.get(this.rule[1])} ${vars.get(this.rule[3])}`)
 						}
 						break;
 					case '>':
-						if (parseInt(this.rule[3]) === 0) {
+						if (parseFloat(this.rule[3]) === 0) {
 							returns.push(`sgtz ${v} ${vars.get(this.rule[1])}`)
 						} else {
 							returns.push(`sgt ${v} ${vars.get(this.rule[1])} ${vars.get(this.rule[3])}`)
 						}
 						break;
 					case '<=':
-						if (parseInt(this.rule[3]) === 0) {
+						if (parseFloat(this.rule[3]) === 0) {
 							returns.push(`slez ${v} ${vars.get(this.rule[1])}`)
 						} else {
 							returns.push(`sle ${v} ${vars.get(this.rule[1])} ${vars.get(this.rule[3])}`)
 						}
 						break;
 					case '>=':
-						if (parseInt(this.rule[3]) === 0) {
+						if (parseFloat(this.rule[3]) === 0) {
 							returns.push(`sgez ${v} ${vars.get(this.rule[1])}`)
 						} else {
 							returns.push(`sge ${v} ${vars.get(this.rule[1])} ${vars.get(this.rule[3])}`)
@@ -510,7 +510,7 @@ export class icXBlock extends icXElem { //блок инструкций
 						returns.push(`and ${v} ${vars.get(this.rule[1])} ${vars.get(this.rule[3])}`)
 						break;
 					case '~=':
-						if (parseInt(this.rule[3]) === 0) {
+						if (parseFloat(this.rule[3]) === 0) {
 							returns.push(`sapz ${v} ${vars.get(this.rule[1])} ${vars.get(this.rule[4])}`.replace(',',''))
 						} else {
 							returns.push(`sap ${v} ${vars.get(this.rule[1])} ${vars.get(this.rule[3])} ${vars.get(this.rule[4])}`.replace(',',''))
@@ -518,7 +518,7 @@ export class icXBlock extends icXElem { //блок инструкций
 						break;
 					case '<>':
 					case '!=':
-						if (parseInt(this.rule[3]) === 0) {
+						if (parseFloat(this.rule[3]) === 0) {
 							returns.push(`snez ${v} ${vars.get(this.rule[1])}`)
 						} else {
 							returns.push(`sne ${v} ${vars.get(this.rule[1])} ${vars.get(this.rule[3])}`)
@@ -530,7 +530,7 @@ export class icXBlock extends icXElem { //блок инструкций
 						if (!regexes.dr1.test(dn)) {
 							throw new Err(208, this.originalPosition)
 						}
-						if (parseInt(this.rule[3]) === 0) {
+						if (parseFloat(this.rule[3]) === 0) {
 							returns.push(`sdse ${v} ${dn}`)
 						} else {
 							returns.push(`sdns ${v} ${dn}`)
@@ -544,7 +544,7 @@ export class icXBlock extends icXElem { //блок инструкций
 		if (this.tempVars.length > 1) {
 			this.tempVar = vars.getTemp()
 			for (let i in this.tempVars) {
-				const _i = parseInt(i);
+				const _i = parseFloat(i);
 				if (_i == 1) {
 					continue;
 				}
@@ -659,7 +659,7 @@ export class icXIf extends icXBlock {
 		txt.push(`${l}exit:`)
 		this.tempVar?.release()
 		for (const tv in this.tempVars) {
-			const t = parseInt(tv);
+			const t = parseFloat(tv);
 			this.tempVars[t].release()
 		}
 		return txt.join('\n') + '\n'
@@ -686,7 +686,7 @@ export class icXWhile extends icXBlock {
 		txt.push(`j ${this.l}`)
 		txt.push(`${this.l}exit:`)
 		for (const tv in this.tempVars) {
-			const t = parseInt(tv);
+			const t = parseFloat(tv);
 			this.tempVars[t].release()
 		}
 		return txt.join('\n') + '\n'
@@ -988,7 +988,7 @@ export class icXForeach extends icXBlock {
 		txt.push(`j ${this.l}`)
 		txt.push(`${this.l}exit:`)
 		for (const tv in this.tempVars) {
-			const t = parseInt(tv);
+			const t = parseFloat(tv);
 			this.tempVars[t].release()
 		}
 		return txt.join('\n') + '\n'
