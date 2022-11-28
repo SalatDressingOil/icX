@@ -171,6 +171,14 @@ export class icXElem { //инструкция
 	}
 
 	compile(parent?: icXElem): string | null {
+		const txt = this._compile(parent)
+		if(this.comment && use.has("comments") && !txt?.startsWith('#')){
+			return txt + " # " + this.comment;
+		}
+		return txt
+	}
+
+	_compile(parent?: icXElem): string | null {
 		let txt;
 		let a;
 		let re: RegExp;
