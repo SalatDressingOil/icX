@@ -129,11 +129,17 @@ export class icX {
 		for (let position: number = 0; position < this.lines.length; position++) {
 			if (this.commands.hasOwnProperty(position) && !this.commands[position].empty) {
 				const line = this.lines[position]
-				const c    = this.commands[position]
-				let r      = ''
+				let lineWithOutComment: string
+				if (line.split("!#").length > 1) {
+					lineWithOutComment = line.split("!#")[0]
+				} else {
+					lineWithOutComment = line.split("#")[0]
+				}
+				const c = this.commands[position]
+				let r   = ''
 				for (const keyFirstWordKey in this.keyFirstWord) {
 					const key = this.keyFirstWord[keyFirstWordKey]
-					if (key.re.test(line)) {
+					if (key.re.test(lineWithOutComment)) {
 						r = key.class
 						break;
 					}
