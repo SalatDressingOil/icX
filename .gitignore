@@ -86,5 +86,5 @@ package-lock.json
 tests/files/compile/*
 
 pnpm-lock.yaml
-
 .project-manager/
+!/jest.config.js

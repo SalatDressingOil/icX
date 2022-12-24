@@ -1,6 +1,8 @@
-import fs            from 'fs';
-import {Err, Errors} from "./src/err";
-import {icX}         from "./index";
+import fs              from 'fs';
+import {Err, Errors}   from "./src/err";
+import {icX}           from "./index";
+import InterpreterIc10 from "ic10/src/main";
+import {ic10Error}     from "ic10/src/ic10Error";
 
 try {
 	const text = fs.readFileSync('./tests/_.icX', 'utf8');
@@ -17,7 +19,21 @@ try {
 	const b: string | boolean = a.getCompiled();
 	console.log(b)
 	if (b) {
-		fs.writeFileSync('./tests/_.ic10', String(b));
+		const code = String(b)
+		fs.writeFileSync('./tests/_.ic10', code);
+		const settings          = {
+			debug: true,
+			debugCallback: function () {
+				console.log(...arguments)
+			},
+			logCallback: function () {
+				console.log(...arguments)
+			},
+			executionCallback: function (e: ic10Error) {
+			},
+		}
+		const interpreterIc10 = new InterpreterIc10(code, settings);
+		interpreterIc10.run()
 	}
 	// console.info(a.analyze())
 	// console.log(vars)

@@ -2,9 +2,9 @@ import {functions, ifs, use, variable, vars, whiles} from "./lists"
 import {Err, Errors}                                 from "./err"
 import {regexes}                                     from "../index";
 
-const functionList: string[] = require('./ic10.functions.json');
-
-const mathParser = require('@scicave/math-parser')
+const functionList: string[]  = require('./ic10.functions.json');
+const userFunctions: string[] = []
+const mathParser              = require('@scicave/math-parser')
 
 
 export class icXElem { //инструкция
@@ -172,7 +172,7 @@ export class icXElem { //инструкция
 
 	compile(parent?: icXElem): string | null {
 		const txt = this._compile(parent)
-		if(this.comment && use.has("comments") && !txt?.startsWith('#')){
+		if (this.comment && use.has("comments") && !txt?.startsWith('#')) {
 			return txt + " # " + this.comment;
 		}
 		return txt
@@ -519,9 +519,9 @@ export class icXBlock extends icXElem { //блок инструкций
 						break;
 					case '~=':
 						if (parseFloat(this.rule[3]) === 0) {
-							returns.push(`sapz ${v} ${vars.get(this.rule[1])} ${vars.get(this.rule[4])}`.replace(',',''))
+							returns.push(`sapz ${v} ${vars.get(this.rule[1])} ${vars.get(this.rule[4])}`.replace(',', ''))
 						} else {
-							returns.push(`sap ${v} ${vars.get(this.rule[1])} ${vars.get(this.rule[3])} ${vars.get(this.rule[4])}`.replace(',',''))
+							returns.push(`sap ${v} ${vars.get(this.rule[1])} ${vars.get(this.rule[3])} ${vars.get(this.rule[4])}`.replace(',', ''))
 						}
 						break;
 					case '<>':
@@ -545,7 +545,7 @@ export class icXBlock extends icXElem { //блок инструкций
 						}
 						break;
 				}
-			}else{
+			} else {
 				console.log('test')
 			}
 		}
@@ -610,6 +610,8 @@ export class icXBlock extends icXElem { //блок инструкций
 
 export class icXFunction extends icXBlock {
 	public name: string | null = null
+	public funcRegexp: RegExp  = /\b(function|def)\s+(\w+)\((.+)\)|\b(function|def)\s+(\w+)/i
+	public funcArgs: string[]  = [];
 
 	constructor(scope: icXElem | null, pos: number = 0, text: string = "") {
 		super(scope, pos, text)
@@ -618,8 +620,15 @@ export class icXFunction extends icXBlock {
 	}
 
 	setCommand(e: { command: string, args: string[], empty: boolean, comment: string }) {
-		super.setCommand(e)
-		this.name = e.args[0]
+		const a = this.funcRegexp.exec(this.originalText)
+		if (a === null) {
+			throw new Err(219, this.originalPosition);
+		}
+		this.name     = a[2]??a[5]
+		if(a[3]) {
+			this.funcArgs = a[3].split(',')
+		}
+		userFunctions.push(this.name)
 	}
 
 	compile(parent?: icXElem) {
@@ -714,7 +723,7 @@ export class icXVar extends icXElem {
 		const r = vars.set(a);
 		const b = this.originalText.split('=');
 		if (1 in b) {
-			const reFn = /(\w+)\(([\w,]*)\)/;
+			const reFn        = /(\w+)\(([\w,]*)\)/;
 			const rightString = this.command.args.join('')
 			const dots        = this.parseDots(rightString);
 			if (dots) {
