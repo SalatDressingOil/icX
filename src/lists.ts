@@ -1,11 +1,14 @@
 import {Err} from "./err"
 
+export type uses = 'aliases' | 'comments' | 'loop' | 'constants'|string|any
+
 export class variable {
 	temp: boolean
 	to: string
 	from: string
 	ready: boolean    = true
 	constant: boolean = false
+	defaultValue: any;
 
 	constructor(from: string, to: string, temp = false, constant = false) {
 		this.temp     = temp
@@ -32,7 +35,7 @@ export class variable {
 				return this.to
 			}
 		}
-		if (use.has("aliases") && this.temp === false && n) return this.from
+		if (use.has("aliases") && !this.temp && n) return this.from
 		else return this.to
 	}
 }
@@ -116,7 +119,7 @@ export class varsClass {
 	}
 
 	find(from: string): false | variable {
-		var found: boolean | variable = false
+		let found: boolean | variable = false;
 		this.aliases.forEach((variable) => {
 			if (from === variable.from)
 				found = variable
@@ -126,9 +129,9 @@ export class varsClass {
 
 	get(from: string | variable, n: boolean = true): string {
 		if (from instanceof variable) return from.toString()
-		var re = /d\[(\w+)\]/
+		const re = /d\[(\w+)\]/;
 		if (re.test(from)) {
-			var a = re.exec(from)
+			const a = re.exec(from);
 			if (a != null) {
 				return 'd' + this.get(a[1], false)
 			}
@@ -138,8 +141,8 @@ export class varsClass {
 		return find.toString(n)
 	}
 
-	getTemp() {
-		var found: undefined | variable
+	getTemp(): variable {
+		let found: undefined | variable;
 		this.temps.forEach(function (variable) {
 			if (variable.ready) {
 				found = variable
@@ -150,7 +153,7 @@ export class varsClass {
 
 	}
 
-	newTemp() {
+	private newTemp() {
 		const newTemp = new variable("", this.empty.pop() ?? "null", true)
 		this.temps.unshift(newTemp)
 		// console.log('46846514567432157984+98', this.temps)
@@ -158,7 +161,7 @@ export class varsClass {
 	}
 
 	getAliases() {
-		var txt = ''
+		let txt = '';
 		for (const aliasesKey in this.aliases) {
 			if (this.aliases[aliasesKey].temp == false && this.aliases[aliasesKey].constant == false) {
 				if (this.aliases[aliasesKey].from == 'sp' || this.aliases[aliasesKey].from == 'ra') {
@@ -171,9 +174,9 @@ export class varsClass {
 	}
 }
 
-const vars = new varsClass
+let vars = new varsClass
 export {vars}
-export const whiles: { count: number; reset: () => void; get: () => string }                                              = {
+export const whiles: { count: number; reset: () => void; get: () => string }                               = {
 	count: 0,
 	reset: function () {
 		this.count = 0
@@ -182,7 +185,7 @@ export const whiles: { count: number; reset: () => void; get: () => string }    
 		return 'while' + this.count++
 	}
 }
-export const ifs: { count: number; reset: () => void; get: () => string }                                                 = {
+export const ifs: { count: number; reset: () => void; get: () => string }                                  = {
 	count: 0,
 	reset: function () {
 		this.count = 0
@@ -192,7 +195,7 @@ export const ifs: { count: number; reset: () => void; get: () => string }       
 	}
 
 }
-export const functions: { fn: string[]; add: (str: string) => void; get: () => string; reset: () => void }                = {
+export const functions: { fn: string[]; add: (str: string) => void; get: () => string; reset: () => void } = {
 	fn   : [],
 	add  : function (str) {
 		this.fn.push(str)
@@ -204,18 +207,18 @@ export const functions: { fn: string[]; add: (str: string) => void; get: () => s
 		this.fn = []
 	}
 }
-export const use: { arg: Set<string>; add: (...str: string[]) => void; has: (str: string) => boolean; reset: () => void } = {
-	arg  : new Set(),
-	add  : function (str) {
+export const use                                                                                           = {
+	arg   : new Set(),
+	add   : function (str: uses) {
 		this.arg.add(str)
 	},
-	has  : function (str) {
-		if (this.arg.has(str) === false)
-			return false
-		else
-			return true
+	delete: function (str: uses) {
+		this.arg.delete(str)
 	},
-	reset: function () {
+	has   : function (str: uses) {
+		return this.arg.has(str);
+	},
+	reset : function () {
 		this.arg = new Set()
 	}
 }

@@ -1,11 +1,10 @@
-import {functions, ifs, use, variable, vars, whiles} from "./lists"
-import {Err, Errors}                                 from "./err"
-import {regexes}                                     from "../index";
+import {functions, ifs, use, uses, variable, vars, whiles} from "./lists"
+import {Err, Errors}                                       from "./err"
+import {regexes}                                           from "../index";
 
-const functionList: string[]  = require('./ic10.functions.json');
-const userFunctions: string[] = []
-const mathParser              = require('@scicave/math-parser')
-
+const functionList: string[]       = require('./ic10.functions.json');
+const userFunctions: icXFunction[] = []
+const mathParser                   = require('@scicave/math-parser')
 
 export class icXElem { //инструкция
 	public originalPosition: number
@@ -179,7 +178,7 @@ export class icXElem { //инструкция
 	}
 
 	_compile(parent?: icXElem): string | null {
-		let txt;
+		let txt: string ='';
 		let a;
 		let re: RegExp;
 		const dots = this.parseDots(this.originalText);
@@ -253,7 +252,7 @@ export class icXElem { //инструкция
 							txt += "\n"
 							break;
 						default:
-							throw new Err(206, this.originalPosition)
+							throw new Err(206, this.originalPosition,func)
 					}
 				}
 			} else {
@@ -266,11 +265,26 @@ export class icXElem { //инструкция
 			}
 			return txt
 		}
-		re = /\b([\w-]+)?\(\)/i
+		re = /\b([\w-]+)?\((.*)\)/i
 		if (re.test(this.originalText)) {
 			a = re.exec(this.originalText);
 			if (a == null) return null
-			txt = `jal ${a[1]}\n`;
+			const func = a[1]
+			if (a[2]) {
+				const args = a[2].split(',')
+				const fn   = userFunctions.find((item) => item.name === func)
+				if (!fn) {
+					throw new Err(206, this.originalPosition,func)
+				}
+				Object.entries(fn.tempArgs).forEach(([_, item], index) => {
+					if (args[index]) {
+						txt += `move ` + item.to + ` ` + vars.get(args[index])+"\n"
+					} else {
+						txt += `move ` + item.to + ` ` + item.defaultValue+"\n"
+					}
+				})
+			}
+			txt += `jal ${a[1]}\n`;
 			txt = this.addComment(txt)
 			return txt
 		}
@@ -609,9 +623,10 @@ export class icXBlock extends icXElem { //блок инструкций
 }
 
 export class icXFunction extends icXBlock {
-	public name: string | null = null
-	public funcRegexp: RegExp  = /\b(function|def)\s+(\w+)\((.+)\)|\b(function|def)\s+(\w+)/i
-	public funcArgs: string[]  = [];
+	public name: string | null                   = null
+	public funcRegexp: RegExp                    = /\b(function|def)\s+(\w+)\((.+)\)|\b(function|def)\s+(\w+)/i
+	public funcArgs: string[]                    = [];
+	public tempArgs: { [key: string]: variable } = {};
 
 	constructor(scope: icXElem | null, pos: number = 0, text: string = "") {
 		super(scope, pos, text)
@@ -624,22 +639,46 @@ export class icXFunction extends icXBlock {
 		if (a === null) {
 			throw new Err(219, this.originalPosition);
 		}
-		this.name     = a[2]??a[5]
-		if(a[3]) {
+		this.name = a[2] ?? a[5]
+		if (a[3]) {
+			a[3]          = a[3].replace(/\s+/g, '')
 			this.funcArgs = a[3].split(',')
 		}
-		userFunctions.push(this.name)
 	}
 
 	compile(parent?: icXElem) {
-		let txt = `${this.name}:\n`;
+		userFunctions.push(this)
+		let DISABLE_ALIASES = false;
+		let txt             = `${this.name}:\n`;
 		if (use.has("comments") && this.comment) {
 			txt = txt.replace("\n", '') + ' # ' + this.comment + "\n"
 		}
+		const OldAliases = [...vars.aliases]
+		vars.aliases     = []
+		if (this.funcArgs.length) {
+			if (!use.has('aliases')) {
+				DISABLE_ALIASES = true;
+				use.add('aliases')
+			}
+			this.funcArgs.forEach((item, index) => {
+				const [name, defaultValue]        = item.split('=')
+				this.tempArgs[index]              = vars.getTemp()
+				this.tempArgs[index].from         = name
+				this.tempArgs[index].defaultValue = defaultValue
+				txt += `alias ${name} ` + this.tempArgs[index].toString(false) + "\n"
+				vars.aliases.push()
+			})
+		}
 		txt += super.compile(this)
 		txt += 'j ra\n'
-
 		functions.add(txt)
+		vars.aliases = OldAliases
+		Object.entries(this.tempArgs).forEach(([name, variable]) => {
+			variable.ready = false
+		})
+		if (DISABLE_ALIASES) {
+			use.delete('aliases')
+		}
 		return ''
 	}
 }
@@ -787,7 +826,7 @@ export class icXVar extends icXElem {
 							txt += "\n"
 							break;
 						default:
-							throw new Err(206, this.originalPosition)
+							throw new Err(206, this.originalPosition,func)
 					}
 				}
 			} else {
@@ -882,7 +921,9 @@ export class icXUse extends icXElem {
 	}
 
 	compile(parent?: icXElem): "" {
-		use.add(...this.command.args)
+		this.command.args.forEach((item) => {
+			use.add(item as uses)
+		})
 		return ""
 	}
 }

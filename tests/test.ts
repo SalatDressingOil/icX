@@ -21,8 +21,10 @@ describe('test', () => {
 		const ic   = new icX(test)
 		const code = ic.getCompiled()
 		expect(code).toBe(exp)
-		const interpreterIc10 = new InterpreterIc10(code,settings)
-		interpreterIc10.run()
+		const interpreterIc10 = new InterpreterIc10(code, settings)
+		for (let i = 0; i < code.split("\n").length; i++) {
+			interpreterIc10.prepareLine()
+		}
 	});
 
 	test('devices', () => {
@@ -31,8 +33,10 @@ describe('test', () => {
 		const ic   = new icX(test)
 		const code = ic.getCompiled()
 		expect(code).toBe(exp)
-		const interpreterIc10 = new InterpreterIc10(code,settings)
-		interpreterIc10.run()
+		const interpreterIc10 = new InterpreterIc10(code, settings)
+		for (let i = 0; i < code.split("\n").length; i++) {
+			interpreterIc10.prepareLine()
+		}
 	});
 
 	test('example', () => {
@@ -41,8 +45,10 @@ describe('test', () => {
 		const ic   = new icX(test)
 		const code = ic.getCompiled()
 		expect(code).toBe(exp)
-		const interpreterIc10 = new InterpreterIc10(code,settings)
-		interpreterIc10.run()
+		const interpreterIc10 = new InterpreterIc10(code, settings)
+		for (let i = 0; i < code.split("\n").length; i++) {
+			interpreterIc10.prepareLine()
+		}
 	});
 
 	test('float', () => {
@@ -51,8 +57,10 @@ describe('test', () => {
 		const ic   = new icX(test)
 		const code = ic.getCompiled()
 		expect(code).toBe(exp)
-		const interpreterIc10 = new InterpreterIc10(code,settings)
-		interpreterIc10.run()
+		const interpreterIc10 = new InterpreterIc10(code, settings)
+		for (let i = 0; i < code.split("\n").length; i++) {
+			interpreterIc10.prepareLine()
+		}
 	});
 
 	test('foreach', () => {
@@ -61,8 +69,10 @@ describe('test', () => {
 		const ic   = new icX(test)
 		const code = ic.getCompiled()
 		expect(code).toBe(exp)
-		const interpreterIc10 = new InterpreterIc10(code,settings)
-		interpreterIc10.run()
+		const interpreterIc10 = new InterpreterIc10(code, settings)
+		for (let i = 0; i < code.split("\n").length; i++) {
+			interpreterIc10.prepareLine()
+		}
 	});
 
 	test('if', () => {
@@ -71,8 +81,10 @@ describe('test', () => {
 		const ic   = new icX(test)
 		const code = ic.getCompiled()
 		expect(code).toBe(exp)
-		const interpreterIc10 = new InterpreterIc10(code,settings)
-		interpreterIc10.run()
+		const interpreterIc10 = new InterpreterIc10(code, settings)
+		for (let i = 0; i < code.split("\n").length; i++) {
+			interpreterIc10.prepareLine()
+		}
 	});
 
 	test('stack', () => {
@@ -81,8 +93,10 @@ describe('test', () => {
 		const ic   = new icX(test)
 		const code = ic.getCompiled()
 		expect(code).toBe(exp)
-		const interpreterIc10 = new InterpreterIc10(code,settings)
-		interpreterIc10.run()
+		const interpreterIc10 = new InterpreterIc10(code, settings)
+		for (let i = 0; i < code.split("\n").length; i++) {
+			interpreterIc10.prepareLine()
+		}
 	});
 
 	test('switch', () => {
@@ -91,8 +105,10 @@ describe('test', () => {
 		const ic   = new icX(test)
 		const code = ic.getCompiled()
 		expect(code).toBe(exp)
-		const interpreterIc10 = new InterpreterIc10(code,settings)
-		interpreterIc10.run()
+		const interpreterIc10 = new InterpreterIc10(code, settings)
+		for (let i = 0; i < code.split("\n").length; i++) {
+			interpreterIc10.prepareLine()
+		}
 	});
 
 	test('useCommentsFalse', () => {
@@ -101,8 +117,10 @@ describe('test', () => {
 		const ic   = new icX(test)
 		const code = ic.getCompiled()
 		expect(code).toBe(exp)
-		const interpreterIc10 = new InterpreterIc10(code,settings)
-		interpreterIc10.run()
+		const interpreterIc10 = new InterpreterIc10(code, settings)
+		for (let i = 0; i < code.split("\n").length; i++) {
+			interpreterIc10.prepareLine()
+		}
 	});
 
 	test('useCommentsTrue', () => {
@@ -111,8 +129,10 @@ describe('test', () => {
 		const ic   = new icX(test)
 		const code = ic.getCompiled()
 		expect(code).toBe(exp)
-		const interpreterIc10 = new InterpreterIc10(code,settings)
-		interpreterIc10.run()
+		const interpreterIc10 = new InterpreterIc10(code, settings)
+		for (let i = 0; i < code.split("\n").length; i++) {
+			interpreterIc10.prepareLine()
+		}
 	});
 
 	test('vanillaFunctions', () => {
@@ -121,17 +141,20 @@ describe('test', () => {
 		const ic   = new icX(test)
 		const code = ic.getCompiled()
 		expect(code).toBe(exp)
-		const interpreterIc10 = new InterpreterIc10(code,settings)
-		interpreterIc10.run()
+		const interpreterIc10 = new InterpreterIc10(code, settings)
+		for (let i = 0; i < code.split("\n").length; i++) {
+			interpreterIc10.prepareLine()
+		}
 	});
 
-	// test('userFunctions', () => {
-	// 	const test = fs.readFileSync(__dirname + `/files/userFunctions.icX`, 'utf8');
-	// 	const exp  = fs.readFileSync(__dirname + `/files/compile/_userFunctions.ic10`, 'utf8');
-	// 	const ic   = new icX(test)
-	// 	const code = ic.getCompiled()
-	// 	expect(code).toBe(exp)
-	// 	const interpreterIc10 = new InterpreterIc10(code,settings)
-	// 	interpreterIc10.run()
-	// });
+	test('userFunctions', () => {
+		const test = fs.readFileSync(__dirname + `/files/userFunctions.icX`, 'utf8');
+		const exp  = fs.readFileSync(__dirname + `/files/compile/_userFunctions.ic10`, 'utf8');
+		const ic   = new icX(test)
+		const code = ic.getCompiled()
+		expect(code).toBe(exp)
+		const interpreterIc10 = new InterpreterIc10(code, settings)
+		while (interpreterIc10.prepareLine() === true){}
+		expect(interpreterIc10.memory.environ.d0.properties.Setting).toBe(5)
+	});
 });

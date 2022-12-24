@@ -12,7 +12,7 @@ export const ErrorCodes: { [errorCode: number]: string } = Object.freeze(
 		209: "Other error in constant declaration",
 		208: "Invalid device",
 		207: "Invalid right part",
-		206: "Unknown function",
+		206: "Unknown function {0}",
 
 
 		901: "Iternal constant use variable",
