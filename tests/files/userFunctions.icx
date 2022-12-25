@@ -1,6 +1,6 @@
 use comments
-var a = 5
-const b = 15
+var x = 5
+const y = 15
 
 if a < 5
 	d0.Setting =0
@@ -13,7 +13,7 @@ end
 
 
 
-update(80,b)
+update(80,y)
 
 function update2(b, c =0)
 	d0.Setting = b
@@ -22,6 +22,6 @@ end
 
 
 
-update2(a)
+update2(x)
 
 

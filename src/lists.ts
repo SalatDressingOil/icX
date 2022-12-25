@@ -83,10 +83,10 @@ export class varsClass {
 		var result
 		if (!/^[a-zA-Z_]\w*/.test(from))
 			//TODO             ↓
-			throw new Err(205, 0, from)
+			throw new Err(205, 0, from,'')
 		if (this.exists(from))
 			//TODO             ↓
-			throw new Err(204, 0, from)
+			throw new Err(204, 0, from,'')
 		else
 			result = new variable(from, this.empty.shift() ?? "null", temp)
 		this.aliases.push(result)
@@ -103,10 +103,10 @@ export class varsClass {
 		var result
 		if (!/^[a-zA-Z_]\w*/.test(from))
 			//TODO             ↓
-			throw new Err(205, 0, from)
+			throw new Err(205, 0, from,'')
 		if (this.exists(from))
 			//TODO             ↓
-			throw new Err(204, 0, from)
+			throw new Err(204, 0, from,'')
 		else
 			result = new variable(from, String(to), temp, constant)
 		this.aliases.push(result)

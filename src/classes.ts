@@ -32,7 +32,7 @@ export class icXElem { //инструкция
 				const a0 = this.convert(r.args[0], null, originalPosition, settings);
 				const a1 = this.convert(r.args[1], null, originalPosition, settings);
 				if (a0 == Infinity || a0 == -Infinity || a1 == Infinity || a1 == -Infinity) {
-					throw new Err(401, originalPosition)
+					throw new Err(401, originalPosition,'')
 				}
 				let temp: string | variable;
 				if (result !== null) {
@@ -50,12 +50,12 @@ export class icXElem { //инструкция
 						case '*':
 							return +a0 * +a1
 						case '/':
-							if (+a1 === 0) throw new Err(402, originalPosition)
+							if (+a1 === 0) throw new Err(402, originalPosition,'')
 							return +a0 / +a1
 						case '^':
 							return Math.pow(+a0, +a1)
 						case '%':
-							if (+a1 === 0) throw new Err(403, originalPosition)
+							if (+a1 === 0) throw new Err(403, originalPosition,'')
 							return +a0 % +a1
 					}
 					return 0
@@ -71,11 +71,11 @@ export class icXElem { //инструкция
 							this.txt.push(["mul", temp, a0, a1])
 							break
 						case '/':
-							if (+a1 === 0) throw new Err(402, originalPosition)
+							if (+a1 === 0) throw new Err(402, originalPosition,'')
 							this.txt.push(["div", temp, a0, a1])
 							break
 						case '%':
-							if (+a1 === 0) throw new Err(403, originalPosition)
+							if (+a1 === 0) throw new Err(403, originalPosition,'')
 							this.txt.push(["mod", temp, a0, a1])
 							break
 					}
@@ -669,7 +669,11 @@ export class icXFunction extends icXBlock {
 				use.add('aliases')
 			}
 			this.funcArgs.forEach((item, index) => {
-				const [name, defaultValue]        = item.split('=')
+				const [name, defaultValue] = item.split('=')
+				const exist                = OldAliases.find(value => value.from === name)
+				if (exist) {
+					throw new Err(211, this.originalPosition, this.name || '')
+				}
 				this.tempArgs[index]              = vars.getTemp()
 				this.tempArgs[index].from         = name
 				this.tempArgs[index].defaultValue = defaultValue
