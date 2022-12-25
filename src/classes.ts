@@ -178,10 +178,10 @@ export class icXElem { //инструкция
 	}
 
 	_compile(parent?: icXElem): string | null {
-		let txt: string ='';
+		let txt: string = '';
 		let a;
 		let re: RegExp;
-		const dots = this.parseDots(this.originalText);
+		const dots      = this.parseDots(this.originalText);
 		if (dots !== false) {
 			return `${dots.fn} ${dots.op1} ${dots.op2} ${dots.op3} ${dots.op4 ?? ''}`
 		}
@@ -190,7 +190,7 @@ export class icXElem { //инструкция
 		if (re.test(this.originalText)) {
 			a = re.exec(this.originalText);
 			if (a == null) return null
-			const reFn = /(\w+)\(([\w,]*)\)/;
+			const reFn = /(\w+)\(([\w\s,]*)\)/;
 			const b    = this.originalText.split('=');
 			txt        = '';
 			if (reFn.test(b[1])) {
@@ -252,7 +252,7 @@ export class icXElem { //инструкция
 							txt += "\n"
 							break;
 						default:
-							throw new Err(206, this.originalPosition,func)
+							throw new Err(206, this.originalPosition, func)
 					}
 				}
 			} else {
@@ -274,13 +274,20 @@ export class icXElem { //инструкция
 				const args = a[2].split(',')
 				const fn   = userFunctions.find((item) => item.name === func)
 				if (!fn) {
-					throw new Err(206, this.originalPosition,func)
+					throw new Err(206, this.originalPosition, func)
 				}
 				Object.entries(fn.tempArgs).forEach(([_, item], index) => {
 					if (args[index]) {
-						txt += `move ` + item.to + ` ` + vars.get(args[index])+"\n"
+						const v = vars.find(args[index])
+						if (v) {
+							txt += `move ${item.to} ${v.to}\n`
+						} else if (!isNaN(+args[index])) {
+							txt += `move ${item.to} ${args[index]}\n`
+						} else {
+							txt += `move ${item.to} ${item.defaultValue} \n`
+						}
 					} else {
-						txt += `move ` + item.to + ` ` + item.defaultValue+"\n"
+						txt += `move ${item.to} ${item.defaultValue} \n`
 					}
 				})
 			}
@@ -627,6 +634,7 @@ export class icXFunction extends icXBlock {
 	public funcRegexp: RegExp                    = /\b(function|def)\s+(\w+)\((.+)\)|\b(function|def)\s+(\w+)/i
 	public funcArgs: string[]                    = [];
 	public tempArgs: { [key: string]: variable } = {};
+	public returnVariable?: variable
 
 	constructor(scope: icXElem | null, pos: number = 0, text: string = "") {
 		super(scope, pos, text)
@@ -669,7 +677,11 @@ export class icXFunction extends icXBlock {
 				vars.aliases.push()
 			})
 		}
-		txt += super.compile(this)
+		const block = super.compile(this)
+		vars.aliases.forEach((alias) => {
+			txt += `alias ${alias.from} ${alias.to}\n`
+		})
+		txt += block
 		txt += 'j ra\n'
 		functions.add(txt)
 		vars.aliases = OldAliases
@@ -762,7 +774,7 @@ export class icXVar extends icXElem {
 		const r = vars.set(a);
 		const b = this.originalText.split('=');
 		if (1 in b) {
-			const reFn        = /(\w+)\(([\w,]*)\)/;
+			const reFn        = /(\w+)\(([\w\s,]*)\)/;
 			const rightString = this.command.args.join('')
 			const dots        = this.parseDots(rightString);
 			if (dots) {
@@ -826,7 +838,29 @@ export class icXVar extends icXElem {
 							txt += "\n"
 							break;
 						default:
-							throw new Err(206, this.originalPosition,func)
+							const fn = userFunctions.find((f) => f.name === func)
+							if (!fn) {
+								throw new Err(206, this.originalPosition, func)
+							}
+							Object.entries(fn.tempArgs).forEach(([_, item], index) => {
+								if (args[index]) {
+									const v = vars.find(args[index].trim())
+									if (v) {
+										txt += `move ${item.to} ${v.to}\n`
+									} else if (!isNaN(+args[index])) {
+										txt += `move ${item.to} ${args[index]}\n`
+									} else {
+										txt += `move ${item.to} ${item.defaultValue} \n`
+									}
+								} else {
+									txt += `move ${item.to} ${item.defaultValue} \n`
+								}
+							})
+							txt += `jal ${fn.name}\n`;
+							if (fn.returnVariable) {
+								txt += `move ${r} ${fn.returnVariable.toString()}\n`
+							}
+							break;
 					}
 				}
 			} else {
@@ -1050,5 +1084,20 @@ export class icXForeach extends icXBlock {
 			this.tempVars[t].release()
 		}
 		return txt.join('\n') + '\n'
+	}
+}
+
+export class icXReturn extends icXElem {
+	constructor(scope: icXElem | null, pos: number = 0, text: string = "") {
+		super(scope, pos, text)
+		this.re.push(/\breturn\b/i)
+	}
+
+	compile(parent?: icXElem) {
+		if (parent && parent instanceof icXFunction) {
+			parent.returnVariable = vars.find(this.args) || undefined
+			return ''
+		}
+		throw new Err(210, this.originalPosition)
 	}
 }

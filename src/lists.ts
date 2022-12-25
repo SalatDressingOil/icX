@@ -1,6 +1,6 @@
 import {Err} from "./err"
 
-export type uses = 'aliases' | 'comments' | 'loop' | 'constants'|string|any
+export type uses = 'aliases' | 'comments' | 'loop' | 'constants' | string | any
 
 export class variable {
 	temp: boolean
@@ -65,12 +65,16 @@ export class varsClass {
 	}
 
 	reset() {
-		this.temps   = []
-		this.aliases = []
-		this.empty   = []
+		this.temps = []
+		this.empty = []
 		for (let i = 0; i <= 15; i++) {
 			this.empty.push("r" + i)
 		}
+		this.resetAliases()
+	}
+
+	resetAliases() {
+		this.aliases = []
 		this.aliases.push(new variable('sp', 'r16'))
 		this.aliases.push(new variable('ra', 'r17'))
 	}

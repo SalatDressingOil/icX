@@ -13,6 +13,7 @@ export const ErrorCodes: { [errorCode: number]: string } = Object.freeze(
 		208: "Invalid device",
 		207: "Invalid right part",
 		206: "Unknown function {0}",
+		210: "return is not inside the function",
 
 
 		901: "Iternal constant use variable",
