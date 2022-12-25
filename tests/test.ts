@@ -155,6 +155,6 @@ describe('test', () => {
 		expect(code).toBe(exp)
 		const interpreterIc10 = new InterpreterIc10(code, settings)
 		while (interpreterIc10.prepareLine() === true){}
-		expect(interpreterIc10.memory.environ.d0.properties.Setting).toBe(5)
+		expect(interpreterIc10.memory.environ.d0.properties.Setting).toBe(80)
 	});
 });

@@ -15,13 +15,13 @@ end
 
 update(80,y)
 
-function update2(b, c =0)
-	d0.Setting = b
-	d0.Vertical = a
+function pifagor(b, c =10)
+	var a = (b*b) + (c*c)
+	return a
 end
 
 
 
-update2(x)
+var result = pifagor(x)
 
 
