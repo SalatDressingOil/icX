@@ -157,4 +157,14 @@ describe('test', () => {
 		while (interpreterIc10.prepareLine() === true){}
 		expect(interpreterIc10.memory.environ.d0.properties.Setting).toBe(80)
 	});
+
+	test('DeviceIndex', () => {
+		const test = fs.readFileSync(__dirname + `/files/DeviceIndex.icX`, 'utf8');
+		const exp  = fs.readFileSync(__dirname + `/files/compile/_DeviceIndex.ic10`, 'utf8');
+		const ic   = new icX(test)
+		const code = ic.getCompiled()
+		expect(code).toBe(exp)
+		const interpreterIc10 = new InterpreterIc10(code, settings)
+		while (interpreterIc10.prepareLine() === true){}
+	});
 });

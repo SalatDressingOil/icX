@@ -32,7 +32,7 @@ export class icXElem { //инструкция
 				const a0 = this.convert(r.args[0], null, originalPosition, settings);
 				const a1 = this.convert(r.args[1], null, originalPosition, settings);
 				if (a0 == Infinity || a0 == -Infinity || a1 == Infinity || a1 == -Infinity) {
-					throw new Err(401, originalPosition,'')
+					throw new Err(401, originalPosition, '')
 				}
 				let temp: string | variable;
 				if (result !== null) {
@@ -50,12 +50,12 @@ export class icXElem { //инструкция
 						case '*':
 							return +a0 * +a1
 						case '/':
-							if (+a1 === 0) throw new Err(402, originalPosition,'')
+							if (+a1 === 0) throw new Err(402, originalPosition, '')
 							return +a0 / +a1
 						case '^':
 							return Math.pow(+a0, +a1)
 						case '%':
-							if (+a1 === 0) throw new Err(403, originalPosition,'')
+							if (+a1 === 0) throw new Err(403, originalPosition, '')
 							return +a0 % +a1
 					}
 					return 0
@@ -71,11 +71,11 @@ export class icXElem { //инструкция
 							this.txt.push(["mul", temp, a0, a1])
 							break
 						case '/':
-							if (+a1 === 0) throw new Err(402, originalPosition,'')
+							if (+a1 === 0) throw new Err(402, originalPosition, '')
 							this.txt.push(["div", temp, a0, a1])
 							break
 						case '%':
-							if (+a1 === 0) throw new Err(403, originalPosition,'')
+							if (+a1 === 0) throw new Err(403, originalPosition, '')
 							this.txt.push(["mod", temp, a0, a1])
 							break
 					}
@@ -662,7 +662,6 @@ export class icXFunction extends icXBlock {
 			txt = txt.replace("\n", '') + ' # ' + this.comment + "\n"
 		}
 		const OldAliases = [...vars.aliases]
-		vars.aliases     = []
 		if (this.funcArgs.length) {
 			if (!use.has('aliases')) {
 				DISABLE_ALIASES = true;
@@ -678,12 +677,14 @@ export class icXFunction extends icXBlock {
 				this.tempArgs[index].from         = name
 				this.tempArgs[index].defaultValue = defaultValue
 				txt += `alias ${name} ` + this.tempArgs[index].toString(false) + "\n"
-				vars.aliases.push()
 			})
 		}
 		const block = super.compile(this)
 		vars.aliases.forEach((alias) => {
-			txt += `alias ${alias.from} ${alias.to}\n`
+			const exist = OldAliases.find((i) => i.from === alias.from || i.to === alias.to)
+			if (!exist) {
+				txt += `alias ${alias.from} ${alias.to}\n`
+			}
 		})
 		txt += block
 		txt += 'j ra\n'
