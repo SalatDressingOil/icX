@@ -1,17 +1,23 @@
 use comments
-use aliases
-use constants
-var x = 3
-const y = 4
+var x = 5
+const y = 15
 
-function farrago(a, b =10)
-	a = (b*b) + (a*a)
-	b = sqrt(a)
+function update(b, a =0)
+	d0.Setting = b
+	d0.Vertical = a
+end
+
+
+
+update(80,y)
+
+function pifagor(b, c =10)
+	b = (b*b) + (c*c)
 	return b
 end
 
-var result = farrago(x,y)
-debug result
 
-var result2 = farrago(9,6)
-debug result2
+
+var result = pifagor(x)
+
+
