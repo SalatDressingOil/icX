@@ -663,10 +663,6 @@ export class icXFunction extends icXBlock {
 		}
 		const OldAliases = [...vars.aliases]
 		if (this.funcArgs.length) {
-			if (!use.has('aliases')) {
-				DISABLE_ALIASES = true;
-				use.add('aliases')
-			}
 			this.funcArgs.forEach((item, index) => {
 				const [name, defaultValue] = item.split('=')
 				const exist                = OldAliases.find(value => value.from === name)
@@ -676,14 +672,16 @@ export class icXFunction extends icXBlock {
 				this.tempArgs[index]              = vars.getTemp()
 				this.tempArgs[index].from         = name
 				this.tempArgs[index].defaultValue = defaultValue
-				txt += `alias ${name} ` + this.tempArgs[index].toString(false) + "\n"
+				vars.aliases.push(this.tempArgs[index] )
 			})
 		}
 		const block = super.compile(this)
 		vars.aliases.forEach((alias) => {
 			const exist = OldAliases.find((i) => i.from === alias.from || i.to === alias.to)
 			if (!exist) {
-				txt += `alias ${alias.from} ${alias.to}\n`
+				if (use.has('aliases')) {
+					txt += `alias ${alias.from} ${alias.to}\n`
+				}
 			}
 		})
 		txt += block
@@ -693,9 +691,6 @@ export class icXFunction extends icXBlock {
 		Object.entries(this.tempArgs).forEach(([name, variable]) => {
 			variable.ready = false
 		})
-		if (DISABLE_ALIASES) {
-			use.delete('aliases')
-		}
 		return ''
 	}
 }

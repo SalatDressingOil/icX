@@ -3,6 +3,7 @@ import {Err, Errors}   from "./src/err";
 import {icX}           from "./index";
 import InterpreterIc10 from "ic10/src/main";
 import {ic10Error}     from "ic10/src/ic10Error";
+import chalk           from "chalk";
 
 try {
 	const text = fs.readFileSync('./tests/_.icX', 'utf8');
@@ -24,12 +25,13 @@ try {
 		const settings          = {
 			debug: true,
 			debugCallback: function () {
-				console.log(...arguments)
+				// console.log(...arguments)
 			},
 			logCallback: function () {
-				console.log(...arguments)
+				console.log(chalk.blue(arguments[0]),...arguments)
 			},
 			executionCallback: function (e: ic10Error) {
+				console.error(chalk.red(e.getMessage()),e.obj)
 			},
 		}
 		const interpreterIc10 = new InterpreterIc10(code, settings);

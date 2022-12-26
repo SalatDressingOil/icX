@@ -6,12 +6,11 @@ import {ic10Error}     from "ic10/src/ic10Error";
 const settings = {
 	debug            : true,
 	debugCallback    : function () {
-		console.log(...arguments)
 	},
 	logCallback      : function () {
-		console.log(...arguments)
 	},
 	executionCallback: function (e: ic10Error) {
+		throw e;
 	},
 };
 describe('test', () => {

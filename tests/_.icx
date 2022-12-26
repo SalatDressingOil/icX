@@ -1,9 +1,17 @@
-var idx = 5
-tmp = d[idx].Temperature
+use comments
+use aliases
+use constants
+var x = 3
+const y = 4
 
-function main()
-	var idx2 = 4
-	tmp = d[idx2].Temperature
+function farrago(a, b =10)
+	a = (b*b) + (a*a)
+	b = sqrt(a)
+	return b
 end
 
-main()
+var result = farrago(x,y)
+debug result
+
+var result2 = farrago(9,6)
+debug result2

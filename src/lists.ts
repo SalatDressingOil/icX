@@ -83,10 +83,10 @@ export class varsClass {
 		var result
 		if (!/^[a-zA-Z_]\w*/.test(from))
 			//TODO             ↓
-			throw new Err(205, 0, from,'')
+			throw new Err(205, 0, from, '')
 		if (this.exists(from))
 			//TODO             ↓
-			throw new Err(204, 0, from,'')
+			throw new Err(204, 0, from, '')
 		else
 			result = new variable(from, this.empty.shift() ?? "null", temp)
 		this.aliases.push(result)
@@ -100,13 +100,13 @@ export class varsClass {
 	}
 
 	setCustom(from: string, to: number | string, temp = false, constant = false) {
-		var result
+		let result;
 		if (!/^[a-zA-Z_]\w*/.test(from))
 			//TODO             ↓
-			throw new Err(205, 0, from,'')
+			throw new Err(205, 0, from, '')
 		if (this.exists(from))
 			//TODO             ↓
-			throw new Err(204, 0, from,'')
+			throw new Err(204, 0, from, '')
 		else
 			result = new variable(from, String(to), temp, constant)
 		this.aliases.push(result)
@@ -114,21 +114,23 @@ export class varsClass {
 	}
 
 	exists(from: string) {
-		var found = false
-		this.aliases.forEach((variable) => {
-			if (from === variable.from)
-				found = true
-		})
-		return found
+		let found: boolean | variable | undefined = false;
+
+		found = this.aliases.find((variable) => from === variable.from)
+		if (!found) {
+			found = this.temps.find((variable) => from === variable.from)
+		}
+		return !!found
 	}
 
 	find(from: string): false | variable {
-		let found: boolean | variable = false;
-		this.aliases.forEach((variable) => {
-			if (from === variable.from)
-				found = variable
-		})
-		return found
+		let found: boolean | variable | undefined = false;
+
+		found = this.aliases.find((variable) => from === variable.from)
+		if (!found) {
+			found = this.temps.find((variable) => from === variable.from)
+		}
+		return found || false
 	}
 
 	get(from: string | variable, n: boolean = true): string {
@@ -160,14 +162,13 @@ export class varsClass {
 	private newTemp() {
 		const newTemp = new variable("", this.empty.pop() ?? "null", true)
 		this.temps.unshift(newTemp)
-		// console.log('46846514567432157984+98', this.temps)
 		return newTemp
 	}
 
 	getAliases() {
 		let txt = '';
 		for (const aliasesKey in this.aliases) {
-			if (this.aliases[aliasesKey].temp == false && this.aliases[aliasesKey].constant == false) {
+			if (!this.aliases[aliasesKey].temp && !this.aliases[aliasesKey].constant) {
 				if (this.aliases[aliasesKey].from == 'sp' || this.aliases[aliasesKey].from == 'ra') {
 					continue
 				}
