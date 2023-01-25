@@ -157,6 +157,7 @@ describe('test', () => {
 		while (interpreterIc10.prepareLine() === true) {
 		}
 	});
+
 	test('pifagor', () => {
 		const test = fs.readFileSync(__dirname + `/files/pifagor.icX`, 'utf8');
 		const exp  = fs.readFileSync(__dirname + `/files/compile/_pifagor.ic10`, 'utf8');

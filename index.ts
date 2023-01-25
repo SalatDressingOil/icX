@@ -213,7 +213,7 @@ export class icX {
 				.map((str) => {
 					return str.trim()
 				}).filter((str) => {
-					if (!use.has("comments") && str.startsWith("#")) return false
+					if (!use.has("comments") && str.startsWith("#") && !str.includes("debug")) return false
 					else return str !== ""
 				}).join('\n')
 			return txt

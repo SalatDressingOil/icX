@@ -944,7 +944,7 @@ export class icXLog extends icXElem {
 	}
 
 	compile(parent?: icXElem) {
-		return `#log ${vars.get(this.args)}`
+		return `#debug ${vars.get(this.args)}`
 	}
 }
 
