@@ -831,7 +831,7 @@ export class icXVar extends icXElem {
 						case 'or':
 						case 'xor':
 						case 'nor':
-							txt += `${func} ${r}`
+							txt += `${func} ${vars.get(r)}`
 							for (const arg of args) {
 								txt += ` ${vars.get(arg)}`
 							}
