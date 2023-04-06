@@ -556,7 +556,7 @@ export class icXBlock extends icXElem { //блок инструкций
 					case '=>':
 					case 'dse':
 						const dn = vars.get(this.rule[1])
-						if (!regexes.dr1.test(dn)) {
+						if (!regexes.dr1.test(dn) && vars.find(dn) === false) {
 							throw new Err(208, this.originalPosition)
 						}
 						if (parseFloat(this.rule[3]) === 0) {

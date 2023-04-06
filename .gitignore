@@ -83,8 +83,7 @@ typings/
 tests/000.icX
 package-lock.json
 !tests/files/compile
-tests/files/compile/*
-
+!tests/files/compile/*
 pnpm-lock.yaml
 .project-manager/
 !/jest.config.js
