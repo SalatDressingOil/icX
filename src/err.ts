@@ -96,10 +96,10 @@ export class Errors {
 	getUserMessage() {
 		let msg = '';
 		for (const eKey in this.e) {
-			if (this.e[eKey] instanceof Err) {
+			if (this.e[eKey] instanceof Err || this.e[eKey] instanceof Errors) {
 				msg += this.e[eKey].getUserMessage() + "\n"
 			} else {
-				return this.e[eKey]
+				msg += JSON.stringify(this.e[eKey]) + "\n"
 			}
 		}
 		return msg;
