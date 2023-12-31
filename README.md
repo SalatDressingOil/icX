@@ -278,7 +278,7 @@ Use _use comments_ to transfer your comments to ic10 code
 #alias LedHorizontal d3
 var SOLAR_HASH = d1.PrefabHash
 
-var verical = 180
+var vertical = 180
 var horizontal = 180
 
 main:
@@ -288,12 +288,12 @@ main:
 j main
 
 function setSolarPanels
-    d(SOLAR_HASH).Vertical = verical
+    d(SOLAR_HASH).Vertical = vertical
     d(SOLAR_HASH).Horizontal = horizontal
 end
 
 function updateLED
-    d2.Setting = verical
+    d2.Setting = vertical
     d3.Setting = horizontal
 end
 ```

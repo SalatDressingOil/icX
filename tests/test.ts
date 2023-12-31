@@ -1,7 +1,7 @@
-import {icX}           from "../index";
-import fs              from "fs";
+import {icX} from "../index";
+import fs from "fs";
 import InterpreterIc10 from "ic10/src/main";
-import {ic10Error}     from "ic10/src/ic10Error";
+import {ic10Error} from "ic10/src/ic10Error";
 
 const settings = {
 	debug            : true,

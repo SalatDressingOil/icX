@@ -9,7 +9,7 @@ class icXIncrement extends icXElem {
 	}
 
 	compile() {
-		var a = /\b(\S+\b)\+\+/i.exec(this.originalText)
+		const a = /\b(\S+\b)\+\+/i.exec(this.originalText);
 		if (a === null) return null
 		return `add ${vars.get(a[1])} ${vars.get(a[1])} 1\n`
 	}
