@@ -87,4 +87,3 @@ package-lock.json
 pnpm-lock.yaml
 .project-manager/
 !/jest.config.js
-/.vs
