@@ -383,7 +383,7 @@ export class icXElem { //инструкция
                     op3: vars.get(a[4]),
                 }
 			}
-			re = /\bd\(([\w-]+)\s*,\s*(\"[\w\s-]+\"))\.([\w-\d]+)\s*=\s*([\w-]+)/i
+			re = /\bd\(([\w-]+)\s*,\s*(\"[\w\s-]+\")\)\.([\w-\d]+)\s*(=)\s*([\w-]+)/i
 			if (re.test(text)) {
 				a = re.exec(text);
 				if (a == null) return false
@@ -395,7 +395,7 @@ export class icXElem { //инструкция
 					op4: vars.get(a[5])
 				}
 			}
-			re = /([\w-]+)\s*(=)\s*d\(([\w-]+)\s*,\s*(\"[\w\s-]+\"))\.([\w-]+)\(([\w-]+)\)/i
+			re = /\b([\w-]+)\s*(=)\s*d\(([\w-]+)\s*,\s*(\"[\w\s-]+\")\).([\w-]+)\(([\w-]+)\)/i
 			if (re.test(text)) {
 				a = re.exec(text);
 				if (a == null) return false
